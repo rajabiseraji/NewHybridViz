@@ -5,6 +5,7 @@ using System.Linq;
 
 public class AdjacencyMatrix<T> {
 
+    // a 3D matrix override to hold the data for the adjacency
     T[,,] data;
     int size;
 
@@ -34,16 +35,20 @@ public class AdjacencyMatrix<T> {
     public List<T> SliceRow(int row, int depth)
     {
         // TODO: implement a fast method for slicing
+        // GetUpperBound(0): gets the last element of i axis (the first dimension of the matrix)
+        // TODO: We can just use a library for this can't we? 
         List<T> result = new List<T>();
-        for (int i = 0; i <= data.GetUpperBound(0); ++i)
+        for (int j = 0; j <= data.GetUpperBound(0); ++j)
         {
-            result.Add(data[row, i, depth]);
+            result.Add(data[row, j, depth]);
         }
         return result;
     }
 
     public void Resize(int newSize)
     {
+        // TODO: couldn't this be done more efficiently? 
+        // Q: How often does this run? 
         if (this.size < newSize)
         {
             var newArray = new T[newSize, newSize, newSize];

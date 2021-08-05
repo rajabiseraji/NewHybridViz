@@ -20,12 +20,17 @@ public class ImAxesRecognizer : MonoBehaviour
 
     List<Axis> A = new List<Axis>();
 
+    // Seems to be just to hold scatterplots
     public List<Visualization> SP = new List<Visualization>();
+    // Seesm to be for PCP visualizations
     List<Visualization> PCP = new List<Visualization>();
+
+    // TODO: I need to put something here for the linegraphs and all
 
     public List<Axis> usedAxisIn3DSP = new List<Axis>();
     public List<Axis> usedAxisIn2DSP = new List<Axis>();
 
+    // Q: What are these distances? 
     public float SP_DISTANCE = 0.05f;
     public float SP_DISTANCE_SQR = 0.05f * 0.05f;
     public float PCP_DISTANCE = 0.00001f;
@@ -33,12 +38,16 @@ public class ImAxesRecognizer : MonoBehaviour
 
     void Start()
     {
+        //  Get all the distances at the beginning
         adjacency = new AdjacencyMatrix<Visualization>(SceneManager.Instance.sceneAxes.Count);
         SceneManager.Instance.OnAxisAdded.AddListener(OnAxisAdded);
     }
 
+    //  This is the event listener for adding a new axis 
+    // The main event is back in the Scene manager script (the event is a public property of that)
     void OnAxisAdded(Axis axis)
     {
+        
         adjacency.Resize(SceneManager.Instance.sceneAxes.Count);
     }
 
