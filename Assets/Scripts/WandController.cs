@@ -36,6 +36,7 @@ public class WandController : MonoBehaviour
 
     public bool isOculusRift = false;
     //Debug test
+    // This is the game object that will be shown when brushing the data
     GameObject brushingPoint;
 
     Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
@@ -53,6 +54,8 @@ public class WandController : MonoBehaviour
 
     Collider brushableCollider;
 
+    // The objects that are being tracked in the code
+    // initially it's just a list of 10 (0, 0, 0) vectors
     List<Vector3> tracking = new List<Vector3>();
 
     //touch pad interaction
@@ -76,7 +79,9 @@ public class WandController : MonoBehaviour
     void Start()
     {
         if (!isOculusRift) controller = SteamVR_Controller.Input((int)trackedObject.index); 
-    
+
+        // this is the part that creates the brushing point 
+
         brushingPoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
 
@@ -152,6 +157,8 @@ public class WandController : MonoBehaviour
         
         #region details on demand
         //detail on demand actions
+        // this is the details on pressing the touch button
+        // TODO: change the way it's visualized, including its colors and all!
         if (VisualisationAttributes.detailsOnDemand)
         {
             if (padPressDown)
@@ -167,10 +174,12 @@ public class WandController : MonoBehaviour
                             brushingPoint.gameObject.SetActive(true);
 
                             currentDetailView = listCandidatesBrush3D[i];
+                            // The brushing point will be 10cm in front of the controller poisition
                             brushingPoint.transform.position = transform.position + transform.forward * 0.1f;
                             brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
                             if (currentDetailView.GetComponent<Visualization>() != null)
                             {
+                                // Q: what does the world to local point translation does here? 
                                 currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
                                     brushingPoint.transform.position, 
                                     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
@@ -183,6 +192,7 @@ public class WandController : MonoBehaviour
                         }
                     }
                 }
+                // This is for when the scatterplot is not close to the controller and being controlled by the raycast
                 if (!detail3Dscatterplots)
                 {
                     RaycastHit hit;
@@ -207,6 +217,8 @@ public class WandController : MonoBehaviour
                     }
                 }
             }
+            // Checks to see if we're done with pressing the touchbar
+            // TODO: fix the naming of this from Up to release or sth
             if (padPressUp)
             {
                 if (currentDetailView != null)
@@ -227,6 +239,8 @@ public class WandController : MonoBehaviour
 
     }
 
+    // this method gets active when another collider hits the controller
+    /* There's a list of intersecting grabbables for each controller, it sorts the grabbables based on the priority and then sets the first one as the active grabbable component */
     void OnTriggerEnter(Collider col)
     {
         if (draggingObjects.Count > 0)
