@@ -47,23 +47,32 @@ public class ImAxesRecognizer : MonoBehaviour
     // The main event is back in the Scene manager script (the event is a public property of that)
     void OnAxisAdded(Axis axis)
     {
-        
+        // When a new axis is added, the adjacency matrix is resized to get bigger, 
+        // If the matrix is already that big, it doens't get smaller 
+        // This could be a problem for when the whole thing gets too large (when the number of the points)
         adjacency.Resize(SceneManager.Instance.sceneAxes.Count);
     }
 
     //RULES SP =====================
-
-    //RSP1:     
+    // The rule set for the scatterplot interactions (?)
+    //RSP1: 
+    // are A and B in any way perpendicular?  
     bool RSP1(Axis a, Axis b)
     {
+        // Gets axis a and b and finds the distance between them 
+        // This is where you need to chang if you want to change the proximity rules of the Axes 
+        // IDEA: we can do it using the dot notation
         return (a.isPerependicular(b) &&
-                ((b.MinPosition - a.MaxPosition).sqrMagnitude < SP_DISTANCE_SQR
-                    || (b.MinPosition - a.MinPosition).sqrMagnitude < SP_DISTANCE_SQR
-                    || (b.MaxPosition - a.MaxPosition).sqrMagnitude < SP_DISTANCE_SQR));
+                ((b.MinPosition - a.MaxPosition).sqrMagnitude < SP_DISTANCE_SQR // 1) beg of B is at end of A
+                    || (b.MinPosition - a.MinPosition).sqrMagnitude < SP_DISTANCE_SQR // 2) beg of B is at beg of A
+                    || (b.MaxPosition - a.MaxPosition).sqrMagnitude < SP_DISTANCE_SQR)); // 3) end of B is at end of A
     }
 
+    // The same thing, checks the perperndicualrity for 3 axes
+    // If perpendicular and also adjacent, then do set the bool to true
     bool RSP1(Axis a, Axis b, Axis c)
     {
+        // IDEA: doing this using Unity's bool operations would be a lot more efficient! 
         return
             
            a.isPerependicular(b)
@@ -81,6 +90,8 @@ public class ImAxesRecognizer : MonoBehaviour
            ;
     }
 
+    // This is to determine if the adjacency and perpendicularity conditions still apply
+    // It's most useful for when a person grabs one of the axes in an existing visualization
     bool RSP1_Distance(Axis a, Axis b, Axis c)
     {
         return a.Distance(b) > SP_MIDPOINT_DISTANCE || a.Distance(c) > SP_MIDPOINT_DISTANCE
@@ -90,22 +101,29 @@ public class ImAxesRecognizer : MonoBehaviour
              ;
     }
 
+    // This is to determine if the adjacency and perpendicularity conditions still apply
+    // It's most useful for when a person grabs one of the axes in an existing visualization
     bool RSP1_Distance(Axis a, Axis b)
     {
-
         return a.Distance(b) > SP_MIDPOINT_DISTANCE || !a.isPerependicular(b) || a.IsParallel(b);
     }
+
+    /**
+    *****************Add any extra rules for Scatterplots here!******************** 
+    */
 
     //bool RSP2(Axis a, Axis b)
     //{
     //    return (Vector3.Distance(a.MinPosition, b.MaxPosition) < SP_DISTANCE && !a.IsParallel(b));
     //}
 
+    // Checks if the visualizations for the PCP are close enough
     bool RPCP1(Visualization a, Visualization b)
     {
         return (Vector3.Distance(a.transform.position, b.transform.position) < PCP_DISTANCE);
     }
 
+    // Checks if the visualizations for the PCP are NO LONGER CLOSE ENOUGH
     bool RPCP1_Distance(Visualization a, Visualization b)
     {
         if (a != null && b != null)
@@ -113,6 +131,8 @@ public class ImAxesRecognizer : MonoBehaviour
         else return false;
     }
 
+    // This basically does nothing! 
+    // TODO: check if it doesn't break something and then get rid of the code snippet
     List<Axis> findSplomArrangement(List<Axis> axes)
     {
         List<Axis> list = new List<Axis>();
@@ -122,6 +142,8 @@ public class ImAxesRecognizer : MonoBehaviour
         return list;
     }
 
+    // For showing misc stuff on the visualization on the screen. Basically for visual debugging! 
+    // for it be enabled, change the text to OnGUI()
     void OnGUII()
     {
         string SPs = "SPs: " + "\n";
@@ -142,6 +164,7 @@ public class ImAxesRecognizer : MonoBehaviour
         GUI.Label(new Rect(810, 10, 200, 2000), "nb of SPs:" + linkedVisualisations);
     }
 
+    // This runs at every frame update to parse the scene!
     void ParseScene_V2()
     {
         // get all the current axes

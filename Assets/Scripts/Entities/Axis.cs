@@ -334,12 +334,15 @@ public class Axis : MonoBehaviour, Grabbable {
         get { return _minPos; }
     }
 
+    // Sets the min and max point of each axis
+    // The length of an axis is 1 meters in unity world
     public void UpdateCoords()
     {
         _minPos = transform.TransformPoint(Vector3.down * 0.51f);
         _maxPos = transform.TransformPoint(Vector3.up * 0.51f);
     }
 
+    // Takes the distance from the midpoint (Unity posistion) of the axis to another axis
     public float Distance(Axis axes)
     {
         Vector3 pos_a = transform.position;
