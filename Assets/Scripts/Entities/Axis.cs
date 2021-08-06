@@ -17,13 +17,18 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public int axisId;
 
+    // Q: What is this for? 
+    // This is active when the axis is on the data shelf and has not been dragged to the main scene
     public bool isPrototype;
 
     //temporary hack 
 
+    // these values are used with the setInitOrigin in order to set the initial postiion and rotation of the axes
+    // This is mostly useful for setting the data inside the data panels
     Vector3 originPosition;
     Quaternion originRotation;
 
+    // These are the literal game objects for filtering that are there
     [SerializeField] Transform minFilterObject;
     [SerializeField] Transform maxFilterObject;
 
@@ -37,6 +42,7 @@ public class Axis : MonoBehaviour, Grabbable {
     [SerializeField] UnityEvent OnEntered;
     [SerializeField] UnityEvent OnExited;
 
+    // Q: What is this for? 
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
     public float MinFilter;
@@ -45,6 +51,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public float MinNormaliser;
     public float MaxNormaliser;
 
+    // this gets true while grabbing the object 
     public bool isDirty;
 
     public bool isInSplom;
@@ -52,6 +59,7 @@ public class Axis : MonoBehaviour, Grabbable {
     bool isTweening;
     public int SourceIndex = -1;
 
+    // Here's the filteing event system that handles the filtering process
     public class FilterEvent : UnityEvent<float, float> { };
     public FilterEvent OnFiltered = new FilterEvent();
 
@@ -63,21 +71,25 @@ public class Axis : MonoBehaviour, Grabbable {
     SteamVR_TrackedObject trackedObject;
     List<Vector3> tracking = new List<Vector3>();
     
+    // This comes from the DimensionRange in DataObject
+    // x of this vector2 is min and y of this vector2 is max
     Vector2 AttributeRange;
 
+    // This changes the scale size of the ticks 
     float ticksScaleFactor = 1.0f;
 
     // ghost properties
+    // Q: What does ghost property means? 
     Axis ghostSourceAxis = null;
 
-
+    // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     public void Init(DataBinding.DataObject srcData, int idx, bool isPrototype = false)
     {
         SourceIndex = idx;
         axisId = idx;
         name = "axis " + srcData.indexToDimension(idx);
 
-
+        //  This basically sets the range of the data dimensions that are going to be in the file
         AttributeRange = srcData.DimensionsRange[axisId];
         label.text = srcData.Identifiers[idx];
         UpdateRangeText();
@@ -88,6 +100,8 @@ public class Axis : MonoBehaviour, Grabbable {
         UpdateTicks();
     }
 
+    // The function that generates min and max texts based on the type of the data
+    // The type of the data comes from DataObject class
     void UpdateRangeText()
     {
         string type = SceneManager.Instance.dataObject.TypeDimensionDictionary1[SourceIndex];
@@ -114,6 +128,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void CalculateTicksScale(DataBinding.DataObject srcData)
     {
+        // TODO: we should somehow show how each of these tick marks show 5, 10, 50, or more values
         float range = AttributeRange.y - AttributeRange.x;
         if (srcData.Metadata[axisId].binCount > range + 2)
         {
@@ -147,9 +162,11 @@ public class Axis : MonoBehaviour, Grabbable {
         }
     }
 
+    // This functions calculates the range and scale of the ticks based on the changed values of the mix and max normalizers and also the max and min of the AttributeRange and then displays it in the last line
     void UpdateTicks()
     {
-
+        // Lerp is used for tweening between the min value of the AttributeRange and the max value of it
+        // range is going to be between 0 and 1 times the attribute range 
         float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
         float scale = range / ticksScaleFactor;
         ticksRenderer.material.mainTextureScale = new Vector3(1, scale);
@@ -171,6 +188,7 @@ public class Axis : MonoBehaviour, Grabbable {
     {
 
         //all colliders from this object should ignore raycast
+        // TODO: Maybe remove the non-raycast collider thingy from this object! 
         Collider[] colliders = GetComponentsInChildren<Collider>();
         foreach (var item in colliders)
         {
@@ -190,6 +208,12 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void Update()
     {
+        // This is the part that clones and shakes the clone when it's departing
+        // it checks if the axes is part of the data shelf first
+        // Then puts a clone in the original place of the data component
+        // In the end adds the axis that is cloned to the list of present axes on the scene
+
+        // TODO: turn this cloning into its own method to use with the anchor cloning
         if (isPrototype)
         {
             if (Vector3.Distance(originPosition, transform.position) > 0.25f)
@@ -216,6 +240,8 @@ public class Axis : MonoBehaviour, Grabbable {
         isDirty = false;
     }
 
+    // filtering operations 
+    // Whenever a filter is changed we need to invoke the Onfilter event to make sure it's affecting the thing
     public void SetMinFilter(float val)
     {
         MinFilter = val;
@@ -244,6 +270,7 @@ public class Axis : MonoBehaviour, Grabbable {
         UpdateTicks();
     }
 
+    // TODO: get the cloning features into the visualiztion class too
     public GameObject Clone()
     {
         GameObject clone = Instantiate(gameObject, transform.position, transform.rotation, null);
@@ -308,6 +335,7 @@ public class Axis : MonoBehaviour, Grabbable {
         return Vector3.Dot(Up, axis.Up) > 0.5f;
     }
 
+    // TODO: clean-up this thing! 
     public bool IsColinear(Axis axis)
     {
         if (axis.IsHorizontal)
@@ -361,6 +389,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     #endregion
 
+    // Priority for the grabbing action of the controller! So that the controller knows that between this and the visualization, it should always grab this!
     int Grabbable.GetPriority()
     {
         return 5;
@@ -491,6 +520,7 @@ public class Axis : MonoBehaviour, Grabbable {
         OnExited.Invoke();
     }
 
+    // This function is responsible for the shaking animation that happens when we get the axis off of the data shelf
     void ReturnToOrigin()
     {
         Sequence seq = DOTween.Sequence();
@@ -514,6 +544,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     }
 
+    // This finds all fo the visualizations that this axis is a part of ... and yes, an axis could be a part of multiple data visualziations
     public List<Visualization> correspondingVisualizations()
     {
         return GameObject.FindObjectsOfType<Visualization>().Where(x => x.axes.Contains(this)).ToList();
@@ -529,6 +560,8 @@ public class Axis : MonoBehaviour, Grabbable {
         
     }
 
+    // Ghosts are for 3D SPLOMs only
+    // This sounds like the item that is there to show us a ghosted preview of the data when it's being filtered.
     public void Ghost(Axis sourceAxis)
     {
         sourceAxis.OnFiltered.AddListener(Ghost_OnFiltered);
