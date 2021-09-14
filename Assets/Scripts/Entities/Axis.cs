@@ -15,6 +15,7 @@ public class Axis : MonoBehaviour, Grabbable {
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
     [SerializeField] TextMeshPro maximumValueDimensionLabel;
 
+    // The Id is useful for ID in the data panels (aka protoytpes   )
     public int axisId;
 
     // Q: What is this for? 
@@ -24,14 +25,16 @@ public class Axis : MonoBehaviour, Grabbable {
     //temporary hack 
 
     // these values are used with the setInitOrigin in order to set the initial postiion and rotation of the axes
-    // This is mostly useful for setting the data inside the data panels
+    // This is mostly useful for setting the data inside the data panels (they call the data panel, prototypes)
     Vector3 originPosition;
     Quaternion originRotation;
 
     // These are the literal game objects for filtering that are there
+    // If you want to change these objectst you can just pass a different one instead of them, just make sure they make sense as max and min knobs
+    // TODO: get rid of the knobs for the time being and replace them with the actual filters
     [SerializeField] Transform minFilterObject;
     [SerializeField] Transform maxFilterObject;
-
+    
     [SerializeField] Transform minNormaliserObject;
     [SerializeField] Transform maxNormaliserObject;
 
@@ -43,6 +46,8 @@ public class Axis : MonoBehaviour, Grabbable {
     [SerializeField] UnityEvent OnExited;
 
     // Q: What is this for? 
+    // This is used to handle Axis's collision with other objects including the controller object
+    // this is mainly controlled by the AxisAnchor script and class
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
     public float MinFilter;
@@ -56,11 +61,17 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool isInSplom;
 
+    // There to handle if the object is doing a DOTween animation or not
     bool isTweening;
+    // Mostly to identify which was a first proto that we cloned it from
     public int SourceIndex = -1;
 
     // Here's the filteing event system that handles the filtering process
+    // Filter event is just a simple unity event with two args (floats both of them)
     public class FilterEvent : UnityEvent<float, float> { };
+
+    // Right now the only place that this is used, is when we have a histogram! I don't get why to be honest!
+    // TODO: just extend it to the whole visualization class!
     public FilterEvent OnFiltered = new FilterEvent();
 
     public class NormalizeEvent : UnityEvent<float, float> { };
@@ -83,6 +94,8 @@ public class Axis : MonoBehaviour, Grabbable {
     Axis ghostSourceAxis = null;
 
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
+    // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
+    // TODO: Change the SceneManager scene to get to where I want it to be
     public void Init(DataBinding.DataObject srcData, int idx, bool isPrototype = false)
     {
         SourceIndex = idx;
@@ -90,6 +103,7 @@ public class Axis : MonoBehaviour, Grabbable {
         name = "axis " + srcData.indexToDimension(idx);
 
         //  This basically sets the range of the data dimensions that are going to be in the file
+        // SrcData is the whole of the data
         AttributeRange = srcData.DimensionsRange[axisId];
         label.text = srcData.Identifiers[idx];
         UpdateRangeText();
@@ -102,6 +116,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     // The function that generates min and max texts based on the type of the data
     // The type of the data comes from DataObject class
+    // TODO: Add a value to the histogram rows of data or maybe when we hover over them make them chanage color and also show the value
     void UpdateRangeText()
     {
         string type = SceneManager.Instance.dataObject.TypeDimensionDictionary1[SourceIndex];
@@ -162,7 +177,7 @@ public class Axis : MonoBehaviour, Grabbable {
         }
     }
 
-    // This functions calculates the range and scale of the ticks based on the changed values of the mix and max normalizers and also the max and min of the AttributeRange and then displays it in the last line
+    // This functions calculates the range and scale of the ticks based on the changed values of the min and max normalizers and also the max and min of the AttributeRange and then displays it in the last line
     void UpdateTicks()
     {
         // Lerp is used for tweening between the min value of the AttributeRange and the max value of it
@@ -178,6 +193,7 @@ public class Axis : MonoBehaviour, Grabbable {
         label.text = srcData.Identifiers[axisId] + "(" + dbg + ")";
     }
 
+    // the first position that the AXIS appears in 
     public void InitOrigin(Vector3 originPosition, Quaternion originRotation)
     {
         this.originPosition = originPosition;
@@ -221,12 +237,15 @@ public class Axis : MonoBehaviour, Grabbable {
                 isPrototype = false;
                 GameObject clone = Clone();
                 clone.GetComponent<Axis>().OnExited.Invoke();
+                
+                // This is the part that we get to do the shaking sequence of the main object
                 clone.GetComponent<Axis>().ReturnToOrigin();
 
                 SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
                 
                 foreach (var obj in GameObject.FindObjectsOfType<WandController>())
                 {
+                    // It means shaking the controller not the visualization itself
                     if (obj.IsDragging())
                         obj.Shake();
                 }
