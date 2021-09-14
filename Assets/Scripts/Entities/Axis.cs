@@ -237,7 +237,7 @@ public class Axis : MonoBehaviour, Grabbable {
                 isPrototype = false;
                 GameObject clone = Clone();
                 clone.GetComponent<Axis>().OnExited.Invoke();
-                
+
                 // This is the part that we get to do the shaking sequence of the main object
                 clone.GetComponent<Axis>().ReturnToOrigin();
 
@@ -300,6 +300,7 @@ public class Axis : MonoBehaviour, Grabbable {
         return clone;
     }
 
+    // This is a misc method for duplicating any object, it can be used fron the outside of the class, too
     public GameObject Dup(GameObject go, Vector3 tp, Quaternion tr)
     {
         GameObject clone = Instantiate(go, tp, tr, null);
@@ -316,6 +317,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     // calculates the project of the transform tr (assumed to be the user's hand) onto the axis
     // as a float between 0...1
+    // Is mostly used by the AxisWidget class
     public float CalculateLinearMapping(Transform tr)
     {
         Vector3 direction = MaxPosition - MinPosition;
@@ -364,6 +366,7 @@ public class Axis : MonoBehaviour, Grabbable {
         else { return Vector3.Dot(Up, axis.Up) > 0.95f; }
     }
 
+    // Transform form the local coords into the world coords
     public Vector3 Up
     {
         get { return transform.TransformDirection(Vector3.up); }
@@ -409,6 +412,7 @@ public class Axis : MonoBehaviour, Grabbable {
     #endregion
 
     // Priority for the grabbing action of the controller! So that the controller knows that between this and the visualization, it should always grab this!
+    // This makes it easy to detach an axis from the visualization
     int Grabbable.GetPriority()
     {
         return 5;
@@ -433,6 +437,7 @@ public class Axis : MonoBehaviour, Grabbable {
         if (!isPrototype)
         {
             // destroy the axis
+            // This is the part that controls to see if we're throwing it with some velicity, it needs to be dstoryed
             if (controller.Velocity.magnitude > 0.2f)
             {
                 Rigidbody body = GetComponent<Rigidbody>();
@@ -453,7 +458,8 @@ public class Axis : MonoBehaviour, Grabbable {
         }
 
         List<Visualization> lv = correspondingVisualizations();
-
+        // TODO: this part is importnat for handling the other vizes when one gets released
+        /* haxis: horizontal axis! DUH! */
         foreach (var visu in lv)
         {
             if (visu.viewType == Visualization.ViewType.Scatterplot2D)
