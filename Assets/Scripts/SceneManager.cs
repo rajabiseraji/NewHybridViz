@@ -6,7 +6,8 @@ using UnityEngine.Events;
 
 public class SceneManager : MonoBehaviour
 {
-
+    // TODO: We need to change this function in order to create our scene and its corresponding objects
+    
     public List<Axis> sceneAxes { get; internal set; }
 
     public DataBinding.DataObject dataObject;
