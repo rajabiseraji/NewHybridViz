@@ -25,6 +25,7 @@ public class VisualisationAttributes : MonoBehaviour {
     public int SizeAttribute = -1;
     public bool IsGradientColor = false; // is the colour mapping a gradient or categorical
 
+    // We can use this part in order to set the default color set (or even define the colors from Tableau)
     public Color MinGradientColor = Color.red;
 
     public Color MaxGradientColor = Color.blue;
