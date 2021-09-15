@@ -9,6 +9,7 @@ using System.Linq;
 // orientation of those axes
 public class Visualization : MonoBehaviour, Grabbable, Brushable
 {
+    // Q: What are the reference Axis? Where is it actually used?
     public struct ReferenceAxis
     {
         public Axis horizontal;
@@ -41,6 +42,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     [SerializeField]
+    /* It basically adds some empty gameobjects as athe placeholders of multuple different components and the assigns them dynamically in the program */
     GameObject histogramObject;
 
     [SerializeField]
@@ -60,9 +62,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     [SpaceAttribute(10)]
 
+    // Q: What does this do?
+    // This is the holder of the all view objects (including the diagram placeholders)
     [SerializeField]
     GameObject viewObjectsRoot;
 
+    // Just a list of all of the placeholder and actual visualization obejcts
     List<GameObject> visualizationObjects = new List<GameObject>();
 
     bool isBrushing;
@@ -85,9 +90,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         set { isSPLOMElement = value; }
     }
 
+    // Is this really usesd in the actual syustsm?
     Vector3 brushPosition = Vector3.zero;
 
     // object-relative coordinates for the visualisation distortion
+    // ftl: Front top left - btl: Back(?) top left
+    // Front and back are used for depth I suppose (e.g. in the case of 3D systems and coordinates)
     public Vector3 ftl = new Vector3();
     public Vector3 ftr = new Vector3();
     public Vector3 fbl = new Vector3();
@@ -129,6 +137,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     List<View> instantiatedViews = new List<View>();
 
+    // TODO: use this position to make the details on demand change position!
     Vector3 detailOnDemandPosition = Vector3.zero;
     Vector3[] histogramPositions;
 
@@ -136,6 +145,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public delegate void StaxesAction(string[] visualisationType);
     public static event StaxesAction OnStaxesAction;
 
+    // The DoD component that we need to change
     DetailsOnDemand DetailsOnDemandComponent = null;
 
     void Awake()
@@ -185,6 +195,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    // TODO: to be called for the filter bubble area
     private void Axis_OnNormalize(float minNormalizer, float maxNormalizer)
     {
         // precondition 2: be a histogram visualization
@@ -250,6 +261,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         gameObject.SetActive(false);
     }
 
+    // TODO: learn from the animations in this place for the other components
     void OnEnable()
     {
         transform.DOScale(0.0f, 0.35f)
@@ -267,6 +279,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         histogramObject.SetActive(hide);
     }
 
+    // This is the important part of code where gets called whenever we add an axis to an existing  visuaslization
+    /* The event is sent through the AXIS class and the listener for the fitlering system is in this class (aka the visualization class) */
     public void AddAxis(Axis axis)
     {
         if (!axes.Contains(axis))
@@ -282,6 +296,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    // TODO: Change this so that we can accomodate for the time series and stuff like that too
+    // Right now the number of the Axis dictate the type pof the visualization
     public void UpdateViewType()
     {
         ViewType newType;
@@ -318,11 +334,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     break;
 
             }
+            // TODO: Figure out what do staxes do!
+            // Staxes are just more fancy tuples! that's all! they're in Util/Tuple.cs
             if (OnStaxesAction != null)
                 fireOnStaxesEvent("CREATED");
         }
     }
 
+    // TODO: make it more performant by removing the destroy steps and 
+    // changing them into; modify steps in runtime
     public void UpdateVisualizations()
     {
         foreach (Transform t in histogramObject.transform)
@@ -344,6 +364,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         if (axes.Count == 1)
         {
+            // Visualization factory gets the specs for each of the histograms and then spits it out as a Tuple of the created histogram gameobject and the postions of that gameobject!
             Staxes.Tuple<GameObject, Vector3[]> histT = VisualisationFactory.Instance.CreateBarHistogramView(SceneManager.Instance.dataObject,
                 axes[0].axisId,
                 (int)HISTOGRAM_BIN_SIZE,
