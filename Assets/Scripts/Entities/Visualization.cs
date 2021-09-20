@@ -382,7 +382,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
             hist.transform.SetParent(histogramObject.transform, false);
         }
-        else if (axes.Count == 2)
+        else if (axes.Count == 2) //
         {
             Axis axisV = axes[0].IsHorizontal ? axes[1] : axes[0];
             Axis axisH = axes[0].IsHorizontal ? axes[0] : axes[1];
