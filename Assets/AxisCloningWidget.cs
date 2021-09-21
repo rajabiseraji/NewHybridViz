@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using DG.Tweening;
 
-public class AxisCloningWidget : MonoBehaviour
+public class AxisCloningWidget : MonoBehaviour, Grabbable
 {   
     /* This is the widget in charge of cloning a whole visualization */
     [SerializeField]
