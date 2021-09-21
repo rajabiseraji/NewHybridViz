@@ -1441,6 +1441,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         set { viewObjectsRoot.SetActive(!value); }
     }
 
+    // TODO: use this for the filtering and attribute assignment! 
     void OnTriggerEnter(Collider other)
     {
         Visualization vis = other.GetComponent<Visualization>();
