@@ -649,6 +649,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                         bbl = fbl;
                         bbr = fbr;
 
+                        // This is used to transform the different rendering materials of the system
                         foreach (var r in scatterplot2DObject.GetComponentsInChildren<Renderer>())
                         {
                             r.material.SetVector("_ftl", scatterplot2DObject.transform.InverseTransformPoint(ftl));
@@ -776,6 +777,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
 
         //handle brushing and linking
+        // TODO: enable this in the system for the link and brush
         if (isBrushing)
         {
             //1- Tell the linking script not to update this visualisation
@@ -880,6 +882,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     }
 
+    // TODO: What does this do??
+    // This does the act of normalization (the thing that the gray knob does)
+    // Makes sure that the points in the system have a value between -0.5 and 0.5 (probably)
+    // 
     public Vector3?[] normaliser(Vector3?[] points)
     {
         switch (viewType)
@@ -972,6 +978,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return points;
     }
 
+    // TODO: what the hell does this one exactly do??
+    // This seesms to be doing the actual act of filtering the points (on a scatterplot)
     public Vector3?[] filter(Vector3?[] points)
     {
         switch (viewType)
@@ -1026,6 +1034,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return points;
     }
 
+    // Gives you the points of a visualization this one means the points that are in the mesh array of the whole thing
     public Vector3?[] GetPoints()
     {
         Vector3?[] points = null;
@@ -1067,6 +1076,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return points;
     }
 
+    // This one seems to be doing some kind of projection of the mesh vertices to the 1D axis (whichever is the reference axis it seems)
     public Vector3?[] get1DAxisCoordinates(int index)
     {
         Vector3?[] points = null;
@@ -1157,6 +1167,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return points;
     }
 
+    // TODO: the brushing seems non-existent now! 
     void SwapToBrushing()
     {
         switch (viewType)
@@ -1214,6 +1225,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     /// <param name="pointSize"></param>
     private void OnChangePointSize(float pointSize)
     {
+        /* The floats of _Size and min and maxSize in the mesh material are the ones responsible for the actual point size change */
         switch (viewType)
         {
             case ViewType.Histogram:
@@ -1298,6 +1310,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         UpdateVisualizations();
     }
 
+    // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 
+    // TODO: make it work!
     public void OnBrush(WandController controller, Vector3 hitPoint, bool is3D)
     {
         isBrushing = true;
@@ -1358,6 +1372,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    // TODO: fix the visualization of this part
     public void OnDetailOnDemand(WandController controller, Vector3 worldPosition, Vector3 localPosition, bool is3D)
     {
         if (worldPosition != null)
@@ -1386,6 +1401,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     string[] memory = new string[5];
 
+    // this seems to be there for Staxes event handling
+    // TODO: figure this thing out!
     void fireOnStaxesEvent(string eventType)
     {
         //fire event for dragging staxes here
