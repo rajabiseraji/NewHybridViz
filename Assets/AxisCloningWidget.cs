@@ -47,16 +47,50 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
-        return true;
+        // First we set the isClonable of the axis to true!
+        /* set the originPosition for all of those involved axes to their current position
+            then set the isProto of all of them to true and see what happens
+            TODO: we should then flip the switch on the original visualization so that it doesn't get cloned every time! 
+         */
+
+        bool parentIsInVisualization = false;
+        List<Visualization> lv = parentAxis.correspondingVisualizations();
+        foreach (var visu in lv)
+        {  
+            // step 1
+            foreach (var axis in visu.axes)
+            {
+                axis.InitOrigin(axis.transform.position, axis.transform.rotation);
+                axis.isPrototype = true;
+            }
+            // 
+            parentIsInVisualization = true;
+            visu.OnGrab(controller);
+        }
+        if (parentIsInVisualization)
+            return false;
+        else 
+            return parentAxis.OnGrab(controller);
     }
 
     public void OnRelease(WandController controller)
-    { }
+    {
+        bool parentIsInVisualization = false;
+        List<Visualization> lv = parentAxis.correspondingVisualizations();
+        foreach (var visu in lv)
+        {
+            parentIsInVisualization = true;
+            visu.OnRelease(controller);
+        }
+        if (!parentIsInVisualization)
+            parentAxis.OnRelease(controller); 
+    }
 
     public void OnDrag(WandController controller)
     {
 
         Debug.Log("Ive been dragged! Im the cloning thing");
+        
         // float offset = parentAxis.CalculateLinearMapping(controller.transform);
         // Vector3 axisOffset = new Vector3(transform.localPosition.x, 0, 0);
         // transform.localPosition = Vector3.Lerp(new Vector3(transform.localPosition.x, -0.5f, 0),
