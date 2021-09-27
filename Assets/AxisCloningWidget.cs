@@ -51,6 +51,8 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
         /* set the originPosition for all of those involved axes to their current position
             then set the isProto of all of them to true and see what happens
             TODO: we should then flip the switch on the original visualization so that it doesn't get cloned every time! 
+
+            TODO: we need to have something that shows that a visualization has became dirty and the origin of it is no longer the origin that there is on the data shelf
          */
 
         bool parentIsInVisualization = false;
@@ -62,6 +64,7 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
             {
                 axis.InitOrigin(axis.transform.position, axis.transform.rotation);
                 axis.isPrototype = true;
+                axis.isClonedByCloningWidget = true;
             }
             // 
             parentIsInVisualization = true;
@@ -70,7 +73,10 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
         if (parentIsInVisualization)
             return false;
         else 
-            return parentAxis.OnGrab(controller);
+            return parentAxis.OnGrab(controller); 
+        
+        // If we want to clone even an axis, then we need to enable axis cloning for the parent axis, too
+        // Which means that we shouldn't just call the OnGrab thing, we should instead do the whole cloning thing
     }
 
     public void OnRelease(WandController controller)
@@ -82,7 +88,7 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
             parentIsInVisualization = true;
             visu.OnRelease(controller);
         }
-        if (!parentIsInVisualization)
+        if (!parentIsInVisualization) 
             parentAxis.OnRelease(controller); 
     }
 

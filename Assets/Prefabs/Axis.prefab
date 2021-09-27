@@ -2867,10 +2867,12 @@ MonoBehaviour:
   maximumValueDimensionLabel: {fileID: 114259537137711672}
   axisId: 0
   isPrototype: 0
+  isClonedByCloningWidget: 0
   minFilterObject: {fileID: 4741826101255928}
   maxFilterObject: {fileID: 4551393065374534}
   minNormaliserObject: {fileID: 4569363650785136}
   maxNormaliserObject: {fileID: 4727869186415394}
+  cloningWidgetGameObject: {fileID: 232340230362588868}
   ticksRenderer: {fileID: 23627591243541776}
   OnEntered:
     m_PersistentCalls:
@@ -2938,11 +2940,11 @@ GameObject:
   - component: {fileID: 9079642307671877431}
   m_Layer: 0
   m_Name: CloningHandle
-  m_TagString: Untagged
+  m_TagString: AxisWidget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1173298548124547875
 Transform:
   m_ObjectHideFlags: 0

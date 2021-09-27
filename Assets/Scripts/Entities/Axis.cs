@@ -22,6 +22,8 @@ public class Axis : MonoBehaviour, Grabbable {
     // This is active when the axis is on the data shelf and has not been dragged to the main scene
     public bool isPrototype;
 
+    public bool isClonedByCloningWidget = false;
+
     //temporary hack 
 
     // these values are used with the setInitOrigin in order to set the initial postiion and rotation of the axes
@@ -37,6 +39,7 @@ public class Axis : MonoBehaviour, Grabbable {
     
     [SerializeField] Transform minNormaliserObject;
     [SerializeField] Transform maxNormaliserObject;
+    [SerializeField] GameObject cloningWidgetGameObject;
 
     [SerializeField] Renderer ticksRenderer;
 
@@ -241,6 +244,11 @@ public class Axis : MonoBehaviour, Grabbable {
                 // This is the part that we get to do the shaking sequence of the main object
                 clone.GetComponent<Axis>().ReturnToOrigin();
 
+                // Only activate the cloning knob when the axis is out of the dataShelf
+                // TODO: turn this knob to something else when we move this to a visualization
+                cloningWidgetGameObject.SetActive(true);
+
+
                 SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
                 
                 foreach (var obj in GameObject.FindObjectsOfType<WandController>())
@@ -295,6 +303,7 @@ public class Axis : MonoBehaviour, Grabbable {
         GameObject clone = Instantiate(gameObject, transform.position, transform.rotation, null);
         Axis axis = clone.GetComponent<Axis>();
         axis.InitOrigin(originPosition, originRotation);
+        axis.isClonedByCloningWidget = isClonedByCloningWidget;
         axis.ticksRenderer.material = Instantiate(ticksRenderer.material) as Material;
 
         return clone;
@@ -551,7 +560,10 @@ public class Axis : MonoBehaviour, Grabbable {
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DORotate(originRotation.eulerAngles, 0.7f, RotateMode.Fast).SetEase(Ease.OutSine));
         seq.Join(transform.DOMove(originPosition, 0.7f).SetEase(Ease.OutElastic));
-        seq.AppendCallback(() => GetComponent<Axis>().isPrototype = true);
+        if (!isClonedByCloningWidget)
+            seq.AppendCallback(() => GetComponent<Axis>().isPrototype = true);
+        else 
+            seq.AppendCallback(() => GetComponent<Axis>().isPrototype = false);
 
         foreach (var c in GetComponentsInChildren<ProximityDetector>())
         {
