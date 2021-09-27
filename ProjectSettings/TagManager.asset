@@ -16,6 +16,7 @@ TagManager:
   - TutorialController
   - TutorialAxis
   - AxisWidget
+  - DataShelfPanel
   layers:
   - Default
   - TransparentFX

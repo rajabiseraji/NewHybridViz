@@ -61,6 +61,7 @@ public class SceneManager : MonoBehaviour
         {
             Vector3 v = new Vector3(1.352134f - (i % 7) * 0.35f, 1.506231f - (i / 7) / 2f, 0f);// -0.4875801f);
             GameObject obj = (GameObject)Instantiate(axisPrefab);
+            obj.transform.SetParent(GameObject.FindGameObjectWithTag("DataShelfPanel").transform);
             obj.transform.position = v;
             Axis axis = obj.GetComponent<Axis>();
             axis.Init(dataObject, i, true);
