@@ -76,7 +76,7 @@ public class SceneManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CreateSPLOMS();
+            CreateSPLOMSWithU();
         }
     }
 
