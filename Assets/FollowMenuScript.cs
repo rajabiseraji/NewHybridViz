@@ -6,7 +6,7 @@ using DG.Tweening;
 
 public class FollowMenuScript : MonoBehaviour, Grabbable
 {
-    public GameObject camera;
+    public GameObject VRCamera;
     public GameObject DataShelfPanel;
     public bool FollowCamera = true;
 
@@ -45,7 +45,7 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         {
             if(child.GetComponent<Axis>()) {
                 Axis a = child.GetComponent<Axis>(); 
-                a.isPrototype = false;
+                // a.isPrototype = false;
 
                 // This is to make sure that the view parts of the visualizations also move with the axes to the data shelf panel
                 foreach (var visu in a.correspondingVisualizations())
@@ -59,12 +59,12 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
     public void OnExit(WandController controller)
     {
         OnExited.Invoke();
-        foreach (Transform child in transform)
-        {
-            if(child.GetComponent<Axis>()) {
-                child.GetComponent<Axis>().isPrototype = true;
-            }
-        }
+        // foreach (Transform child in DataShelfPanel.transform)
+        // {
+        //     if(child.GetComponent<Axis>()) {
+        //         child.GetComponent<Axis>().isPrototype = true;
+        //     }
+        // }
     }
 
     public bool OnGrab(WandController controller)
@@ -78,27 +78,40 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
 
     public void OnRelease(WandController controller)
     {
-       
         if(DataShelfPanel.activeSelf) {
+            // Making sure they're not going to be copied in the move
+            foreach (Transform child in DataShelfPanel.transform)
+            {
+                if(child.GetComponent<Axis>()) {
+                    child.GetComponent<Axis>().isPrototype = false;
+                }
+            }
+
+            // Setting up the sequences
             Sequence seq = DOTween.Sequence();
             seq.Append(DataShelfPanel.transform.DORotate(transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
-            seq.Join(DataShelfPanel.transform.DOMove(transform.position, 1f).SetEase(Ease.OutElastic));
-            // seq.AppendCallback(() => DataShelfPanel.SetActive(false));
-            DataShelfPanel.SetActive(false);
+            seq.Join(DataShelfPanel.transform.DOMove(transform.position, 0.4f).SetEase(Ease.OutElastic));
+
+            // Making sure the dataPanel deactivates 
+            seq.AppendCallback(() => DataShelfPanel.SetActive(false));
         } else {
+            // Making sure the data panel activates 
             DataShelfPanel.SetActive(true);
+
+            // Sequence and animation stuff
             Sequence seq = DOTween.Sequence();
-
             seq.Append(DataShelfPanel.transform.DORotate(Camera.main.transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
+            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * 0.5f), 0.7f).SetEase(Ease.OutElastic));
 
-            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * 2f), 0.7f).SetEase(Ease.OutElastic));
-
+            // Activate the datashelf panel and make sure the axes are set back to the proto mode (clonable mode)
             seq.AppendCallback(() => {
                 DataShelfPanel.SetActive(true);
-                foreach (Transform child in transform)
+                foreach (Transform child in DataShelfPanel.transform)
                 {
                     if(child.GetComponent<Axis>()) {
-                        child.GetComponent<Axis>().isPrototype = true;
+                        Axis childAxis = child.GetComponent<Axis>();
+                        childAxis.InitOrigin(childAxis.transform.position, childAxis.transform.rotation);
+                        childAxis.isPrototype = true;
                     }
                 }
             });
@@ -125,10 +138,10 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         // tHIS IS JUST A test I guess
         if (FollowCamera)
         { // Code for the menu to follow the camera.	
-            Vector3 v = camera.transform.position - transform.position;
+            Vector3 v = VRCamera.transform.position - transform.position;
             v.z = 0.0f;
             v.x = 0.25f;
-            transform.LookAt(camera.transform.position - v);
+            transform.LookAt(VRCamera.transform.position - v);
             transform.Rotate(0, 180, 0);
         }
     }
