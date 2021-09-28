@@ -7,6 +7,7 @@ using DG.Tweening;
 public class FollowMenuScript : MonoBehaviour, Grabbable
 {
     public GameObject Camera;
+    public GameObject DataShelfPanel;
     public bool FollowCamera = true;
 
     [SerializeField]
@@ -52,12 +53,40 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         // We should simply act as the ontouch of a button and show the childs of it which are the data shelf items
         // it needs to be a toggle situation - clicked: on/off
 
-        return false; // it's not supposed to be draggable, so return false for this
+        // if this doesn't return a true value, the OnRelease won't work
+        return true; // it's not supposed to be draggable, so return false for this
     }
 
     public void OnRelease(WandController controller)
     {
-        // 
+        Debug.Log("Floating menu released!");
+        foreach (Transform child in transform)
+        {
+            if(child.GetComponent<Axis>()) {
+                Debug.Log("I had an axis!");
+                child.GetComponent<Axis>().isPrototype = false;
+            }
+        }
+        if(DataShelfPanel.activeSelf) {
+            Sequence seq = DOTween.Sequence();
+            seq.Append(DataShelfPanel.transform.DORotate(transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
+            seq.Join(DataShelfPanel.transform.DOMove(transform.position, 1f).SetEase(Ease.OutElastic));
+            seq.AppendCallback(() => DataShelfPanel.SetActive(false));
+        } else {
+            DataShelfPanel.SetActive(true);
+            Sequence seq = DOTween.Sequence();
+            seq.Append(DataShelfPanel.transform.DORotate(Camera.transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
+            seq.Join(DataShelfPanel.transform.DOMove(Camera.transform.position + (Camera.transform.forward * 2f), 0.7f).SetEase(Ease.OutElastic));
+            seq.AppendCallback(() => {
+                DataShelfPanel.SetActive(false);
+                foreach (Transform child in transform)
+                {
+                    if(child.GetComponent<Axis>()) {
+                        child.GetComponent<Axis>().isPrototype = true;
+                    }
+                }
+            });
+        }
     }
 
      public void ProximityEnter()
@@ -73,7 +102,7 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         // transform.DOLocalMoveX(0, 0.25f);
         transform.DOScale(initialScale, 0.25f);
     }
-    
+
     // Update is called once per frame
     void Update()
     {

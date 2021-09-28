@@ -17,6 +17,7 @@ TagManager:
   - TutorialAxis
   - AxisWidget
   - DataShelfPanel
+  - FloatingMenu
   layers:
   - Default
   - TransparentFX
