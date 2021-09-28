@@ -244,6 +244,10 @@ public class Axis : MonoBehaviour, Grabbable {
                 // This is the part that we get to do the shaking sequence of the main object
                 clone.GetComponent<Axis>().ReturnToOrigin();
 
+                // We want the clone to go back to the datashelf and set the datashelf as the parent of it
+                GameObject dataShelf = GameObject.FindGameObjectWithTag("DataShelfPanel");
+                clone.transform.SetParent(dataShelf.transform);
+
                 // Only activate the cloning knob when the axis is out of the dataShelf
                 // TODO: turn this knob to something else when we move this to a visualization
                 cloningWidgetGameObject.SetActive(true);
