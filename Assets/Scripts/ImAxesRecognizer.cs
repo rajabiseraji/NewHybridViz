@@ -8,6 +8,7 @@ public class ImAxesRecognizer : MonoBehaviour
     [SerializeField]
     GameObject visualizationPrefab;
 
+    // This is an important matrix that holds all the visuliazations that are adajacent to one another in the positions of i j k ... each position is the idx of an axis
     AdjacencyMatrix<Visualization> adjacency;
 
     //holds the names of the created linked visualisations
@@ -206,6 +207,7 @@ public class ImAxesRecognizer : MonoBehaviour
 
                         adjacency[i, j, k] = vis;
 
+                        // Find if the single Axis are any part of another scatterplot and then remove and destory them from there
                         if (SP.Any(x => x.axes.Count == 1 && x.axes.Contains(A[i])))
                         {
                             var toRemove = SP.Single(x => x.axes.Count == 1 && x.axes.Contains(A[i]));
@@ -278,6 +280,7 @@ public class ImAxesRecognizer : MonoBehaviour
         // Pass 0:
         // Stage 2: produce SPs of degree 2 
         // RULE: Degree 3 consumes lower degrees
+        // We never  remove an axis, we just remove visualizations, axes are always in there and visualizations are the abstsractions on top of them
         for (int i = 0; i < A.Count; i++)
         {
             for (int j = 0; j < A.Count; j++)
@@ -288,6 +291,7 @@ public class ImAxesRecognizer : MonoBehaviour
                 if (A[i].isPrototype && A[j].isPrototype)
                     continue;
 
+                // If they weren't already in the adjaceny matrix and they're not used in any other 3D sploms
                 if ((RSP1(A[i], A[j])) &&
                     adjacency[i, j, i] == null &&
                     !usedAxisIn3DSP.Contains(A[i]) &&
