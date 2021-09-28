@@ -6,7 +6,7 @@ using DG.Tweening;
 
 public class FollowMenuScript : MonoBehaviour, Grabbable
 {
-    public GameObject Camera;
+    public GameObject camera;
     public GameObject DataShelfPanel;
     public bool FollowCamera = true;
 
@@ -41,11 +41,30 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
     public void OnEnter(WandController controller)
     {
         OnEntered.Invoke();
+        foreach (Transform child in DataShelfPanel.transform)
+        {
+            if(child.GetComponent<Axis>()) {
+                Axis a = child.GetComponent<Axis>(); 
+                a.isPrototype = false;
+
+                // This is to make sure that the view parts of the visualizations also move with the axes to the data shelf panel
+                foreach (var visu in a.correspondingVisualizations())
+                {
+                    visu.transform.SetParent(DataShelfPanel.transform);
+                }
+            }
+        }
     }
 
     public void OnExit(WandController controller)
     {
         OnExited.Invoke();
+        foreach (Transform child in transform)
+        {
+            if(child.GetComponent<Axis>()) {
+                child.GetComponent<Axis>().isPrototype = true;
+            }
+        }
     }
 
     public bool OnGrab(WandController controller)
@@ -59,26 +78,23 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
 
     public void OnRelease(WandController controller)
     {
-        Debug.Log("Floating menu released!");
-        foreach (Transform child in transform)
-        {
-            if(child.GetComponent<Axis>()) {
-                Debug.Log("I had an axis!");
-                child.GetComponent<Axis>().isPrototype = false;
-            }
-        }
+       
         if(DataShelfPanel.activeSelf) {
             Sequence seq = DOTween.Sequence();
             seq.Append(DataShelfPanel.transform.DORotate(transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
             seq.Join(DataShelfPanel.transform.DOMove(transform.position, 1f).SetEase(Ease.OutElastic));
-            seq.AppendCallback(() => DataShelfPanel.SetActive(false));
+            // seq.AppendCallback(() => DataShelfPanel.SetActive(false));
+            DataShelfPanel.SetActive(false);
         } else {
             DataShelfPanel.SetActive(true);
             Sequence seq = DOTween.Sequence();
-            seq.Append(DataShelfPanel.transform.DORotate(Camera.transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
-            seq.Join(DataShelfPanel.transform.DOMove(Camera.transform.position + (Camera.transform.forward * 2f), 0.7f).SetEase(Ease.OutElastic));
+
+            seq.Append(DataShelfPanel.transform.DORotate(Camera.main.transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
+
+            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * 2f), 0.7f).SetEase(Ease.OutElastic));
+
             seq.AppendCallback(() => {
-                DataShelfPanel.SetActive(false);
+                DataShelfPanel.SetActive(true);
                 foreach (Transform child in transform)
                 {
                     if(child.GetComponent<Axis>()) {
@@ -109,9 +125,10 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         // tHIS IS JUST A test I guess
         if (FollowCamera)
         { // Code for the menu to follow the camera.	
-            Vector3 v = Camera.transform.position - transform.position;
-            v.x = v.z = 0.0f;
-            transform.LookAt(Camera.transform.position - v);
+            Vector3 v = camera.transform.position - transform.position;
+            v.z = 0.0f;
+            v.x = 0.25f;
+            transform.LookAt(camera.transform.position - v);
             transform.Rotate(0, 180, 0);
         }
     }
