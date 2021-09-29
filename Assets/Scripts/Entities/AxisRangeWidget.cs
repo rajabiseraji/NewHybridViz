@@ -59,8 +59,6 @@ public class AxisRangeWidget : MonoBehaviour, Grabbable {
 
     public void OnDrag(WandController controller)
     {
-
-
         float offset = parentAxis.CalculateLinearMapping(controller.transform);
         Vector3 axisOffset = new Vector3(transform.localPosition.x, 0, 0);
         transform.localPosition = Vector3.Lerp(new Vector3(transform.localPosition.x, -0.5f, 0),

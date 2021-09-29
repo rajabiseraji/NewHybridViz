@@ -22,6 +22,9 @@ public class Axis : MonoBehaviour, Grabbable {
     // This is active when the axis is on the data shelf and has not been dragged to the main scene
     public bool isPrototype;
 
+    // Determines if the axis is on a 2D plane or not
+    public bool isOn2DPanel = false;
+
     public bool isClonedByCloningWidget = false;
 
     //temporary hack 
@@ -455,7 +458,9 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         if (!isTweening)
         {
-            transform.parent = controller.transform;
+            // Here's where we set the controller as the tansform
+            if(!isOn2DPanel)
+                transform.parent = controller.transform;
             transform.DOKill();
         }
         GetComponent<Rigidbody>().isKinematic = true;
@@ -573,6 +578,12 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnDrag(WandController controller)
     {
+        if(isOn2DPanel) {
+            Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
+
+            // transform.
+            transform.position += planarMappingOfDirection;
+        }
         isDirty = true;
     }
 

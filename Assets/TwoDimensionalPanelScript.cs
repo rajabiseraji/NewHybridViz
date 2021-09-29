@@ -41,6 +41,8 @@ public class TwoDimensionalPanelScript : MonoBehaviour
             a.transform.localScale = new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f);
 
             a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            a.transform.SetParent(transform);
+            a.isOn2DPanel = true;
             ConnectedAxes.Add(a);
         }
     }
