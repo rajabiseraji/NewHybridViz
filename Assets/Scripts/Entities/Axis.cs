@@ -581,6 +581,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public void OnDrag(WandController controller)
     {
         if(isOn2DPanel) {
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 180f - controller.transform.eulerAngles.z);
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
 
