@@ -32,6 +32,7 @@ public class Axis : MonoBehaviour, Grabbable {
     // these values are used with the setInitOrigin in order to set the initial postiion and rotation of the axes
     // This is mostly useful for setting the data inside the data panels (they call the data panel, prototypes)
     Vector3 originPosition;
+    Vector3 originScale;
     Quaternion originRotation;
 
     // These are the literal game objects for filtering that are there
@@ -206,6 +207,7 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         this.originPosition = originPosition;
         this.originRotation = originRotation;
+        this.originScale = transform.localScale;
     }
 
     public void initOriginalParent(Transform originalParent){
@@ -579,11 +581,25 @@ public class Axis : MonoBehaviour, Grabbable {
     public void OnDrag(WandController controller)
     {
         if(isOn2DPanel) {
+            // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
 
-            // transform.
             transform.position += planarMappingOfDirection;
-        }
+            // We need the distance in the direction of the normal vector of the plane
+            Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);
+
+            if(controllerOrthogonalDistance.magnitude > 0.25f) {
+                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                transform.SetParent(null);
+                
+                Sequence seq = DOTween.Sequence();
+                seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
+                seq.Join(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
+
+                isOn2DPanel = false;
+                OnGrab(controller);
+            }
+        } 
         isDirty = true;
     }
 

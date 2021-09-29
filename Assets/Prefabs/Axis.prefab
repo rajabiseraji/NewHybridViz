@@ -2867,6 +2867,7 @@ MonoBehaviour:
   maximumValueDimensionLabel: {fileID: 114259537137711672}
   axisId: 0
   isPrototype: 0
+  isOn2DPanel: 0
   isClonedByCloningWidget: 0
   minFilterObject: {fileID: 4741826101255928}
   maxFilterObject: {fileID: 4551393065374534}
