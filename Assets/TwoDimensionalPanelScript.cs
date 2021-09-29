@@ -40,11 +40,14 @@ public class TwoDimensionalPanelScript : MonoBehaviour
             // Find the point of entrance
             Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
             
+            Quaternion aBeforeRotation = a.transform.rotation;
+            aBeforeRotation.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
             // Rotation and position change stuff
             Sequence seq = DOTween.Sequence();
             // a.transform.
-            seq.Append(a.transform.DORotateQuaternion(transform.rotation, 0.7f).SetEase(Ease.OutElastic));
-            // seq.Append(DOTween.To(() => a.transform.eulerAngles, newEulerAngles => a.transform.eulerAngles = newEulerAngles, new Vector3(0, 0, a.transform.eulerAngles.z), 0.7f).SetEase(Ease.OutElastic));
+            seq.Append(a.transform.DORotateQuaternion(aBeforeRotation, 0.7f).SetEase(Ease.OutElastic));
+
+            // seq.Append(DOTween.To(() => a.transform.eulerAngles, newEulerAngles => a.transform.eulerAngles = newEulerAngles, new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, AeulerAngleBeforeProjection.z), 0.7f).SetEase(Ease.OutElastic));
 
             seq.Join(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.7f).SetEase(Ease.OutElastic));
 

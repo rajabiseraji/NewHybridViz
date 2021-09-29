@@ -57,7 +57,7 @@ public class Axis : MonoBehaviour, Grabbable {
     // this is mainly controlled by the AxisAnchor script and class
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
-    Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
+    public Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
 
     public float MinFilter;
     public float MaxFilter;
