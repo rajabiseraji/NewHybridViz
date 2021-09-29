@@ -18,6 +18,7 @@ TagManager:
   - AxisWidget
   - DataShelfPanel
   - FloatingMenu
+  - 2DPanel
   layers:
   - Default
   - TransparentFX
