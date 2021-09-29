@@ -59,12 +59,6 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
     public void OnExit(WandController controller)
     {
         OnExited.Invoke();
-        // foreach (Transform child in DataShelfPanel.transform)
-        // {
-        //     if(child.GetComponent<Axis>()) {
-        //         child.GetComponent<Axis>().isPrototype = true;
-        //     }
-        // }
     }
 
     public bool OnGrab(WandController controller)
@@ -89,9 +83,9 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
 
             // Setting up the sequences
             Sequence seq = DOTween.Sequence();
-            seq.Append(DataShelfPanel.transform.DORotate(transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
-            seq.Join(DataShelfPanel.transform.DOMove(transform.position, 0.4f).SetEase(Ease.OutElastic));
-
+            seq.Append(DataShelfPanel.transform.DORotate(Camera.main.transform.rotation.eulerAngles, 0.5f, RotateMode.Fast).SetEase(Ease.OutSine));
+            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * -0.6f) + (Camera.main.transform.up * 4f) , 0.5f).SetEase(Ease.InOutElastic));
+            // seq.Join(DataShelfPanel.transform.DOLookAt(transform.position, 0.4f).SetEase(Ease.OutSine));
             // Making sure the dataPanel deactivates 
             seq.AppendCallback(() => DataShelfPanel.SetActive(false));
         } else {
@@ -100,8 +94,8 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
 
             // Sequence and animation stuff
             Sequence seq = DOTween.Sequence();
-            seq.Append(DataShelfPanel.transform.DORotate(Camera.main.transform.rotation.eulerAngles, 1f, RotateMode.Fast).SetEase(Ease.OutSine));
-            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * 0.5f), 0.7f).SetEase(Ease.OutElastic));
+            seq.Append(DataShelfPanel.transform.DORotate(Camera.main.transform.rotation.eulerAngles, 0.5f, RotateMode.Fast).SetEase(Ease.OutSine));
+            seq.Join(DataShelfPanel.transform.DOMove(Camera.main.transform.position + (Camera.main.transform.forward * 0.5f) + (Camera.main.transform.up * -0.8f), 0.7f).SetEase(Ease.OutElastic));
 
             // Activate the datashelf panel and make sure the axes are set back to the proto mode (clonable mode)
             seq.AppendCallback(() => {
@@ -121,14 +115,12 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
      public void ProximityEnter()
     {
         transform.DOKill(true);
-        // transform.DOLocalMoveX(-axisOffset, 0.35f).SetEase(Ease.OutBack);
         transform.DOScale(rescaled, 0.35f).SetEase(Ease.OutBack);
     }
 
     public void ProximityExit()
     {
         transform.DOKill(true);
-        // transform.DOLocalMoveX(0, 0.25f);
         transform.DOScale(initialScale, 0.25f);
     }
 
@@ -140,7 +132,7 @@ public class FollowMenuScript : MonoBehaviour, Grabbable
         { // Code for the menu to follow the camera.	
             Vector3 v = VRCamera.transform.position - transform.position;
             v.z = 0.0f;
-            v.x = 0.25f;
+            v.x = 0.0f;
             transform.LookAt(VRCamera.transform.position - v);
             transform.Rotate(0, 180, 0);
         }
