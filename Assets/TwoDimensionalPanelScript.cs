@@ -36,14 +36,17 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     void OnTriggerEnter(Collider other) {
         if(other.GetComponent<Axis>()) {
             Axis a = other.GetComponent<Axis>();
-            // Debug.Log("hit the panel");
-            // Debug.Log(a.transform.name);
+
+            // Find the point of entrance
+            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
+            
             // Rotation and position change stuff
-
             Sequence seq = DOTween.Sequence();
+            // a.transform.
             seq.Append(a.transform.DORotateQuaternion(transform.rotation, 0.7f).SetEase(Ease.OutElastic));
+            // seq.Append(DOTween.To(() => a.transform.eulerAngles, newEulerAngles => a.transform.eulerAngles = newEulerAngles, new Vector3(0, 0, a.transform.eulerAngles.z), 0.7f).SetEase(Ease.OutElastic));
 
-            seq.Join(a.transform.DOMove(transform.position + (transform.forward * 0.05f), 0.7f).SetEase(Ease.OutElastic));
+            seq.Join(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.7f).SetEase(Ease.OutElastic));
 
             seq.Join(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.7f).SetEase(Ease.OutElastic));
 

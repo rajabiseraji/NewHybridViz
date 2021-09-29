@@ -57,6 +57,8 @@ public class Axis : MonoBehaviour, Grabbable {
     // this is mainly controlled by the AxisAnchor script and class
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
+    Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
+
     public float MinFilter;
     public float MaxFilter;
 
@@ -461,9 +463,14 @@ public class Axis : MonoBehaviour, Grabbable {
         if (!isTweening)
         {
             // Here's where we set the controller as the tansform
-            if(!isOn2DPanel)
+            if(!isOn2DPanel) {
                 transform.parent = controller.transform;
+            } else {
+                ZeulerAnglesBefore2DRotation = transform.eulerAngles;
+                ZeulerAnglesBefore2DRotation.z += controller.transform.eulerAngles.z;
+            }
             transform.DOKill();
+        
         }
         GetComponent<Rigidbody>().isKinematic = true;
         isDirty = true;
@@ -575,13 +582,14 @@ public class Axis : MonoBehaviour, Grabbable {
         }
 
         GetComponent<Rigidbody>().isKinematic = false;
+        ZeulerAnglesBefore2DRotation = transform.eulerAngles;
         isDirty = false;
     }
 
     public void OnDrag(WandController controller)
     {
         if(isOn2DPanel) {
-            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 180f - controller.transform.eulerAngles.z);
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
 
