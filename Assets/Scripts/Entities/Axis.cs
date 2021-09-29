@@ -96,6 +96,8 @@ public class Axis : MonoBehaviour, Grabbable {
     // Q: What does ghost property means? 
     Axis ghostSourceAxis = null;
 
+    Transform originalParent = null;
+
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
     // TODO: Change the SceneManager scene to get to where I want it to be
@@ -203,6 +205,10 @@ public class Axis : MonoBehaviour, Grabbable {
         this.originRotation = originRotation;
     }
 
+    public void initOriginalParent(Transform originalParent){
+        this.originalParent = originalParent;
+    }
+
     void Start()
     {
 
@@ -232,6 +238,16 @@ public class Axis : MonoBehaviour, Grabbable {
         // Then puts a clone in the original place of the data component
         // In the end adds the axis that is cloned to the list of present axes on the scene
 
+        // Making sure that the parent of the axis and its corresponding visualizations are the same
+        if(transform.parent != null && transform.parent.tag == "DataShelfPanel") {
+            foreach (var visu in correspondingVisualizations())
+            {
+                if(visu.transform.parent == null || visu.transform.parent.tag != "DataShelfPanel") {
+                    visu.transform.SetParent(transform.parent);
+                }
+            }
+        }
+
         // TODO: turn this cloning into its own method to use with the anchor cloning
         if (isPrototype)
         {
@@ -245,8 +261,12 @@ public class Axis : MonoBehaviour, Grabbable {
                 clone.GetComponent<Axis>().ReturnToOrigin();
 
                 // We want the clone to go back to the datashelf and set the datashelf as the parent of it
-                GameObject dataShelf = GameObject.FindGameObjectWithTag("DataShelfPanel");
-                clone.transform.SetParent(dataShelf.transform);
+                // if the axis that is being cloned is part of the dataShelf
+                if(originalParent.tag == "DataShelfPanel" ) { 
+                    Debug.Log("Im theere!");
+                    clone.transform.SetParent(originalParent);
+                    clone.GetComponent<Axis>().initOriginalParent(originalParent);
+                }
 
                 // Only activate the cloning knob when the axis is out of the dataShelf
                 // TODO: turn this knob to something else when we move this to a visualization
@@ -445,7 +465,15 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnRelease(WandController controller)
     {
+        // First save the original parent transform somewhere
+        originalParent = transform.parent;
+
+        // Takes botht the axis and its corresponding visualization out of the data shelf (or any other parent)
         transform.parent = null;
+        foreach (var visu in correspondingVisualizations())
+        {
+            visu.transform.parent = null;
+        }
 
         if (!isPrototype)
         {
@@ -564,7 +592,7 @@ public class Axis : MonoBehaviour, Grabbable {
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DORotate(originRotation.eulerAngles, 0.7f, RotateMode.Fast).SetEase(Ease.OutSine));
         seq.Join(transform.DOMove(originPosition, 0.7f).SetEase(Ease.OutElastic));
-        if (!isClonedByCloningWidget)
+        if (!isClonedByCloningWidget) 
             seq.AppendCallback(() => GetComponent<Axis>().isPrototype = true);
         else 
             seq.AppendCallback(() => GetComponent<Axis>().isPrototype = false);

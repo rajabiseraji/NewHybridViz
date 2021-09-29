@@ -39,7 +39,9 @@ public class SceneManager : MonoBehaviour
         Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
         // find the DataShelf panel and set it in a way that it's in front of the camera
         dataShelfPanel.rotation = Camera.main.transform.rotation;
-        dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.forward * 2f);
+        dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.forward * 1f);
+        dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.up * -0.8f);
+
 
         // Vector3 dataShelfZDirection = 
 
@@ -73,6 +75,7 @@ public class SceneManager : MonoBehaviour
             Axis axis = obj.GetComponent<Axis>();
             axis.Init(dataObject, i, true);
             axis.InitOrigin(v, obj.transform.rotation);
+            axis.initOriginalParent(dataShelfPanel);
             axis.tag = "Axis";
 
             AddAxis(axis);
