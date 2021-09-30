@@ -13,6 +13,10 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     {
         mesh = GetComponent<MeshFilter>().mesh;
         vertices = mesh.vertices;
+
+        transform.parent.rotation = Camera.main.transform.rotation;
+        transform.parent.Rotate(0, 90f, 0, Space.Self);
+        transform.parent.position = Camera.main.transform.position + (Camera.main.transform.right * 0.5f);
     }
 
     // Update is called once per frame
@@ -46,8 +50,6 @@ public class TwoDimensionalPanelScript : MonoBehaviour
             Sequence seq = DOTween.Sequence();
             // a.transform.
             seq.Append(a.transform.DORotateQuaternion(aBeforeRotation, 0.7f).SetEase(Ease.OutElastic));
-
-            // seq.Append(DOTween.To(() => a.transform.eulerAngles, newEulerAngles => a.transform.eulerAngles = newEulerAngles, new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, AeulerAngleBeforeProjection.z), 0.7f).SetEase(Ease.OutElastic));
 
             seq.Join(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.7f).SetEase(Ease.OutElastic));
 
