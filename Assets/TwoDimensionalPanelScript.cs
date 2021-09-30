@@ -15,7 +15,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour
         vertices = mesh.vertices;
 
         transform.parent.rotation = Camera.main.transform.rotation;
-        transform.parent.Rotate(0, 90f, 0, Space.Self);
+        transform.parent.Rotate(0, -90f, 0, Space.Self);
         transform.parent.position = Camera.main.transform.position + (Camera.main.transform.right * 0.5f);
     }
 

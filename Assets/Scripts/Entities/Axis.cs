@@ -58,7 +58,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
     public Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
-
+    public float previousControllerRotationAngle = -999f;
     public float MinFilter;
     public float MaxFilter;
 
@@ -589,7 +589,13 @@ public class Axis : MonoBehaviour, Grabbable {
     public void OnDrag(WandController controller)
     {
         if(isOn2DPanel) {
-            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
+            if(controller.transform.forward != transform.forward) { // if the axis is on the correct side of the plane
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
+            } else {
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 180f - ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
+            }
+
+
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
 
