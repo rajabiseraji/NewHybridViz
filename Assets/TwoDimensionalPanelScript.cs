@@ -38,31 +38,39 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other) {
-        if(other.GetComponent<Axis>()) {
-            Axis a = other.GetComponent<Axis>();
+        // if(!DOTween.IsTweening(this.transform)) {
+            if(other.GetComponent<Axis>()) {
+                Axis a = other.GetComponent<Axis>();
 
-            // Find the point of entrance
-            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
+                // Find the point of entrance
+                Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
+                
+                // Handling rotation mappings
+                Quaternion aBeforeRotation = a.transform.rotation;
+                bool isParallelWithPanel = Vector3.Dot(a.transform.forward, transform.forward) > 0;
+
+                float rotationAroundXAngleOffset = Vector3.Dot(a.transform.up, transform.up) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
+                float rotationAroundYAngleOffset = Vector3.Dot(a.transform.right, transform.right) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
             
-            Quaternion aBeforeRotation = a.transform.rotation;
-            aBeforeRotation.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
-            // Rotation and position change stuff
-            Sequence seq = DOTween.Sequence();
-            // a.transform.
-            seq.Append(a.transform.DORotateQuaternion(aBeforeRotation, 0.7f).SetEase(Ease.OutElastic));
+                aBeforeRotation.eulerAngles = new Vector3(rotationAroundXAngleOffset + transform.eulerAngles.x, rotationAroundYAngleOffset + transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
+                // Rotation and position change stuff
+                Sequence seq = DOTween.Sequence();
+                // a.transform.
+                seq.Append(a.transform.DORotate(aBeforeRotation.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
 
-            seq.Join(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.7f).SetEase(Ease.OutElastic));
+                seq.Append(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
 
-            seq.Join(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.7f).SetEase(Ease.OutElastic));
+                seq.Append(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.1f).SetEase(Ease.OutElastic));
 
-            seq.AppendCallback(() => {
-                a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                a.transform.SetParent(transform);
-                a.isOn2DPanel = true;
-            });
+                seq.AppendCallback(() => {
+                    a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    a.transform.SetParent(transform);
+                    a.isOn2DPanel = true;
+                });
 
-            ConnectedAxes.Add(a);
-        }
+                ConnectedAxes.Add(a);
+            }
+        // }
     }
 
 
