@@ -467,7 +467,8 @@ public class Axis : MonoBehaviour, Grabbable {
                 transform.parent = controller.transform;
             } else {
                 ZeulerAnglesBefore2DRotation = transform.eulerAngles;
-                ZeulerAnglesBefore2DRotation.z += controller.transform.eulerAngles.z;
+                previousControllerRotationAngle  = controller.transform.eulerAngles.z;
+                // ZeulerAnglesBefore2DRotation.z += controller.transform.eulerAngles.z;
             }
             transform.DOKill();
         
@@ -588,13 +589,19 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnDrag(WandController controller)
     {
-        if(isOn2DPanel) {
-            if(controller.transform.forward != transform.forward) { // if the axis is on the correct side of the plane
-                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
-            } else {
-                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 180f - ZeulerAnglesBefore2DRotation.z - controller.transform.eulerAngles.z);
+        if(isOn2DPanel && !DOTween.IsTweening(transform)) {
+            
+
+            Transform TwoPanel = GameObject.FindGameObjectWithTag("2DPanel").transform;
+
+            // Handling the correct rotation of the axes
+            Quaternion desiredRotation = Quaternion.Euler(0, 0, controller.transform.eulerAngles.z - previousControllerRotationAngle);
+
+            if(Vector3.Dot(controller.transform.forward, transform.forward) < 0) {
+                desiredRotation = Quaternion.Inverse(desiredRotation);
             }
 
+            transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
 
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
@@ -614,7 +621,9 @@ public class Axis : MonoBehaviour, Grabbable {
                 isOn2DPanel = false;
                 OnGrab(controller);
             }
-        } 
+        } else if(isOn2DPanel && DOTween.IsTweening(transform)) {
+            transform.DOKill();
+        }
         isDirty = true;
     }
 
