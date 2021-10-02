@@ -60,7 +60,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour
 
                 seq.Append(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
 
-                seq.Append(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.1f).SetEase(Ease.OutElastic));
+                seq.Join(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
 
                 seq.AppendCallback(() => {
                     a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;

@@ -621,9 +621,10 @@ public class Axis : MonoBehaviour, Grabbable {
                 isOn2DPanel = false;
                 OnGrab(controller);
             }
-        } else if(isOn2DPanel && DOTween.IsTweening(transform)) {
-            transform.DOKill();
-        }
+        } 
+        // else if(isOn2DPanel && DOTween.IsTweening(transform)) {
+        //     // transform.DOKill();
+        // }
         isDirty = true;
     }
 
