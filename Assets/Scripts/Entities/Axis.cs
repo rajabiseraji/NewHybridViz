@@ -59,6 +59,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
     public float previousControllerRotationAngle = -999f;
+    public Vector3 previousControllerAngle = Vector3.zero;
     public float MinFilter;
     public float MaxFilter;
 
@@ -468,7 +469,6 @@ public class Axis : MonoBehaviour, Grabbable {
             } else {
                 ZeulerAnglesBefore2DRotation = transform.eulerAngles;
                 previousControllerRotationAngle  = controller.transform.eulerAngles.z;
-                // ZeulerAnglesBefore2DRotation.z += controller.transform.eulerAngles.z;
             }
             transform.DOKill();
         

@@ -1333,6 +1333,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         if (theSPLOMReference == null)
         {
+            Debug.Log("splom grabbed inside if");
+            Debug.Log(theSPLOMReference);
             foreach (var axis in axes)
             {
                 controller.PropergateOnGrab(axis.gameObject);
@@ -1340,6 +1342,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
         else
         {
+            Debug.Log("splom grabbed inside ELSE");
+            Debug.Log(theSPLOMReference);
             controller.PropergateOnGrab(theSPLOMReference.gameObject);
         }
 
