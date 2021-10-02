@@ -58,8 +58,9 @@ public class Axis : MonoBehaviour, Grabbable {
     public HashSet<Axis> ConnectedAxis = new HashSet<Axis>();
 
     public Vector3 ZeulerAnglesBefore2DRotation = Vector3.zero;
+    public Vector3 positionBefore2Drotation = Vector3.zero;
     public float previousControllerRotationAngle = -999f;
-    public Vector3 previousControllerAngle = Vector3.zero;
+    public Vector3 previousControllerPosition = Vector3.zero;
     public float MinFilter;
     public float MaxFilter;
 
@@ -467,8 +468,12 @@ public class Axis : MonoBehaviour, Grabbable {
             if(!isOn2DPanel) {
                 transform.parent = controller.transform;
             } else {
+                // Save the positin and the rotation of the axis before we start a 2D movement
                 ZeulerAnglesBefore2DRotation = transform.eulerAngles;
+                positionBefore2Drotation = transform.position;
+                // Save the position and the rotation of the controller before a 2D movement
                 previousControllerRotationAngle  = controller.transform.eulerAngles.z;
+                previousControllerPosition = controller.transform.position;
             }
             transform.DOKill();
         
@@ -604,9 +609,11 @@ public class Axis : MonoBehaviour, Grabbable {
             transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
 
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
-            Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - transform.position, transform.forward);
+            Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - previousControllerPosition, transform.forward);
 
-            transform.position += planarMappingOfDirection;
+            Debug.Log("the distance thingy is: x: " +  planarMappingOfDirection.x + " Y: " + planarMappingOfDirection.y + " Z: " + planarMappingOfDirection.z);
+
+            transform.position = positionBefore2Drotation + planarMappingOfDirection;
             // We need the distance in the direction of the normal vector of the plane
             Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);
 
