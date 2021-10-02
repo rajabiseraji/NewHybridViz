@@ -611,8 +611,6 @@ public class Axis : MonoBehaviour, Grabbable {
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - previousControllerPosition, transform.forward);
 
-            Debug.Log("the distance thingy is: x: " +  planarMappingOfDirection.x + " Y: " + planarMappingOfDirection.y + " Z: " + planarMappingOfDirection.z);
-
             transform.position = positionBefore2Drotation + planarMappingOfDirection;
             // We need the distance in the direction of the normal vector of the plane
             Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);

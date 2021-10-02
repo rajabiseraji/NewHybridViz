@@ -8,7 +8,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     Mesh mesh;
     Vector3[] vertices;
 
-    public HashSet<Axis> ConnectedAxes = new HashSet<Axis>();
+    public List<Axis> ConnectedAxes = new List<Axis>();
     void Start()
     {
         mesh = GetComponent<MeshFilter>().mesh;
@@ -22,11 +22,12 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        foreach (var axis in ConnectedAxes)
-        {   
+        for (int i = 0; i < ConnectedAxes.Count; i++)
+        {
+            var axis = ConnectedAxes[i];
             var AxisRigidBody = axis.GetComponent<Rigidbody>();
             if(Vector3.Project(axis.transform.position - transform.position, transform.forward).magnitude > 0.25f) {
-                ConnectedAxes.Remove(axis);
+                ConnectedAxes.RemoveAt(i);
             } else {
                 if(AxisRigidBody.constraints == RigidbodyConstraints.FreezeAll){
                     AxisRigidBody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
