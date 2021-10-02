@@ -106,6 +106,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
     Transform originalParent = null;
 
+    WandController grabbingController = null;
+
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
     // TODO: Change the SceneManager scene to get to where I want it to be
@@ -272,7 +274,6 @@ public class Axis : MonoBehaviour, Grabbable {
                 // We want the clone to go back to the datashelf and set the datashelf as the parent of it
                 // if the axis that is being cloned is part of the dataShelf
                 if(originalParent.tag == "DataShelfPanel" ) { 
-                    Debug.Log("Im theere!");
                     clone.transform.SetParent(originalParent);
                     clone.GetComponent<Axis>().initOriginalParent(originalParent);
                 }
@@ -590,12 +591,15 @@ public class Axis : MonoBehaviour, Grabbable {
         GetComponent<Rigidbody>().isKinematic = false;
         ZeulerAnglesBefore2DRotation = transform.eulerAngles;
         isDirty = false;
+
+        grabbingController = null;
     }
 
     public void OnDrag(WandController controller)
     {
         if(isOn2DPanel && !DOTween.IsTweening(transform)) {
-            
+            if (grabbingController == null || grabbingController != controller)
+                grabbingController = controller;
 
             Transform TwoPanel = GameObject.FindGameObjectWithTag("2DPanel").transform;
 

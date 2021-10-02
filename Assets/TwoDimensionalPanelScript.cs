@@ -54,6 +54,15 @@ public class TwoDimensionalPanelScript : MonoBehaviour
                 float rotationAroundYAngleOffset = Vector3.Dot(a.transform.right, transform.right) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
             
                 aBeforeRotation.eulerAngles = new Vector3(rotationAroundXAngleOffset + transform.eulerAngles.x, rotationAroundYAngleOffset + transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
+                // We want the axis to be released from the controller before it begins the sequence
+                foreach (var obj in GameObject.FindObjectsOfType<WandController>())
+                {
+                    // It means shaking the controller not the visualization itself
+                    if (obj.IsDragging(a)) {
+                        a.OnRelease(obj);
+                    }
+                }
+
                 // Rotation and position change stuff
                 Sequence seq = DOTween.Sequence();
                 // a.transform.
