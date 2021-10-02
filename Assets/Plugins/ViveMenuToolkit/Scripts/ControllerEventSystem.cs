@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Valve.VR;
 
+/* This class only hannles the inputs for the menu system and not the other objects in the game */
 public class ViveMenuControllerEvents
 {
     public bool Active { get; set; }
