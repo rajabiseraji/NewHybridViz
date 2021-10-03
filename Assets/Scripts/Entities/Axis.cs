@@ -127,6 +127,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
         CalculateTicksScale(srcData);
         UpdateTicks();
+
     }
 
     // The function that generates min and max texts based on the type of the data
@@ -463,6 +464,10 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool OnGrab(WandController controller)
     {
+        // Call the event that sets the whole thing up! 
+        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
+
+
         if (!isTweening)
         {
             // Here's where we set the controller as the tansform

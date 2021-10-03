@@ -19,6 +19,7 @@ TagManager:
   - DataShelfPanel
   - FloatingMenu
   - 2DPanel
+  - ActionManager
   layers:
   - Default
   - TransparentFX

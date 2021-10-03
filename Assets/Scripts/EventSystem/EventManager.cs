@@ -13,9 +13,14 @@ public class EventManager : MonoBehaviour
     {
 
     }
+    public class UnityEventAxis : UnityEvent<Axis>
+    {
+
+    }
 
 
     private Dictionary<string, UnityEventFloat> eventDictionary;
+    private Dictionary<string, UnityEventAxis> axisEventDictionary;
 
     private static EventManager eventManager;
 
@@ -48,6 +53,10 @@ public class EventManager : MonoBehaviour
         {
             eventDictionary = new Dictionary<string, UnityEventFloat>();
         }
+        if (axisEventDictionary == null)
+        {
+            axisEventDictionary = new Dictionary<string, UnityEventAxis>();
+        }
     }
 
     public static void StartListening(string eventName, UnityAction<float> listener)
@@ -79,6 +88,39 @@ public class EventManager : MonoBehaviour
     {
         UnityEventFloat thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent.Invoke(value);
+        }
+    }
+    public static void StartListeningToAxisEvent(string eventName, UnityAction<Axis> listener)
+    {
+        UnityEventAxis thisEvent = null;
+        if (instance.axisEventDictionary.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent.AddListener(listener);
+        }
+        else
+        {
+            thisEvent = new UnityEventAxis();
+            thisEvent.AddListener(listener);
+            instance.axisEventDictionary.Add(eventName, thisEvent);
+        }
+    }
+
+    public static void StopListeningToAxisEvent(string eventName, UnityAction<Axis> listener)
+    {
+        if (eventManager == null) return;
+        UnityEventAxis thisEvent = null;
+        if (instance.axisEventDictionary.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent.RemoveListener(listener);
+        }
+    }
+    
+    public static void TriggerAxisEvent(string eventName, Axis value)
+    {
+        UnityEventAxis thisEvent = null;
+        if (instance.axisEventDictionary.TryGetValue(eventName, out thisEvent))
         {
             thisEvent.Invoke(value);
         }
