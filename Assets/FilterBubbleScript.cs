@@ -10,6 +10,8 @@ using Wacki;
 public class FilterBubbleScript : MonoBehaviour
 {
 
+    Visualization parentVisualization = null;
+
     bool dropdownselected = false;
     public enum ViveMenuControlMode
     {
@@ -41,6 +43,11 @@ public class FilterBubbleScript : MonoBehaviour
     // Initialise.
     private void Start()
     {
+        // Set the parent vis
+        if(parentVisualization == null) {
+            parentVisualization = transform.GetComponentInParent<Visualization>();
+        }
+
         // Hide all menus except the default one. 
         this.Menus = this.gameObject.GetComponentsInChildren<Canvas>(includeInactive: true).ToList();
         currentMenu = this.Menus.SingleOrDefault(x => x == this.DefaultMenu);
@@ -181,6 +188,11 @@ public class FilterBubbleScript : MonoBehaviour
             gameObject.SetActive(false);
             gameObject.transform.localScale = Vector3.zero;
         }
+    }
+
+    // It should read the data values from the parent visualizations or any other dropped axis and then be able to create the sliders automatically
+    private void CreateSliderFilters(Axis droppedAxis) {
+        
     }
 
     bool isHiding = false;
