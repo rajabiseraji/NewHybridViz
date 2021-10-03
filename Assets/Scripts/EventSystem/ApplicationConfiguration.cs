@@ -19,5 +19,6 @@ public class ApplicationConfiguration {
 
     public static string OnLinkedTransparencyChanged = "OnLinkedTransparencyChanged";
     public static string OnAxisGrabbed = "OnAxisGrabbed";
+    public static string OnAxisReleased = "OnAxisReleased";
 
 }

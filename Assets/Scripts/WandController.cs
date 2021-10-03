@@ -76,6 +76,9 @@ public class WandController : MonoBehaviour
         }
     }
 
+    [SerializeField] UnityEvent OnLeftPadPressed;
+    [SerializeField] UnityEvent OnRightPadPressed;
+
     void Start()
     {
         if (!isOculusRift) controller = SteamVR_Controller.Input((int)trackedObject.index); 
@@ -154,6 +157,16 @@ public class WandController : MonoBehaviour
 
         bool padPressUp = isOculusRift ? OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick, OculusController)
           : controller.GetPressUp(padButton);
+
+        // detect press left 
+        if(padPressUp) {
+            if(controller.GetAxis().x != 0 && controller.GetAxis().y != 0) {
+                if(controller.GetAxis().x < 0)
+                    OnLeftPadPressed.Invoke();
+                else if(controller.GetAxis().x >= 0)
+                    OnRightPadPressed.Invoke();  
+            }
+        }
         
         #region details on demand
         //detail on demand actions

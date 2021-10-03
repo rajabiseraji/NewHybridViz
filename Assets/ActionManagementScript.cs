@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ActionManagementScript : MonoBehaviour
 {
+    private static readonly int MAX_HISTORY_SIZE = 5;
 
     public struct RestorableAction
     {
@@ -14,11 +15,11 @@ public class ActionManagementScript : MonoBehaviour
         Quaternion TargetRotation;
         public enum ActionType
         {
-            Movement,
-            Cloning,
-            Destruction,
-            Filtering,
-            AttirbuteChange
+            MOVE,
+            CLONE,
+            DESTORY,
+            FILTER,
+            ATTRIBUTE_CHANGE
         }
 
         ActionType type;
@@ -38,7 +39,7 @@ public class ActionManagementScript : MonoBehaviour
             TargetPosition = Vector3.zero;
             OriginRotation = Quaternion.identity;
             TargetRotation = Quaternion.identity;
-            type = ActionType.Movement; // The default type is always movement 
+            type = ActionType.MOVE; // The default type is always movement 
         }
 
         
@@ -64,19 +65,109 @@ public class ActionManagementScript : MonoBehaviour
     
     
      */
-    private Queue<RestorableAction> actionStack = new Queue<RestorableAction>();
+    private Stack<RestorableAction> actionStack = new Stack<RestorableAction>();
+    private Stack<RestorableAction> redoStack = new Stack<RestorableAction>();
+
+    // This the one we use to hold the transform of the start of the movement 
+    private Transform tempTransform;
 
     void Start()
     {
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisGrabbed);
+        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisReleased);
     }
 
     private void registerAxisGrabbed(Axis sourceAxis) {
-        Debug.Log(sourceAxis.name + " " +  sourceAxis.transform.position);
+        Debug.Log(sourceAxis.name + " Grabbed " +  sourceAxis.transform.position);
+        tempTransform = sourceAxis.transform;
+    }
+    private void registerAxisReleased(Axis sourceAxis) {
+        Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position);
+        RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE, sourceAxis, tempTransform.position, sourceAxis.transform.position, tempTransform.rotation, sourceAxis.transform.rotation);
+
+        // First check if the action stack is not at max capacity
+        if(actionStack.Count == MAX_HISTORY_SIZE) {
+            // pop the latest in the stsck
+            Stack<RestorableAction> temp = new Stack<RestorableAction>();
+            for (int i = 0; i < MAX_HISTORY_SIZE; i++)
+            {
+                temp.Push(actionStack.Pop());
+            }
+            temp.Pop(); // Discard the last item of the temp which is the earliest ActionStack entry
+            for (int i = 0; i < MAX_HISTORY_SIZE - 1 ; i++)
+            {
+                actionStack.Push(temp.Pop());
+            }
+        }
+
+        // After clearing out the max cap, push the new action in there
+        Debug.Log("New action is : " + newAction);
+        actionStack.Push(newAction);
+    }
+
+    public void UndoAction() {
+        if(actionStack.Count > 0) {
+            // If redo stack was full then make some room by pushing out the earliest item
+            if(redoStack.Count == MAX_HISTORY_SIZE) {
+                // pop the latest in the stsck
+                Stack<RestorableAction> temp = new Stack<RestorableAction>();
+                for (int i = 0; i < MAX_HISTORY_SIZE; i++)
+                {
+                    temp.Push(redoStack.Pop());
+                }
+                temp.Pop(); // Discard the last item of the temp which is the earliest ActionStack entry
+                for (int i = 0; i < MAX_HISTORY_SIZE - 1 ; i++)
+                {
+                    redoStack.Push(temp.Pop());
+                }
+            }
+
+            Debug.Log("Action is undo: " + actionStack.Peek());
+            redoStack.Push(actionStack.Pop());
+        } else {
+            Debug.Log("Nothing to Undo!");
+        }
+    }
+    public void RedoAction() {
+        if(redoStack.Count > 0) {
+            // If action stack was full then make some room by pushing out the earliest item
+            if(actionStack.Count == MAX_HISTORY_SIZE) {
+                // pop the latest in the stsck
+                Stack<RestorableAction> temp = new Stack<RestorableAction>();
+                for (int i = 0; i < MAX_HISTORY_SIZE; i++)
+                {
+                    temp.Push(actionStack.Pop());
+                }
+                temp.Pop(); // Discard the last item of the temp which is the earliest ActionStack entry
+                for (int i = 0; i < MAX_HISTORY_SIZE - 1 ; i++)
+                {
+                    actionStack.Push(temp.Pop());
+                }
+            }
+
+            Debug.Log("Action is REDO: " + redoStack.Peek());
+            actionStack.Push(redoStack.Pop());
+        } else {
+            Debug.Log("Nothing to Redo!");
+        }
     }
 
     void Update()
     {
         
+    }
+
+    public void OnLeftPadClicked() {
+        Debug.Log("Left was clicked!");
+        UndoAction();
+    }
+    public void OnRightPadClicked() {
+        Debug.Log("Right was clicked!");
+        RedoAction();
+    }
+
+    void OnDestroy() {
+        EventManager.StopListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisGrabbed);
+        EventManager.StopListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisReleased);
     }
 }

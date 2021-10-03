@@ -491,6 +491,9 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnRelease(WandController controller)
     {
+        // Call the event that sets the whole thing up! 
+        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
+
         // First save the original parent transform somewhere
         originalParent = transform.parent;
 
