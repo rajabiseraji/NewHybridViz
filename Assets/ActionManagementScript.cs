@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class ActionManagementScript : MonoBehaviour
 {
-    private static readonly int MAX_HISTORY_SIZE = 5;
+    private static readonly int MAX_HISTORY_SIZE = 20;
 
     public struct RestorableAction
     {
@@ -16,6 +16,8 @@ public class ActionManagementScript : MonoBehaviour
         public Quaternion TargetRotation;
 
         // This is for only when we have a visualization movement
+        public Visualization sourceVis;
+
         public List<Axis> involvedAxes;
         public enum ActionType
         {
@@ -36,11 +38,14 @@ public class ActionManagementScript : MonoBehaviour
             this.TargetPosition = TargetPosition;
             this.OriginRotation = OriginRotation;
             this.TargetRotation = TargetRotation;
+            this.sourceVis = null;
             this.involvedAxes = new List<Axis>();
         }
 
         public void clear() {
             sourceAxis = null;
+            sourceVis = null;
+            involvedAxes.Clear();
             OriginPositin = Vector3.zero;
             TargetPosition = Vector3.zero;
             OriginRotation = Quaternion.identity;
@@ -82,15 +87,25 @@ public class ActionManagementScript : MonoBehaviour
     private Vector3 tempPosition;
     private Quaternion tempRotation;
 
+    Visualization lastMovedVis;
     void Start()
     {
+        // Axis event listeners
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisGrabbed);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisReleased);
-        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnVisualizationGrabbed, registerVisualizationGrabbed);
-        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerVisualizationReleased);
+        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisReleasedInVis, registerAxisInVisReleased);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisCloned, registerCloningAction);
+
+        // Visualization event listeners
+        EventManager.StartListeningToVisuailzationEvent(ApplicationConfiguration.OnVisualizationGrabbed, registerVisualizationGrabbed);
+        EventManager.StartListeningToVisuailzationEvent(ApplicationConfiguration.OnVisualizationReleased, registerVisualizationReleased);
     }
 
+     /* 
+        ********************************* AXIS EVENT HANDLERS *********************************
+     */
+
+    #region AxisEventHandlers
     private void registerCloningAction(Axis sourceAxis) {
         // Debug.Log(sourceAxis.name + " CLONED! " +  sourceAxis.transform.position);
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.CLONE, sourceAxis, sourceAxis.transform.position, sourceAxis.transform.position, sourceAxis.transform.rotation, sourceAxis.transform.rotation);
@@ -113,10 +128,7 @@ public class ActionManagementScript : MonoBehaviour
     private void registerAxisReleased(Axis sourceAxis) {
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.x);
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
-        Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.z);
-        
-        
-        // Do something different when we're moving a whole visualization
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.z);
 
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE, sourceAxis, tempPosition, sourceAxis.transform.position, tempRotation, sourceAxis.transform.rotation);
 
@@ -124,31 +136,57 @@ public class ActionManagementScript : MonoBehaviour
         EnsureStackCapacity(actionStack);
 
         // After clearing out the max cap, push the new action in there
-        Debug.Log("New action is : " + newAction);
+        // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
+        Debug.Log("AXIS RELEASE - Stack size is now: " + actionStack.Count);
     }
-
-    private void registerVisualizationGrabbed(Axis sourceAxis) {
-        Debug.Log(sourceAxis.name + " VIS GRABBED " +  sourceAxis.transform.position);
+    private void registerAxisInVisReleased(Axis sourceAxis) {
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.x);
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.z);
         
-        
-        // Do something different when we're moving a whole visualization
-
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE_VISUALIZATION, sourceAxis, tempPosition, sourceAxis.transform.position, tempRotation, sourceAxis.transform.rotation);
-
-        
 
         // First check if the action stack is not at max capacity
         EnsureStackCapacity(actionStack);
 
         // After clearing out the max cap, push the new action in there
-        Debug.Log("New action is : " + newAction);
+        // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
-
+        Debug.Log("AXIS RELEASE In vis - Stack size is now: " + actionStack.Count);
     }
 
-    private void registerVisualizationReleased(Axis sourceAxis) {
-        return;
+    #endregion 
+
+
+
+    /* 
+    ********************************* VISUALIZATION EVENT HANDLERS *********************************
+     */
+
+    private void registerVisualizationGrabbed(Visualization src) {
+        Debug.Log(src.name + " VIS GRABBED " +  src.transform.position);
+        tempPosition = src.transform.position;
+        tempRotation = src.transform.rotation;
+        
+    }
+
+    private void registerVisualizationReleased(Visualization src) {
+        Debug.Log(src.name + " Released " +  src.transform.position.z);
+        
+        RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE_VISUALIZATION, src.axes[0], tempPosition, src.transform.position, tempRotation, src.transform.rotation);
+
+        newAction.sourceVis = src;
+
+        // First check if the action stack is not at max capacity
+        EnsureStackCapacity(actionStack);
+
+        // After clearing out the max cap, push the new action in there
+        // Debug.Log("New action is : " + newAction);
+        actionStack.Push(newAction);
+        lastMovedVis = src;
+        Debug.Log("VIS RELEASE - Stack size is now: " + actionStack.Count);
+        Debug.Log("VIS RELEASE - New action is : " + newAction);
     }
 
     public void UndoAction() {
@@ -162,12 +200,26 @@ public class ActionManagementScript : MonoBehaviour
             if(poppedAction.type == RestorableAction.ActionType.MOVE) {
                 poppedAction.sourceAxis.AnimateTo(poppedAction.OriginPositin, poppedAction.OriginRotation);
             } else if (poppedAction.type == RestorableAction.ActionType.CLONE) {
+
                 Rigidbody body = poppedAction.sourceAxis.GetComponent<Rigidbody>();
                 body.isKinematic = false;
                 body.useGravity = true;
                 body.AddForce(Vector3.up * -1000);
                 poppedAction.sourceAxis.gameObject.layer = LayerMask.NameToLayer("TransparentFX");
                 poppedAction.sourceAxis.transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack);
+
+            } else if (poppedAction.type == RestorableAction.ActionType.MOVE_VISUALIZATION) {
+                Debug.Log("it's move visualizatoin!!!");
+                // POP UNTIL YOU REACH SOMETHING ELSE
+                foreach (var item in poppedAction.sourceAxis.correspondingVisualizations())
+                {
+                    if(item.axes.Contains(actionStack.Peek().sourceAxis)) {
+                        poppedAction.sourceAxis.AnimateTo(poppedAction.OriginPositin, poppedAction.OriginRotation);
+                        redoStack.Push(poppedAction);
+                        UndoAction();
+                        return;
+                    }
+                }
             }
 
             redoStack.Push(poppedAction);
@@ -185,6 +237,8 @@ public class ActionManagementScript : MonoBehaviour
             // If it's moving one axis from one place to the other
             if(poppedAction.type == RestorableAction.ActionType.MOVE) {
                 poppedAction.sourceAxis.AnimateTo(poppedAction.TargetPosition, poppedAction.TargetRotation);
+            } else if (poppedAction.type == RestorableAction.ActionType.MOVE_VISUALIZATION) {
+                
             }
 
             actionStack.Push(poppedAction);
@@ -208,10 +262,23 @@ public class ActionManagementScript : MonoBehaviour
             }
         }
     }
+    
+
+    bool isPartOfMovedVis(Axis newAxis) {
+        var lastStackElement = actionStack.Peek();
+        if(lastStackElement.type == RestorableAction.ActionType.MOVE_VISUALIZATION) {
+            // Check if the ones after that in the stack are axes that belong to the visualization
+            // If so, remove them from the stack
+
+            // if the new axis is part of the moved visualization
+            return lastStackElement.sourceVis.axes.Contains(newAxis);
+        } 
+        return false;
+    } 
 
     void Update()
     {
-        
+
     }
 
     public void OnLeftPadClicked() {

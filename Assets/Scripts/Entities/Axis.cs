@@ -496,11 +496,6 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnRelease(WandController controller)
     {
-        if(!isPrototype) {
-            // Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
-            // Call the event that sets the whole thing up! 
-            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
-        }
         // First save the original parent transform somewhere
         originalParent = transform.parent;
 
@@ -609,6 +604,16 @@ public class Axis : MonoBehaviour, Grabbable {
 
         grabbingController = null;
         
+        if(!isPrototype) {
+            // Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
+            // Call the event that sets the whole thing up! 
+            
+            if(!correspondingVisualizations().Any()) { // if the axis is part of none of the other visualizations
+                EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
+            } else {
+                EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleasedInVis, this);
+            }
+        }
     }
 
     public void OnDrag(WandController controller)

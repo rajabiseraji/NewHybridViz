@@ -21,6 +21,7 @@ public class ApplicationConfiguration {
     public static string OnAxisCloned = "OnAxisCloned";
     public static string OnAxisGrabbed = "OnAxisGrabbed";
     public static string OnAxisReleased = "OnAxisReleased";
+    public static string OnAxisReleasedInVis = "OnAxisReleasedInVis";
     public static string OnVisualizationGrabbed = "OnVisualizationGrabbed";
     public static string OnVisualizationReleased = "OnVisualizationReleased";
 
