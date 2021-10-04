@@ -260,6 +260,11 @@ public class Axis : MonoBehaviour, Grabbable {
             }
         }
 
+        // if(!isPrototype && correspondingVisualizations().Any()) {
+        //     /* Change the knob position in this case */
+        //     cloningWidgetGameObject.transform.localPosition -= new Vector3
+        // }
+
         // TODO: turn this cloning into its own method to use with the anchor cloning
         if (isPrototype)
         {
@@ -504,6 +509,8 @@ public class Axis : MonoBehaviour, Grabbable {
         foreach (var visu in correspondingVisualizations())
         {
             visu.transform.parent = null;
+
+            // TODO: Set the cloning knob of other axes to disable and this one to enable
         }
 
         if (!isPrototype)
@@ -614,6 +621,7 @@ public class Axis : MonoBehaviour, Grabbable {
                 EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleasedInVis, this);
             }
         }
+
     }
 
     public void OnDrag(WandController controller)

@@ -20,6 +20,7 @@ TagManager:
   - FloatingMenu
   - 2DPanel
   - ActionManager
+  - ScreenOverlay
   layers:
   - Default
   - TransparentFX

@@ -20,7 +20,7 @@ public class AxisCloningWidget : MonoBehaviour, Grabbable
     Axis parentAxis;
 
     public Vector3 initialScale;
-    Vector3 rescaled = Vector3.one;
+    Vector3 rescaled;
 
     // Use this for initialization
     void Start () {
