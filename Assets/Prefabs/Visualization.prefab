@@ -511,6 +511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90d77eca08e2a00448766082ef2867a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  label: {fileID: 2288782108697580143}
   histogramObject: {fileID: 1039085207644392}
   scatterplot2DObject: {fileID: 1277313901451468}
   parallelCoordsObject: {fileID: 1129375698972400}

@@ -4,11 +4,13 @@ using DG.Tweening;
 using System;
 using Staxes;
 using System.Linq;
+using TMPro;
 
 // a visualization prefab will auto-configure which visuzalization to present depending on the number of attached axes and
 // orientation of those axes
 public class Visualization : MonoBehaviour, Grabbable, Brushable
 {
+    [SerializeField] TextMeshPro label;
     // Q: What are the reference Axis? Where is it actually used?
     public struct ReferenceAxis
     {
@@ -168,6 +170,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             myName += item.name + " ";
         }
         name = myName + "visualisation";
+        if(label && axesCount > 1) {
+            string tmp = name.Replace("axis", "");
+            label.text = tmp.Replace("visualisation", "");
+        }
 
         //listen to menu events
         EventManager.StartListening(ApplicationConfiguration.OnSlideChangePointSize, OnChangePointSize);
@@ -582,7 +588,18 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     void LateUpdate()
     {
+
         UpdateViewType();
+        if(label && !string.IsNullOrEmpty(label.text) && axesCount > 1) {
+            string lab = "";
+            foreach (var item in axes)
+            {
+                lab += item.name + " ";
+            }
+            lab = lab.Replace("axis", " ");
+            lab = lab.Replace("visualisation", "");
+            label.text = lab;
+        }
 
         switch (viewType)
         {

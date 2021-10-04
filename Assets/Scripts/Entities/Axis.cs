@@ -260,10 +260,6 @@ public class Axis : MonoBehaviour, Grabbable {
             }
         }
 
-        // if(!isPrototype && correspondingVisualizations().Any()) {
-        //     /* Change the knob position in this case */
-        //     cloningWidgetGameObject.transform.localPosition -= new Vector3
-        // }
 
         // TODO: turn this cloning into its own method to use with the anchor cloning
         if (isPrototype)
@@ -341,6 +337,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public GameObject Clone()
     {
         GameObject clone = Instantiate(gameObject, transform.position, transform.rotation, null);
+        clone.name = gameObject.name;
         Axis axis = clone.GetComponent<Axis>();
         axis.InitOrigin(originPosition, originRotation);
         axis.isClonedByCloningWidget = isClonedByCloningWidget;
@@ -620,6 +617,21 @@ public class Axis : MonoBehaviour, Grabbable {
             } else {
                 EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleasedInVis, this);
             }
+        }
+
+        if(!isPrototype && correspondingVisualizations().Any()) {
+            /* Change the knob position in this case */
+            foreach (var vis in correspondingVisualizations())
+            {
+                if(vis.axesCount == 1)
+                    continue;
+                foreach (var axis in vis.axes)
+                {
+                    axis.cloningWidgetGameObject.SetActive(false);
+                }
+                cloningWidgetGameObject.transform.position = vis.fbl + (vis.transform.right * -0.05f) + (vis.transform.up * -0.04f);
+            }
+            cloningWidgetGameObject.SetActive(true);
         }
 
     }
