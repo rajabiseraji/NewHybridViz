@@ -468,7 +468,7 @@ public class Axis : MonoBehaviour, Grabbable {
         if(isPrototype) {
             EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
         } else {
-            Debug.Log("I'm being grabbed: " + isDirty + " and pos is: " + transform.position);
+            // Debug.Log("I'm being grabbed: " + isDirty + " and pos is: " + transform.position);
             EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
         }
 
@@ -497,7 +497,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public void OnRelease(WandController controller)
     {
         if(!isPrototype) {
-            Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
+            // Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
             // Call the event that sets the whole thing up! 
             EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
         }

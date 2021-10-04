@@ -1344,6 +1344,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             Debug.Log("splom grabbed inside ELSE");
             Debug.Log(theSPLOMReference);
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnVisualizationGrabbed, axes[0]);
             controller.PropergateOnGrab(theSPLOMReference.gameObject);
         }
 
@@ -1352,6 +1353,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     public void OnRelease(WandController controller)
     {
+        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnVisualizationReleased, axes[0]);
         if (OnStaxesAction != null)
             fireOnStaxesEvent("RELEASED");
         isDirty = true;

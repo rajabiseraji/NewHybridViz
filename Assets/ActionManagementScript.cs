@@ -14,9 +14,13 @@ public class ActionManagementScript : MonoBehaviour
         public Vector3 TargetPosition;
         public Quaternion OriginRotation;
         public Quaternion TargetRotation;
+
+        // This is for only when we have a visualization movement
+        public List<Axis> involvedAxes;
         public enum ActionType
         {
             MOVE,
+            MOVE_VISUALIZATION,
             CLONE,
             DESTORY,
             FILTER,
@@ -32,6 +36,7 @@ public class ActionManagementScript : MonoBehaviour
             this.TargetPosition = TargetPosition;
             this.OriginRotation = OriginRotation;
             this.TargetRotation = TargetRotation;
+            this.involvedAxes = new List<Axis>();
         }
 
         public void clear() {
@@ -81,31 +86,38 @@ public class ActionManagementScript : MonoBehaviour
     {
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisGrabbed);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisReleased);
+        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnVisualizationGrabbed, registerVisualizationGrabbed);
+        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerVisualizationReleased);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisCloned, registerCloningAction);
     }
 
     private void registerCloningAction(Axis sourceAxis) {
-        Debug.Log(sourceAxis.name + " CLONED! " +  sourceAxis.transform.position);
+        // Debug.Log(sourceAxis.name + " CLONED! " +  sourceAxis.transform.position);
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.CLONE, sourceAxis, sourceAxis.transform.position, sourceAxis.transform.position, sourceAxis.transform.rotation, sourceAxis.transform.rotation);
 
         // First check if the action stack is not at max capacity
         EnsureStackCapacity(actionStack);
 
         // After clearing out the max cap, push the new action in there
-        Debug.Log("New action is : " + newAction);
+        // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
     }
     private void registerAxisGrabbed(Axis sourceAxis) {
         tempPosition = sourceAxis.transform.position;
         tempRotation = sourceAxis.transform.rotation;
-        Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.x);
-        Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.y);
-        Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.z);
+
+        // Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.x);
+        // Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.y);
+        // Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.z);
     }
     private void registerAxisReleased(Axis sourceAxis) {
-        Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.x);
-        Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.x);
+        // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
         Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.z);
+        
+        
+        // Do something different when we're moving a whole visualization
+
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE, sourceAxis, tempPosition, sourceAxis.transform.position, tempRotation, sourceAxis.transform.rotation);
 
         // First check if the action stack is not at max capacity
@@ -116,12 +128,35 @@ public class ActionManagementScript : MonoBehaviour
         actionStack.Push(newAction);
     }
 
+    private void registerVisualizationGrabbed(Axis sourceAxis) {
+        Debug.Log(sourceAxis.name + " VIS GRABBED " +  sourceAxis.transform.position);
+        
+        
+        // Do something different when we're moving a whole visualization
+
+        RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE_VISUALIZATION, sourceAxis, tempPosition, sourceAxis.transform.position, tempRotation, sourceAxis.transform.rotation);
+
+        
+
+        // First check if the action stack is not at max capacity
+        EnsureStackCapacity(actionStack);
+
+        // After clearing out the max cap, push the new action in there
+        Debug.Log("New action is : " + newAction);
+        actionStack.Push(newAction);
+
+    }
+
+    private void registerVisualizationReleased(Axis sourceAxis) {
+        return;
+    }
+
     public void UndoAction() {
         if(actionStack.Count > 0) {
             // If redo stack was full then make some room by pushing out the earliest item
             EnsureStackCapacity(redoStack);
             RestorableAction poppedAction = actionStack.Pop(); 
-            Debug.Log("Action is undo: " + poppedAction);
+            // Debug.Log("Action is undo: " + poppedAction);
 
             // If it's moving one axis from one place to the other
             if(poppedAction.type == RestorableAction.ActionType.MOVE) {
@@ -145,7 +180,7 @@ public class ActionManagementScript : MonoBehaviour
             // If action stack was full then make some room by pushing out the earliest item
             EnsureStackCapacity(actionStack);
             RestorableAction poppedAction = redoStack.Pop(); 
-            Debug.Log("Action is REDO: " + poppedAction);
+            // Debug.Log("Action is REDO: " + poppedAction);
 
             // If it's moving one axis from one place to the other
             if(poppedAction.type == RestorableAction.ActionType.MOVE) {
