@@ -464,8 +464,13 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool OnGrab(WandController controller)
     {
-        // Call the event that sets the whole thing up! 
-        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
+        // if it's a cloning interaction
+        if(isPrototype) {
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
+        } else {
+            Debug.Log("I'm being grabbed: " + isDirty + " and pos is: " + transform.position);
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
+        }
 
 
         if (!isTweening)
@@ -491,9 +496,11 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnRelease(WandController controller)
     {
-        // Call the event that sets the whole thing up! 
-        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
-
+        if(!isPrototype) {
+            Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
+            // Call the event that sets the whole thing up! 
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisReleased, this);
+        }
         // First save the original parent transform somewhere
         originalParent = transform.parent;
 
@@ -601,10 +608,12 @@ public class Axis : MonoBehaviour, Grabbable {
         isDirty = false;
 
         grabbingController = null;
+        
     }
 
     public void OnDrag(WandController controller)
     {
+        
         if(isOn2DPanel && !DOTween.IsTweening(transform)) {
             if (grabbingController == null || grabbingController != controller)
                 grabbingController = controller;

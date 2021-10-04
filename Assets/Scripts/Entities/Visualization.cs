@@ -1400,7 +1400,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void OnDetailOnDemandRelease(WandController controller)
     {
         isDetailOnDemand = false;
-        DetailsOnDemandComponent.OnDetailOnDemandEnd();
+
+        /////////////////////////////////////////TEMP TEMP TEMP TEMP TEMP///////////////////////////////
+        ////////////////////////////////////////TODO: uncomment after fixing redo///////////////////////////////
+        
+        // DetailsOnDemandComponent.OnDetailOnDemandEnd();
+
+                /////////////////////////////////////////TEMP TEMP TEMP TEMP TEMP///////////////////////////////
+        ////////////////////////////////////////TODO: uncomment after fixing redo///////////////////////////////
+
     }
 
     string[] memory = new string[5];
