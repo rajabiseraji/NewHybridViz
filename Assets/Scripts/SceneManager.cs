@@ -46,11 +46,13 @@ public class SceneManager : MonoBehaviour
         // this is the code to get something in front of a camera
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = dataShelfPanel;
-        cube.transform.localPosition = Vector3.zero;
+        cube.transform.position = Vector3.zero;
         cube.transform.position += Camera.main.transform.forward * 1.2f;
         cube.transform.rotation = new Quaternion(0.0f, Camera.main.transform.rotation.y, 0.0f, Camera.main.transform.rotation.w);
         // cube.transform.Rotate(0, 180, 0);
-        cube.transform.localScale = new Vector3(cube.transform.localScale.x , cube.transform.localScale.y, 0.1f);
+        cube.transform.localScale = new Vector3(2.2f , 0.7f, 0.1f);
+
+        // top left = width:  2.10 - height: 0.5 
         
         
 
