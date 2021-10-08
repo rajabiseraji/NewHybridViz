@@ -26,6 +26,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     DataObjectMetadata metadata;
 
+    GameObject cube;
 
     static SceneManager _instance;
     public static SceneManager Instance
@@ -41,6 +42,23 @@ public class SceneManager : MonoBehaviour
         dataShelfPanel.rotation = Camera.main.transform.rotation;
         dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.forward * 1f);
         dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.up * -0.8f);
+
+        // this is the code to get something in front of a camera
+        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.parent = dataShelfPanel;
+        cube.transform.localPosition = Vector3.zero;
+        cube.transform.position += Camera.main.transform.forward * 1.2f;
+        cube.transform.rotation = new Quaternion(0.0f, Camera.main.transform.rotation.y, 0.0f, Camera.main.transform.rotation.w);
+        // cube.transform.Rotate(0, 180, 0);
+        cube.transform.localScale = new Vector3(cube.transform.localScale.x , cube.transform.localScale.y, 0.1f);
+        
+        
+
+        Renderer r = cube.GetComponent<Renderer>(); 
+        Color temp = Color.black;
+        temp = r.material.color;
+        temp.a = 0.2f;
+        r.material.color = temp; 
 
 
         // Vector3 dataShelfZDirection = 
