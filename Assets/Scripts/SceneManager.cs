@@ -26,7 +26,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     DataObjectMetadata metadata;
 
-    GameObject cube;
+    [SerializeField]
+    GameObject TwoDPanel;
 
     static SceneManager _instance;
     public static SceneManager Instance
@@ -45,12 +46,11 @@ public class SceneManager : MonoBehaviour
 
         // this is the code to get something in front of a camera
         // top left = width:  2.10 - height: 0.5 
-        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.rotation = Camera.main.transform.rotation;
-        cube.transform.position = Camera.main.transform.position;
-        cube.transform.position += (Camera.main.transform.forward * 1.1f) + (Camera.main.transform.up * -0.1f) + (Camera.main.transform.right * 0.4f);
-        cube.transform.parent = dataShelfPanel;
-        cube.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
+        TwoDPanel.transform.rotation = Camera.main.transform.rotation;
+        TwoDPanel.transform.position = Camera.main.transform.position;
+        TwoDPanel.transform.position += (Camera.main.transform.forward * 1f) + (Camera.main.transform.up * -0.1f) + (Camera.main.transform.right * 0.4f);
+        TwoDPanel.transform.parent = dataShelfPanel;
+        TwoDPanel.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
         
 
         // Vector3 dataShelfZDirection = 
