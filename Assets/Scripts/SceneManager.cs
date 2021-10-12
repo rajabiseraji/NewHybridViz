@@ -44,24 +44,14 @@ public class SceneManager : MonoBehaviour
         dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.up * -0.8f);
 
         // this is the code to get something in front of a camera
-        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.parent = dataShelfPanel;
-        cube.transform.position = Vector3.zero;
-        cube.transform.position += Camera.main.transform.forward * 1.2f;
-        cube.transform.rotation = new Quaternion(0.0f, Camera.main.transform.rotation.y, 0.0f, Camera.main.transform.rotation.w);
-        // cube.transform.Rotate(0, 180, 0);
-        cube.transform.localScale = new Vector3(2.2f , 0.7f, 0.1f);
-
         // top left = width:  2.10 - height: 0.5 
+        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.rotation = Camera.main.transform.rotation;
+        cube.transform.position = Camera.main.transform.position;
+        cube.transform.position += (Camera.main.transform.forward * 1.1f) + (Camera.main.transform.up * -0.1f) + (Camera.main.transform.right * 0.4f);
+        cube.transform.parent = dataShelfPanel;
+        cube.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
         
-        
-
-        Renderer r = cube.GetComponent<Renderer>(); 
-        Color temp = Color.black;
-        temp = r.material.color;
-        temp.a = 0.2f;
-        r.material.color = temp; 
-
 
         // Vector3 dataShelfZDirection = 
 
