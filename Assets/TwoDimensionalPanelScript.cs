@@ -11,8 +11,8 @@ public class TwoDimensionalPanelScript : MonoBehaviour
     public List<Axis> ConnectedAxes = new List<Axis>();
     void Start()
     {
-        mesh = GetComponent<MeshFilter>().mesh;
-        vertices = mesh.vertices;
+        // mesh = GetComponent<MeshFilter>().mesh;
+        // vertices = mesh.vertices;
 
         transform.parent.rotation = Camera.main.transform.rotation;
         transform.parent.Rotate(0, -90f, 0, Space.Self);
