@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class TwoDimensionalPanelScript : MonoBehaviour
+public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 {
     Mesh mesh;
     Vector3[] vertices;
@@ -74,7 +74,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour
 
                 seq.AppendCallback(() => {
                     a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                    a.transform.SetParent(transform);
+                    // a.transform.SetParent(transform);
                     a.isOn2DPanel = true;
                 });
 
@@ -83,6 +83,51 @@ public class TwoDimensionalPanelScript : MonoBehaviour
         // }
     }
 
+    private void toggleChildAxesClonig(bool onOff) {
+        foreach (var axis in GameObject.FindGameObjectWithTag("DataShelfPanel").GetComponentsInChildren<Axis>())
+        {
+            axis.isPrototype = onOff;
+        }
+    }
 
+    public int GetPriority()
+    {
+        // lower priority than almost everything in the world
+        return 1;
+    }
 
+    public bool OnGrab(WandController controller)
+    {
+        Debug.Log("From 2D Panel: Grabbed");
+        toggleChildAxesClonig(false);
+        transform.parent.parent.parent = controller.transform; // Cube -> 2DPanel -> DataShelfPanel
+        return true;
+    }
+
+    public void OnRelease(WandController controller)
+    {
+        Debug.Log("From 2D Panel: Released");
+        transform.parent.parent.parent = null;
+        Debug.Log("Just started the coroutinge");
+        toggleChildAxesClonig(false);
+        StartCoroutine("DoToggleBackChildAxis");
+    }
+
+    IEnumerator DoToggleBackChildAxis() {
+        yield return new WaitForSeconds(.2f);
+        toggleChildAxesClonig(true);
+        Debug.Log("now togggled");
+    }
+
+    public void OnDrag(WandController controller)
+    {
+    }
+
+    public void OnEnter(WandController controller)
+    {
+    }
+
+    public void OnExit(WandController controller)
+    {
+    }
 }

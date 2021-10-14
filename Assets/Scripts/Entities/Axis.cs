@@ -257,10 +257,10 @@ public class Axis : MonoBehaviour, Grabbable {
         if(transform.parent != null && transform.parent.tag == "DataShelfPanel") {
             
             // While the data panel is moving, don't clone anything (aka keep the isProto to false)
-            if(parentPrevPosition != transform.parent.position) {
-                parentIsMoving = true;
-            } else {
+            if(parentPrevPosition != Vector3.zero && parentPrevPosition.Equals(transform.parent.position)) {
                 parentIsMoving = false;
+            } else {
+                parentIsMoving = true;
             }
 
             // Making sure that the parent of the axis and its corresponding visualizations are the same
@@ -273,6 +273,9 @@ public class Axis : MonoBehaviour, Grabbable {
 
             // Keep the last position of the parent in this variable for comparison
             parentPrevPosition = transform.parent.position;
+
+            // update the origin position for when the axes move around
+            originPosition = transform.position;
         }
 
 
