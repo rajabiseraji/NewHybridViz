@@ -27,6 +27,10 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool isClonedByCloningWidget = false;
 
+    // To detect if the dataShelf panel is moving
+    public bool parentIsMoving = false;
+    Vector3 parentPrevPosition = Vector3.zero;
+
     //temporary hack 
 
     // these values are used with the setInitOrigin in order to set the initial postiion and rotation of the axes
@@ -249,20 +253,31 @@ public class Axis : MonoBehaviour, Grabbable {
         // it checks if the axes is part of the data shelf first
         // Then puts a clone in the original place of the data component
         // In the end adds the axis that is cloned to the list of present axes on the scene
-
-        // Making sure that the parent of the axis and its corresponding visualizations are the same
+    
         if(transform.parent != null && transform.parent.tag == "DataShelfPanel") {
+            
+            // While the data panel is moving, don't clone anything (aka keep the isProto to false)
+            if(parentPrevPosition != transform.parent.position) {
+                parentIsMoving = true;
+            } else {
+                parentIsMoving = false;
+            }
+
+            // Making sure that the parent of the axis and its corresponding visualizations are the same
             foreach (var visu in correspondingVisualizations())
             {
                 if(visu.transform.parent == null || visu.transform.parent.tag != "DataShelfPanel") {
                     visu.transform.SetParent(transform.parent);
                 }
             }
+
+            // Keep the last position of the parent in this variable for comparison
+            parentPrevPosition = transform.parent.position;
         }
 
 
         // TODO: turn this cloning into its own method to use with the anchor cloning
-        if (isPrototype)
+        if (isPrototype && !parentIsMoving)
         {
             if (Vector3.Distance(originPosition, transform.position) > 0.25f)
             {
