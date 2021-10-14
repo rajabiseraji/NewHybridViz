@@ -98,7 +98,6 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
-        Debug.Log("From 2D Panel: Grabbed");
         toggleChildAxesClonig(false);
         transform.parent.parent.parent = controller.transform; // Cube -> 2DPanel -> DataShelfPanel
         return true;
@@ -106,9 +105,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     public void OnRelease(WandController controller)
     {
-        Debug.Log("From 2D Panel: Released");
         transform.parent.parent.parent = null;
-        Debug.Log("Just started the coroutinge");
         toggleChildAxesClonig(false);
         StartCoroutine("DoToggleBackChildAxis");
     }
@@ -116,7 +113,6 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     IEnumerator DoToggleBackChildAxis() {
         yield return new WaitForSeconds(.2f);
         toggleChildAxesClonig(true);
-        Debug.Log("now togggled");
     }
 
     public void OnDrag(WandController controller)
