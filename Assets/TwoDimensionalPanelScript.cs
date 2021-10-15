@@ -74,7 +74,10 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
                 seq.AppendCallback(() => {
                     a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                    // a.transform.SetParent(transform);
+                    // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
+                    // TODO: fix this later in a way that the item is moved with the panel,
+                    // right now it won't be moved with the parent
+                    // a.transform.SetParent(transform.parent.parent);
                     a.isOn2DPanel = true;
                 });
 
