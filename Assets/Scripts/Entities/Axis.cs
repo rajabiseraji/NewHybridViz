@@ -274,8 +274,9 @@ public class Axis : MonoBehaviour, Grabbable {
             // Keep the last position of the parent in this variable for comparison
             parentPrevPosition = transform.parent.position;
 
-            // update the origin position for when the axes move around
-            originPosition = transform.position;
+            // update the origin position and rotation for when the axes move around
+            this.originPosition = transform.position;
+            this.originRotation = transform.rotation;
         }
 
 
@@ -669,13 +670,19 @@ public class Axis : MonoBehaviour, Grabbable {
             if(Vector3.Dot(controller.transform.forward, transform.forward) < 0) {
                 desiredRotation = Quaternion.Inverse(desiredRotation);
             }
-
-            transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
+            
+            // Don't do the rotation and all when it's on the datashelf
+            if(!isPrototype) {
+                transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
+            }
 
             // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
             Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - previousControllerPosition, transform.forward);
 
-            transform.position = positionBefore2Drotation + planarMappingOfDirection;
+            // Don't do the translation and all when it's on the datashelf
+            if(!isPrototype) {
+                transform.position = positionBefore2Drotation + planarMappingOfDirection;
+            }
             // We need the distance in the direction of the normal vector of the plane
             Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);
 
