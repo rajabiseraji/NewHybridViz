@@ -651,7 +651,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                         List<Vector3> extents = Extents(axisV, axisH);
 
                         transform.position = extents.Aggregate(Vector3.zero, (acc, x) => acc + x) / extents.Count;
-                        transform.rotation = Quaternion.LookRotation(visforward, axisV.Up);
+                        // Gets rid of the annoying message for now
+                        // TODO: fix it for real!
+                        if(visforward != Vector3.zero && axisV.Up != Vector3.zero)
+                            transform.rotation = Quaternion.LookRotation(visforward, axisV.Up);
 
                         // get the corners of the visualization in space
                         CalculateCorners2(axisV, axisH, null, ref ftl, ref ftr, ref fbl, ref fbr);
