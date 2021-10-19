@@ -34,6 +34,14 @@ public class FilterBubbleScript : MonoBehaviour
         colorPickerMenu.OnHidePicker = OnHidePicker;
         colorPickerMenu.OnShowPicker = OnShowPicker;
 
+        GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[1].GetComponent<SteamVR_TrackedController>();
+
+    }
+
+    void Update() {
+        if(GetComponent<ViveMenu>().Controller == null) {
+            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[1].GetComponent<SteamVR_TrackedController>();
+        }
     }
 
     public void OnTestSliderChanged(float value)
