@@ -7,6 +7,10 @@ using System.Linq;
 public class FilterBubbleScript : MonoBehaviour
 {
 
+    public Visualization parentVisualization;
+    public GameObject sliderPrefab; 
+
+
     [Tooltip("A list of dropdowns that will be automatically populated with attribute names")]
     public List<Dropdown> AttributeDropdowns = new List<Dropdown>();
 
@@ -34,7 +38,16 @@ public class FilterBubbleScript : MonoBehaviour
         colorPickerMenu.OnHidePicker = OnHidePicker;
         colorPickerMenu.OnShowPicker = OnShowPicker;
 
+        // Make it transparent at the beginning
+        GetComponentInChildren<CanvasGroup>().alpha = 0f;
+
         GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[1].GetComponent<SteamVR_TrackedController>();
+
+        for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
+        {
+            GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation);
+
+        }
 
     }
 
