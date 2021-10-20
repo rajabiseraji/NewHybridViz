@@ -1184,8 +1184,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 9.705003, y: 9.9207535, z: 0.99999994}
-  m_Center: {x: 3.2265215, y: -0.04330634, z: -0.0000008727563}
+  m_Size: {x: 9.427796, y: 9.9207535, z: 0.99999994}
+  m_Center: {x: 3.365125, y: -0.04330634, z: -0.0000008727563}
 --- !u!1 &1613657022617727968
 GameObject:
   m_ObjectHideFlags: 0
@@ -1772,6 +1772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parentVisualization: {fileID: 114548593337877974}
   sliderPrefab: {fileID: 7166050972331387993}
+  controlGameobject: {fileID: 7848555488285749351}
   AttributeDropdowns: []
   PointMinSizeSlider: {fileID: 0}
   PointMaxSizeSlider: {fileID: 0}

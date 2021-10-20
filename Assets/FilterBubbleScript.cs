@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using TMPro;
 
 public class FilterBubbleScript : MonoBehaviour
 {
 
     public Visualization parentVisualization;
     public GameObject sliderPrefab; 
+    public Transform controlGameobject;
 
 
     [Tooltip("A list of dropdowns that will be automatically populated with attribute names")]
@@ -41,19 +43,26 @@ public class FilterBubbleScript : MonoBehaviour
         // Make it transparent at the beginning
         GetComponentInChildren<CanvasGroup>().alpha = 0f;
 
-        GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[1].GetComponent<SteamVR_TrackedController>();
+        GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
 
-        for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
-        {
-            GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation);
-
-        }
-
+        
     }
 
     void Update() {
         if(GetComponent<ViveMenu>().Controller == null) {
-            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[1].GetComponent<SteamVR_TrackedController>();
+            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+        }
+    }
+
+    public void AddNewFilter(List<Axis> axes) {
+        foreach (var axis in axes)
+        {
+            GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
+            UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
+            sliderComponent.minValue = axis.MinFilter;
+            sliderComponent.maxValue = axis.MaxFilter;
+            clonedSlider.GetComponentInChildren<Text>().text = axis.name;
+            Debug.Log("Added one! : " + axis.name);
         }
     }
 

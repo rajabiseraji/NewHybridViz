@@ -57,6 +57,31 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         }
     }
 
+    void OnTriggerEnter(Collider other) {
+        // if the entered one is a visualization or an axis
+        if(other.GetComponent<Axis>() || other.GetComponent<Visualization>()) {
+            Debug.Log("I've collided with an axis with the name of: " + other.name);
+
+            // find out the involved axis in the visualization
+            List<Axis> involvedAxes;
+            if(other.GetComponent<Visualization>()) {
+                involvedAxes = other.GetComponent<Visualization>().axes;
+            } else {
+                involvedAxes = new List<Axis>();
+                involvedAxes.Add(other.GetComponent<Axis>());
+            }
+
+            // TODO:Call a function from the FilterBubbleScript to make the sliders (or toggles and whatnot)
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+            seq.AppendCallback(() => {
+                other.gameObject.SetActive(false);
+                filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
+            });
+        }
+    }
+
     public void OnExit(WandController controller)
     {
         OnExited.Invoke();
