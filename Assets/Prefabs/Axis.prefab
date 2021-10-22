@@ -2869,6 +2869,7 @@ MonoBehaviour:
   isPrototype: 0
   isOn2DPanel: 0
   isClonedByCloningWidget: 0
+  parentIsMoving: 0
   minFilterObject: {fileID: 4741826101255928}
   maxFilterObject: {fileID: 4551393065374534}
   minNormaliserObject: {fileID: 4569363650785136}

@@ -99,7 +99,7 @@ public class Axis : MonoBehaviour, Grabbable {
     
     // This comes from the DimensionRange in DataObject
     // x of this vector2 is min and y of this vector2 is max
-    Vector2 AttributeRange;
+    public Vector2 AttributeRange;
 
     // This changes the scale size of the ticks 
     float ticksScaleFactor = 1.0f;

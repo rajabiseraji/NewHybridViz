@@ -60,19 +60,29 @@ public class FilterBubbleScript : MonoBehaviour
         foreach (var axis in axes)
         {
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
-            UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
-            sliderComponent.minValue = axis.MinFilter;
-            sliderComponent.maxValue = axis.MaxFilter;
+            // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
+            clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
+            clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
+            // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
+            // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
+
             clonedSlider.GetComponentInChildren<Text>().text = axis.name;
+
+            clonedSlider.GetComponent<UnityEngine.UI.Slider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<UnityEngine.UI.Slider>(), axis);});
+
             filterAxes.Add(axis);
             Debug.Log("Added one! : " + axis.name);
         }
     }
 
-    public void OnTestSliderChanged(float value)
+    public void OnTestSliderChanged(UnityEngine.UI.Slider slider, Axis a)
     {
-        Debug.Log("My value has changed and it's now: " + value);
+        float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
+        Debug.Log(a.name + "'s value has changed and it's now: " + slider.value);
+        Debug.Log(a.name + "'s value has changed and it's normalised value is: " + normalisedValue);
+        a.SetMinFilter(normalisedValue);
     }
+
     public void OnLinkAttributeChanged(int idx)
     {
         VisualisationAttributes.Instance.LinkedAttribute = idx - 1;
