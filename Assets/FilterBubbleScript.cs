@@ -26,6 +26,8 @@ public class FilterBubbleScript : MonoBehaviour
 
     public Button MaxGradientColourButton;
 
+    public List<Axis> filterAxes = new List<Axis>();
+
 
     // Use this for initialization
     void Start()
@@ -62,6 +64,7 @@ public class FilterBubbleScript : MonoBehaviour
             sliderComponent.minValue = axis.MinFilter;
             sliderComponent.maxValue = axis.MaxFilter;
             clonedSlider.GetComponentInChildren<Text>().text = axis.name;
+            filterAxes.Add(axis);
             Debug.Log("Added one! : " + axis.name);
         }
     }

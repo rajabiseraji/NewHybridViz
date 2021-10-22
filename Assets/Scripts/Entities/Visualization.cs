@@ -1502,4 +1502,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void OnDetailOnDemand(WandController controller, Vector3 position, Vector3 localPosition)
     {
     }
+
+    // TODO: put the code in the filterBubbleButton in this component so that we can handle the hiding of a visualization from here
+    // public Sequence hideVisualizatoin() {
+        
+    // }
 }
