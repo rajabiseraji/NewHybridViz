@@ -327,6 +327,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public void SetMinFilter(float val)
     {
         MinFilter = val;
+        Debug.Log(name + "'s filter is set to: " + val);
         OnFiltered.Invoke(MinFilter, MaxFilter);
     }
 
