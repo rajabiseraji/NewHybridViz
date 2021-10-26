@@ -902,10 +902,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     }
 
-    // TODO: What does this do??
     // This does the act of normalization (the thing that the gray knob does)
     // Makes sure that the points in the system have a value between -0.5 and 0.5 (probably)
     // 
+    // Just for linked visualizations
     public Vector3?[] normaliser(Vector3?[] points)
     {
         switch (viewType)
@@ -998,8 +998,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return points;
     }
 
-    // TODO: what the hell does this one exactly do??
     // This seesms to be doing the actual act of filtering the points (on a scatterplot)
+    // Just for linked visualizations
     public Vector3?[] filter(Vector3?[] points)
     {
         switch (viewType)
@@ -1055,6 +1055,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     // Gives you the points of a visualization this one means the points that are in the mesh array of the whole thing
+    // Just for linked visualizations
     public Vector3?[] GetPoints()
     {
         Vector3?[] points = null;
@@ -1097,6 +1098,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     // This one seems to be doing some kind of projection of the mesh vertices to the 1D axis (whichever is the reference axis it seems)
+    // Just for linked visualizations
     public Vector3?[] get1DAxisCoordinates(int index)
     {
         Vector3?[] points = null;
