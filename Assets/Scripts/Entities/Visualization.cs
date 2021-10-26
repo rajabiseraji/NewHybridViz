@@ -230,6 +230,11 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    // This is the function assigned to the listener for AxisFiltered event
+    // It updates the visualization by updating the min and max filters on an axis
+    // We alter the data that is fed to the Update_*_Mesh function to fliter the 
+    // data before it even gets processed by that function 
+    // This is just for histograms!!
     private void Axis_OnFilter(float minFilter, float maxFilter)
     {
         // precondition 2: be a histogram visualization
@@ -586,6 +591,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return results;
     }
 
+    // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
 
