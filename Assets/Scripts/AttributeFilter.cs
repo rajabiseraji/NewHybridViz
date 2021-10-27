@@ -12,6 +12,9 @@ public class AttributeFilter
     // [Tooltip("The name of the attribute")]
     public string Attribute = "Undefined";
 
+    // [Tooltip("The index of the attirbute in the dataSource Array")]
+    public int idx = -1;
+
     // [Tooltip("Minimum filter value for the attribute")]
     // [Range(0.0f, 1.0f)]
     public float minFilter = 0.0f;
@@ -33,6 +36,14 @@ public class AttributeFilter
         var a = new AttributeFilter
         {
             Attribute = str
+        };
+        return a;
+    }
+    public static implicit operator AttributeFilter(int index)
+    {
+        var a = new AttributeFilter
+        {
+            idx = index
         };
         return a;
     }

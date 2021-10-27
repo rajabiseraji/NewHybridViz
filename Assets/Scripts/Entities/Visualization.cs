@@ -354,6 +354,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     // TODO: make it more performant by removing the destroy steps and 
     // changing them into; modify steps in runtime
+    // This is only called when an attribiute is changed or when a new axis is added
     public void UpdateVisualizations()
     {
         foreach (Transform t in histogramObject.transform)
