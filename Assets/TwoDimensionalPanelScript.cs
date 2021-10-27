@@ -101,6 +101,11 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
+        if(!transform.parent.parent) {
+            transform.parent.parent = controller.transform;
+            return false;
+        } //if it's not a datashelf and just a simple 2D Panel
+
         toggleChildAxesClonig(false);
         transform.parent.parent.parent = controller.transform; // Cube -> 2DPanel -> DataShelfPanel
         return true;
@@ -108,6 +113,11 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     public void OnRelease(WandController controller)
     {
+        if(transform.parent.parent == controller.transform) {
+            transform.parent.parent = null;
+            return;
+        } //in case it's not a dataShelf
+
         transform.parent.parent.parent = null;
         toggleChildAxesClonig(false);
         StartCoroutine("DoToggleBackChildAxis");
