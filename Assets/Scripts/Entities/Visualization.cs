@@ -595,6 +595,14 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
+        // Check to see if the visualization is falling down! 
+        if(transform.position.y < -30f) {
+            foreach (var axis in axes)
+            {
+                Destroy(axis);
+            }
+            Destroy(gameObject);
+        }
 
         UpdateViewType();
         if(label && !string.IsNullOrEmpty(label.text) && axesCount > 1) {

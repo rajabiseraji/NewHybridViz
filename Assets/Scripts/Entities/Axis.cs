@@ -240,6 +240,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void OnDestroy()
     {
+        SceneManager.Instance.sceneAxes.Remove(this);
         if (ghostSourceAxis != null)
         {
             ghostSourceAxis.OnFiltered.RemoveListener(Ghost_OnFiltered);
@@ -543,6 +544,14 @@ public class Axis : MonoBehaviour, Grabbable {
                 gameObject.layer = LayerMask.NameToLayer("TransparentFX");
 
                 transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack);
+
+                // Make sure the thing is done and destroyed! 
+                // foreach (var vis in correspondingVisualizations())
+                // {
+                //     vis.gameObject.SetActive(false);
+                // }
+                // gameObject.SetActive(false);
+
 
                 return;
             }
