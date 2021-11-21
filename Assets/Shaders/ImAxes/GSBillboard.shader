@@ -52,7 +52,10 @@ Shader "Custom/Outline Dots"
 		        struct VS_INPUT {
           		    float4 position : POSITION;
             		float4 color: COLOR;
-					float3 normal:	NORMAL;
+					// normal.x is the index of data 
+					// normal.y is the size (I think it's the normalised size value)
+					float3 normal:	NORMAL; 
+					// Add an isfiltered to here
         		};
 				
 				struct GS_INPUT
@@ -145,7 +148,7 @@ Shader "Custom/Outline Dots"
 					output.tex0 = float2(0, 0);
 
 					output.color = v.color;
-					output.isBrushed= 0.0;
+					// output.isBrushed= 0.0;
 			
 					//filtering
 					if (v.position.x <= _MinX ||
@@ -230,6 +233,7 @@ Shader "Custom/Outline Dots"
 				float4 FS_Main(FS_INPUT input) : SV_Target0
 				{
 					//FragmentOutput fo = (FragmentOutput)0;
+					float4 BRUSH_COLOR = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
 					float dx = input.tex0.x - 0.5f;
 					float dy = input.tex0.y - 0.5f;
@@ -251,21 +255,21 @@ Shader "Custom/Outline Dots"
 					}
 					else
 					{
-					if( dt <= 0.2f)
-					{
-						//if(input.isBrushed==1.0)
-						//return float4(1.0,0.0,0.0,1.0);
-						//else
-						return float4(input.color.x-dt*0.15,input.color.y-dt*0.15,input.color.z-dt*0.15,0.8);
-					}// float4(input.color.x-dt*0.25,input.color.y-dt*0.25,input.color.z-dt*0.25,1.0);
-					else
-					if(dx * dx + dy * dy <= 0.21f)
-					return float4(0.0, 0.0, 0.0, 1.0);
-					else
-					{
-					discard;	
-					return float4(0.1, 0.1, 0.1, 1.0);
-					}
+						if( dt <= 0.2f)
+						{
+							if(input.isBrushed==1.0)
+								return float4(1.0,0.0,0.0,1.0);
+							else
+								return float4(input.color.x-dt*0.15,input.color.y-dt*0.15,input.color.z-dt*0.15,0.8);
+						}// float4(input.color.x-dt*0.25,input.color.y-dt*0.25,input.color.z-dt*0.25,1.0);
+						else
+						if(dx * dx + dy * dy <= 0.21f)
+							return float4(0.0, 0.0, 0.0, 1.0);
+						else
+						{
+							discard;	
+							return float4(0.1, 0.1, 0.1, 1.0);
+						}
 					}
 
 					//return fo;
