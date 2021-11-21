@@ -596,6 +596,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     void LateUpdate()
     {
         // Check to see if the visualization is falling down! 
+        // If they are, then just get rid of them and destroy the whole thing
         if(transform.position.y < -30f) {
             foreach (var axis in axes)
             {
