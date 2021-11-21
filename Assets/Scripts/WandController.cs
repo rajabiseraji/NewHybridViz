@@ -189,7 +189,7 @@ public class WandController : MonoBehaviour
                             currentDetailView = listCandidatesBrush3D[i];
                             // The brushing point will be 10cm in front of the controller poisition
                             brushingPoint.transform.position = transform.position + transform.forward * 0.1f;
-                            brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                            brushingPoint.transform.localScale = new Vector3(0.09f, 0.09f, 0.09f);
                             if (currentDetailView.GetComponent<Visualization>() != null)
                             {
                                 // Q: what does the world to local point translation does here? 
