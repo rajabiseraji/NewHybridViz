@@ -91,6 +91,8 @@ public class SceneManager : MonoBehaviour
             AddAxis(axis);
         }
 
+        // CreateSPLOMS();
+
     }
 
     void Update()
