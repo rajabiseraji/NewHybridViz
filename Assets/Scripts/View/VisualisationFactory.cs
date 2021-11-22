@@ -359,7 +359,7 @@ public class VisualisationFactory : MonoBehaviour
     /// <param name="topology"></param>
     /// <param name="LinkIndex"> the linking field to create a graph; pass a negative value to ignore</param>
     /// <returns></returns>
-    public Tuple<GameObject, View> CreateSingle2DView(DataObject dobjs, int DimensionX, int DimensionY, int DimensionZ, int LinkIndex, MeshTopology topology, Material m, bool parallel = false)
+    public Tuple<GameObject, View> CreateSingle2DView(Visualization visReference, DataObject dobjs, int DimensionX, int DimensionY, int DimensionZ, int LinkIndex, MeshTopology topology, Material m, bool parallel = false)
     {
         // @todo remove the parallel bool for a better implementation
         string viewName = "";
@@ -378,7 +378,7 @@ public class VisualisationFactory : MonoBehaviour
         }
         else mtp = MeshTopology.Points;
 
-        View v = new View(mtp, viewName);
+        View v = new View(mtp, viewName, visReference);
         GameObject view = new GameObject(viewName);
         //view.transform.parent = transform;
 
@@ -438,52 +438,53 @@ public class VisualisationFactory : MonoBehaviour
         return new Tuple<GameObject, View>(view, v);
     }
 
-    public Tuple<GameObject, View> CreateLinkedPCPto2DScatterplotsViews(DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionX2, Material m)
-    {
-        string viewName = "";
-        if (DimensionX1 >= 0) viewName += dobjs.indexToDimension(DimensionX1) + "-";
-        if (DimensionY1 >= 0) viewName += dobjs.indexToDimension(DimensionY1) + "-";
-        if (DimensionX2 >= 0) viewName += dobjs.indexToDimension(DimensionX2) + "-";
+    // // This is unsued - TODO: find a place to make this useful
+    // public Tuple<GameObject, View> CreateLinkedPCPto2DScatterplotsViews(DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionX2, Material m)
+    // {
+    //     string viewName = "";
+    //     if (DimensionX1 >= 0) viewName += dobjs.indexToDimension(DimensionX1) + "-";
+    //     if (DimensionY1 >= 0) viewName += dobjs.indexToDimension(DimensionY1) + "-";
+    //     if (DimensionX2 >= 0) viewName += dobjs.indexToDimension(DimensionX2) + "-";
 
-        View v = new View(MeshTopology.Lines, viewName);
-        GameObject view = new GameObject(viewName);
-        v.initialiseDataView(dobjs.DataPoints * 2, view);
+    //     View v = new View(MeshTopology.Lines, viewName);
+    //     GameObject view = new GameObject(viewName);
+    //     v.initialiseDataView(dobjs.DataPoints * 2, view);
 
-        List<float> XData = new List<float>();
-        List<float> YData = new List<float>();
-        List<float> ZData = new List<float>();
+    //     List<float> XData = new List<float>();
+    //     List<float> YData = new List<float>();
+    //     List<float> ZData = new List<float>();
 
-        float[] dimx1 = dobjs.getDimension(DimensionX1);
-        float[] dimy1 = dobjs.getDimension(DimensionY1);
-        float[] dimx2 = dobjs.getDimension(DimensionX2);
+    //     float[] dimx1 = dobjs.getDimension(DimensionX1);
+    //     float[] dimy1 = dobjs.getDimension(DimensionY1);
+    //     float[] dimx2 = dobjs.getDimension(DimensionX2);
 
-        for (int i = 0; i < dobjs.DataPoints; i++)
-        {
-            XData.Add(dimx1[i]);
-            YData.Add(dimy1[i]);
-            ZData.Add(-0.5f);
+    //     for (int i = 0; i < dobjs.DataPoints; i++)
+    //     {
+    //         XData.Add(dimx1[i]);
+    //         YData.Add(dimy1[i]);
+    //         ZData.Add(-0.5f);
 
-            XData.Add(dimx1[i]);
-            YData.Add(dimx2[i]);
-            ZData.Add(0.5f);
-        }
+    //         XData.Add(dimx1[i]);
+    //         YData.Add(dimx2[i]);
+    //         ZData.Add(0.5f);
+    //     }
 
-        v.setDataDimension(XData.ToArray(), View.VIEW_DIMENSION.X);
-        v.setDataDimension(YData.ToArray(), View.VIEW_DIMENSION.Y);
-        v.setDataDimension(ZData.ToArray(), View.VIEW_DIMENSION.Z);
-        v.updateView(null);
+    //     v.setDataDimension(XData.ToArray(), View.VIEW_DIMENSION.X);
+    //     v.setDataDimension(YData.ToArray(), View.VIEW_DIMENSION.Y);
+    //     v.setDataDimension(ZData.ToArray(), View.VIEW_DIMENSION.Z);
+    //     v.updateView(null);
 
-        view.AddComponent<MeshFilter>();
-        view.AddComponent<MeshRenderer>();
+    //     view.AddComponent<MeshFilter>();
+    //     view.AddComponent<MeshRenderer>();
 
-        view.GetComponent<MeshFilter>().mesh = v.MyMesh;
-        view.GetComponent<Renderer>().material = m;
+    //     view.GetComponent<MeshFilter>().mesh = v.MyMesh;
+    //     view.GetComponent<Renderer>().material = m;
 
-        return new Tuple<GameObject, View>(view, v);
-    }
+    //     return new Tuple<GameObject, View>(view, v);
+    // }
 
 
-    public Tuple<GameObject, View> CreateLinked2DScatterplotsViews(DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionX2, int DimensionY2, Material m)
+    public Tuple<GameObject, View> CreateLinked2DScatterplotsViews(Visualization visReference, DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionX2, int DimensionY2, Material m)
     {
         float[] x1 = dobjs.getDimension(DimensionX1);
         float[] y1 = dobjs.getDimension(DimensionY1);
@@ -496,7 +497,7 @@ public class VisualisationFactory : MonoBehaviour
         if (DimensionX2 >= 0) viewName += dobjs.indexToDimension(DimensionX2) + "-";
         if (DimensionY2 >= 0) viewName += dobjs.indexToDimension(DimensionY2) + "-";
 
-        View v = new View(MeshTopology.Lines, viewName);
+        View v = new View(MeshTopology.Lines, viewName, visReference);
         GameObject view = new GameObject(viewName);
         v.initialiseDataView(dobjs.DataPoints * 2, view);
 
@@ -534,108 +535,110 @@ public class VisualisationFactory : MonoBehaviour
         return new Tuple<GameObject, View>(view, v);
     }
 
-    public Tuple<GameObject, View> CreateLinked3DScatterplotsViews(DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionZ1, int DimensionX2, int DimensionY2, int DimensionZ2, Material m)
-    {
-        float[] x1 = dobjs.getDimension(DimensionX1);
-        float[] y1 = dobjs.getDimension(DimensionY1);
-        float[] z1 = dobjs.getDimension(DimensionZ1);
+    // This is unused for the time being
+    // // TODO: find out what's the usage of this one
+    // public Tuple<GameObject, View> CreateLinked3DScatterplotsViews(DataObject dobjs, int DimensionX1, int DimensionY1, int DimensionZ1, int DimensionX2, int DimensionY2, int DimensionZ2, Material m)
+    // {
+    //     float[] x1 = dobjs.getDimension(DimensionX1);
+    //     float[] y1 = dobjs.getDimension(DimensionY1);
+    //     float[] z1 = dobjs.getDimension(DimensionZ1);
 
-        float[] x2 = dobjs.getDimension(DimensionX2);
-        float[] y2 = dobjs.getDimension(DimensionY2);
-        float[] z2 = dobjs.getDimension(DimensionZ1);
+    //     float[] x2 = dobjs.getDimension(DimensionX2);
+    //     float[] y2 = dobjs.getDimension(DimensionY2);
+    //     float[] z2 = dobjs.getDimension(DimensionZ1);
 
-        string viewName = "";
-        if (DimensionX1 >= 0) viewName += dobjs.indexToDimension(DimensionX1) + "-";
-        if (DimensionY1 >= 0) viewName += dobjs.indexToDimension(DimensionY1) + "-";
-        if (DimensionZ1 >= 0) viewName += dobjs.indexToDimension(DimensionZ1) + "-";
-        if (DimensionX2 >= 0) viewName += dobjs.indexToDimension(DimensionX2) + "-";
-        if (DimensionY2 >= 0) viewName += dobjs.indexToDimension(DimensionY2) + "-";
-        if (DimensionZ2 >= 0) viewName += dobjs.indexToDimension(DimensionZ2) + "-";
+    //     string viewName = "";
+    //     if (DimensionX1 >= 0) viewName += dobjs.indexToDimension(DimensionX1) + "-";
+    //     if (DimensionY1 >= 0) viewName += dobjs.indexToDimension(DimensionY1) + "-";
+    //     if (DimensionZ1 >= 0) viewName += dobjs.indexToDimension(DimensionZ1) + "-";
+    //     if (DimensionX2 >= 0) viewName += dobjs.indexToDimension(DimensionX2) + "-";
+    //     if (DimensionY2 >= 0) viewName += dobjs.indexToDimension(DimensionY2) + "-";
+    //     if (DimensionZ2 >= 0) viewName += dobjs.indexToDimension(DimensionZ2) + "-";
 
-        View v = new View(MeshTopology.Lines, viewName);
-        GameObject view = new GameObject(viewName);
-        v.initialiseDataView(dobjs.DataPoints * 2, view);
+    //     View v = new View(MeshTopology.Lines, viewName);
+    //     GameObject view = new GameObject(viewName);
+    //     v.initialiseDataView(dobjs.DataPoints * 2, view);
 
-        List<float> XData = new List<float>();
-        List<float> YData = new List<float>();
-        List<float> ZData = new List<float>();
+    //     List<float> XData = new List<float>();
+    //     List<float> YData = new List<float>();
+    //     List<float> ZData = new List<float>();
 
-        float[] dimx1 = dobjs.getDimension(DimensionX1);
-        float[] dimy1 = dobjs.getDimension(DimensionY1);
-        float[] dimz1 = dobjs.getDimension(DimensionZ1);
-        float[] dimx2 = dobjs.getDimension(DimensionX2);
-        float[] dimy2 = dobjs.getDimension(DimensionY2);
-        float[] dimz2 = dobjs.getDimension(DimensionZ2);
+    //     float[] dimx1 = dobjs.getDimension(DimensionX1);
+    //     float[] dimy1 = dobjs.getDimension(DimensionY1);
+    //     float[] dimz1 = dobjs.getDimension(DimensionZ1);
+    //     float[] dimx2 = dobjs.getDimension(DimensionX2);
+    //     float[] dimy2 = dobjs.getDimension(DimensionY2);
+    //     float[] dimz2 = dobjs.getDimension(DimensionZ2);
 
-        for (int i = 0; i < dobjs.DataPoints; i++)
-        {
-            XData.Add(dimx1[i]);
-            YData.Add(dimy1[i]);
-            ZData.Add(dimz1[i]);
+    //     for (int i = 0; i < dobjs.DataPoints; i++)
+    //     {
+    //         XData.Add(dimx1[i]);
+    //         YData.Add(dimy1[i]);
+    //         ZData.Add(dimz1[i]);
 
-            XData.Add(dimx2[i]);
-            YData.Add(dimy2[i]);
-            ZData.Add(dimz2[i]);
-        }
+    //         XData.Add(dimx2[i]);
+    //         YData.Add(dimy2[i]);
+    //         ZData.Add(dimz2[i]);
+    //     }
 
-        v.setDataDimension(XData.ToArray(), View.VIEW_DIMENSION.X);
-        v.setDataDimension(YData.ToArray(), View.VIEW_DIMENSION.Y);
-        v.setDataDimension(ZData.ToArray(), View.VIEW_DIMENSION.Z);
-        v.updateView(null);
+    //     v.setDataDimension(XData.ToArray(), View.VIEW_DIMENSION.X);
+    //     v.setDataDimension(YData.ToArray(), View.VIEW_DIMENSION.Y);
+    //     v.setDataDimension(ZData.ToArray(), View.VIEW_DIMENSION.Z);
+    //     v.updateView(null);
 
-        view.AddComponent<MeshFilter>();
-        view.AddComponent<MeshRenderer>();
+    //     view.AddComponent<MeshFilter>();
+    //     view.AddComponent<MeshRenderer>();
 
-        view.GetComponent<MeshFilter>().mesh = v.MyMesh;
-        view.GetComponent<Renderer>().material = m;
+    //     view.GetComponent<MeshFilter>().mesh = v.MyMesh;
+    //     view.GetComponent<Renderer>().material = m;
 
-        return new Tuple<GameObject, View>(view, v);
-    }
+    //     return new Tuple<GameObject, View>(view, v);
+    // }
 
     /// <summary>
     /// Creates a SPLOM from data
     /// </summary>
     /// <param name="dobjs">the DataObject</param>
     /// <returns>A 2D array of game objects views</returns>
-    GameObject[,] CreateSPLOM2D(DataObject dobjs, int linkingField, MeshTopology topology, Material material, float spacing)
-    {
-        GameObject[,] SPLOM = new GameObject[dobjs.Identifiers.Length, dobjs.Identifiers.Length];
-        string[] descriptors = dobjs.Identifiers;
-        for (int i = 0; i < descriptors.Length; i++)
-        {
-            for (int j = 0; j < descriptors.Length; j++)
-            {
-                {
-                    GameObject view = CreateSingle2DView(dobjs, i, j, -1, linkingField, topology, material).Item1;
-                    view.transform.position = new Vector3((float)i * spacing, -(float)j * spacing, 0f);
-                    SPLOM[i, j] = view;
-                }
-            }
-        }
-        return SPLOM;
-    }
+    // GameObject[,] CreateSPLOM2D(DataObject dobjs, int linkingField, MeshTopology topology, Material material, float spacing)
+    // {
+    //     GameObject[,] SPLOM = new GameObject[dobjs.Identifiers.Length, dobjs.Identifiers.Length];
+    //     string[] descriptors = dobjs.Identifiers;
+    //     for (int i = 0; i < descriptors.Length; i++)
+    //     {
+    //         for (int j = 0; j < descriptors.Length; j++)
+    //         {
+    //             {
+    //                 GameObject view = CreateSingle2DView(dobjs, i, j, -1, linkingField, topology, material).Item1;
+    //                 view.transform.position = new Vector3((float)i * spacing, -(float)j * spacing, 0f);
+    //                 SPLOM[i, j] = view;
+    //             }
+    //         }
+    //     }
+    //     return SPLOM;
+    // }
 
-    GameObject[,] CreateSPLOM3D(DataObject dobjs, int linkingField, MeshTopology topology, Material material, float spacing)
-    {
-        GameObject[,] SPLOM = new GameObject[dobjs.Identifiers.Length, dobjs.Identifiers.Length];
-        string[] descriptors = dobjs.Identifiers;
-        for (int i = 0; i < descriptors.Length; i++)
-        {
-            for (int j = 0; j < descriptors.Length; j++)
-            {
-                for (int k = 0; k < descriptors.Length; k++)
-                {
-                    if (i != j)
-                    {
-                        GameObject view = CreateSingle2DView(dobjs, i, j, k, linkingField, topology, material).Item1;
-                        view.transform.position = new Vector3((float)i * spacing, -(float)j * spacing, (float)k * spacing);
-                        SPLOM[i, j] = view;
-                    }
-                }
-            }
-        }
-        return SPLOM;
-    }
+    // GameObject[,] CreateSPLOM3D(DataObject dobjs, int linkingField, MeshTopology topology, Material material, float spacing)
+    // {
+    //     GameObject[,] SPLOM = new GameObject[dobjs.Identifiers.Length, dobjs.Identifiers.Length];
+    //     string[] descriptors = dobjs.Identifiers;
+    //     for (int i = 0; i < descriptors.Length; i++)
+    //     {
+    //         for (int j = 0; j < descriptors.Length; j++)
+    //         {
+    //             for (int k = 0; k < descriptors.Length; k++)
+    //             {
+    //                 if (i != j)
+    //                 {
+    //                     GameObject view = CreateSingle2DView(dobjs, i, j, k, linkingField, topology, material).Item1;
+    //                     view.transform.position = new Vector3((float)i * spacing, -(float)j * spacing, (float)k * spacing);
+    //                     SPLOM[i, j] = view;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return SPLOM;
+    // }
 
     GameObject CreateLabel(string label, GameObject parent, Vector3 position)
     {

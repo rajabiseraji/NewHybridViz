@@ -9,6 +9,8 @@ public class View
     bool UNITY_GAME_OBJECTS_MODE = false;
     List<GameObject> visualObjects = new List<GameObject>();
 
+    public Visualization visualizationReference; 
+
     public enum VIEW_DIMENSION { X, Y, Z, LINKING_FIELD };
 
     private Mesh myMesh;
@@ -23,8 +25,9 @@ public class View
 
     private List<Vector3> positions = new List<Vector3>();
 
-    public View(MeshTopology type, string viewName)
+    public View(MeshTopology type, string viewName, Visualization visRef)
     {
+        visualizationReference = visRef;
         myMeshTopolgy = type;
         myMesh = new Mesh();
         name = viewName;
@@ -90,6 +93,37 @@ public class View
             positions[i] = p;
         }
 
+    }
+
+
+    public void doFilter(int filterAttributeIndex, float filterValue) {
+        // foreach (var viewElement in viewList)
+        // {
+
+        // Filter attribute index is the value of the index that is in the Axis.SourceIndex that is being used to filter this data (which it self comes from DataObject.index)
+        float[] isFiltered = new float[positions.Count];
+        for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
+        {
+            // foreach (AttributeFilter attrFilter in visualisationReference.attributeFilters)
+            // {
+                if (filterAttributeIndex == visualisationReference.dataSource[i].Identifier)
+                {
+                    float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
+                    float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
+
+                    for (int j = 0; j < isFiltered.Length; j++)
+                    {
+                        isFiltered[j] = (visualisationReference.dataSource[i].Data[j] < minFilteringValue || visualisationReference.dataSource[i].Data[j] > maxFilteringValue) ? 1.0f : isFiltered[j];
+                    }
+                }
+            // }
+        }
+            // map the filtered attribute into the normal channel of the bigmesh
+            // foreach (View v in viewList)
+            // {
+            //     v.SetFilterChannel(isFiltered);
+            // }
+        // }
     }
 
     public void setDefaultColor()
