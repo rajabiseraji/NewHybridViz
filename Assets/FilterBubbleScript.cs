@@ -52,7 +52,9 @@ public class FilterBubbleScript : MonoBehaviour
 
     void Update() {
         if(GetComponent<ViveMenu>().Controller == null) {
-            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+            if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
+                GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+            }
         }
     }
 
@@ -80,8 +82,17 @@ public class FilterBubbleScript : MonoBehaviour
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
+        Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
-        axisAsFilter.SetMinFilter(normalisedValue);
+        // axisAsFilter.SetMinFilter(normalisedValue);
+
+        // We should remember that each view object has the Visualization as its direct parent
+        // This could be the way for us to access the properies of its parent
+
+        // For now let's just pass the minFilterValue to the View filtering function
+        // (because I don't have any better way of collecting min and max from the sliders now)
+
+        parentVisualization.DoFilter(axisAsFilter.axisId, normalisedValue);
     }
 
     public void OnLinkAttributeChanged(int idx)

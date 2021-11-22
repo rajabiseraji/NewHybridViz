@@ -262,6 +262,13 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    public void DoFilter(int AxisId, float minFilterValue) {
+        Debug.Log("I'm filtering with " + AxisId + " and min value of " + minFilterValue);
+        instantiatedViews.ForEach(view => {
+            view.doFilter(AxisId, minFilterValue);
+        });
+    }
+
     public void Show()
     {
         gameObject.SetActive(true);

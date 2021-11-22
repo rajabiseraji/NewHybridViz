@@ -96,28 +96,30 @@ public class View
     }
 
 
-    public void doFilter(int filterAttributeIndex, float filterValue) {
+    public void doFilter(int filterAttributeIndex, float minFilterValue) {
         // foreach (var viewElement in viewList)
         // {
 
         // Filter attribute index is the value of the index that is in the Axis.SourceIndex that is being used to filter this data (which it self comes from DataObject.index)
         float[] isFiltered = new float[positions.Count];
-        for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
-        {
+        // for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
+        // {
             // foreach (AttributeFilter attrFilter in visualisationReference.attributeFilters)
             // {
-                if (filterAttributeIndex == visualisationReference.dataSource[i].Identifier)
-                {
-                    float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
-                    float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
+                // if (filterAttributeIndex == SceneManager.Instance.dataObject.dataSource[i].Identifier)
+                // {
+                    // float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
+                    // float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
 
                     for (int j = 0; j < isFiltered.Length; j++)
                     {
-                        isFiltered[j] = (visualisationReference.dataSource[i].Data[j] < minFilteringValue || visualisationReference.dataSource[i].Data[j] > maxFilteringValue) ? 1.0f : isFiltered[j];
+                        isFiltered[j] = (SceneManager.Instance.dataObject.DataArray[filterAttributeIndex][j] < minFilterValue || SceneManager.Instance.dataObject.DataArray[filterAttributeIndex][j] > 1.0f) ? 1.0f : isFiltered[j];
+
+                         Debug.Log("I'm filtering " + SceneManager.Instance.dataObject.Identifiers[filterAttributeIndex] + "that has the value of " + SceneManager.Instance.dataObject.DataArray[filterAttributeIndex][j]);
                     }
-                }
+                // }
             // }
-        }
+        // }
             // map the filtered attribute into the normal channel of the bigmesh
             // foreach (View v in viewList)
             // {
