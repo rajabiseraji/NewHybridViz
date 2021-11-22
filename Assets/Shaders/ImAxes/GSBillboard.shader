@@ -62,9 +62,11 @@ Shader "Custom/Outline Dots"
           		    float4 position : POSITION;
             		float4 color: COLOR;
 					// normal.x is the index of data 
-					// normal.y is the size (I think it's the normalised size value)
+					// normal.y is the size (I think it's the normalised size value) 
+					// normal.y is basically an array of all points with their respective sizes
 					float3 normal:	NORMAL; 
 					// Add an isfiltered to here
+					float4 uv_MainTex : TEXCOORD0;
 
 					UNITY_VERTEX_INPUT_INSTANCE_ID
         		};
@@ -201,6 +203,8 @@ Shader "Custom/Outline Dots"
                     float MinZ = UNITY_ACCESS_INSTANCED_PROP(Props, _MinZ);
                     float MaxZ = UNITY_ACCESS_INSTANCED_PROP(Props, _MaxZ);
 					
+					float isFiltered = v.normal.z; // This is supposed to hold the isFiltered Value for each vertex
+
 					//lookup the texture to see if the vertex is brushed...
 					float2 indexUV = float2((v.normal.x % _DataWidth) / _DataWidth, 1.0 - ((v.normal.x / _DataWidth) / _DataHeight));
 					float4 brushValue = tex2Dlod(_MainTex, float4(indexUV, 0.0, 0.0));
@@ -235,8 +239,8 @@ Shader "Custom/Outline Dots"
 					 normalisedPosition.y < -0.5 || 
 					 normalisedPosition.y > 0.5 || 
 					 normalisedPosition.z < -0.5 || 
-					 normalisedPosition.z > 0.5			 
-					 )
+					 normalisedPosition.z > 0.5	 ||
+					 isFiltered)
 					{
 						output.color.w = 0;
 					}
