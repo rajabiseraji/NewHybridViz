@@ -28,6 +28,8 @@ public class FilterBubbleScript : MonoBehaviour
 
     public List<Axis> filterAxes = new List<Axis>();
 
+    public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
+
 
     // Use this for initialization
     void Start()
@@ -74,11 +76,22 @@ public class FilterBubbleScript : MonoBehaviour
 
             filterAxes.Add(axis);
             Debug.Log("Added one! : " + axis.name);
+
+            // Also create an Attribute filter and add it to the list of Attribute Filter that we already have
+            bool exists = AttributeFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+            // for now if it already exists we're not going to add it, but later we can just replace it with the new one or add it on top and give it another ID or something ... basically having two filters of the same sort (shouldn't be any problem)
+
+            if(!exists) {
+                AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, 0f, 1f, 0f, 1f));
+            }
+        
+
         }
     }
 
     public void OnTestSliderChanged(UnityEngine.UI.Slider slider, Axis axisAsFilter)
     {
+        Debug.Log("Event handler is called at " + Time.frameCount);
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
@@ -92,7 +105,14 @@ public class FilterBubbleScript : MonoBehaviour
         // For now let's just pass the minFilterValue to the View filtering function
         // (because I don't have any better way of collecting min and max from the sliders now)
 
-        parentVisualization.DoFilter(axisAsFilter.axisId, normalisedValue);
+        // --------------- GLOBAL FILTERING --------------- //
+        int foundIndex = AttributeFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
+        if(foundIndex != -1) {
+            // For now I'm just changing the minFilter value, later we're gonna go more into details
+            AttributeFilters[foundIndex].minFilter = normalisedValue;
+        }
+
+        parentVisualization.DoFilter(AttributeFilters);
     }
 
     public void OnLinkAttributeChanged(int idx)
