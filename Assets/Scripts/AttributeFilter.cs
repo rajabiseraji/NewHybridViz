@@ -31,20 +31,23 @@ public class AttributeFilter
     // [Range(0.0f, 1.0f)]
     public float maxScale = 1.0f;
 
-    public static implicit operator AttributeFilter(string str)
-    {
-        var a = new AttributeFilter
-        {
-            Attribute = str
-        };
-        return a;
+    public AttributeFilter(int index, string attributeName, float minFilter, float maxFilter, float minScale, float maxScale) {
+        this.Attribute = attributeName;
+        this.idx = index;
+        this.minFilter = minFilter;
+        this.maxFilter = maxFilter;
+        this.minScale = minScale;
+        this.maxScale = maxScale;
     }
-    public static implicit operator AttributeFilter(int index)
-    {
-        var a = new AttributeFilter
-        {
-            idx = index
-        };
-        return a;
+
+    public AttributeFilter InitFilter(int index, string attributeName, float minFilter, float maxFilter, float minScale, float maxScale) {
+        this.Attribute = attributeName;
+        this.idx = index;
+        this.minFilter = minFilter;
+        this.maxFilter = maxFilter;
+        this.minScale = minScale;
+        this.maxScale = maxScale;
+
+        return this;
     }
 }
