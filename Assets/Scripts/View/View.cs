@@ -25,6 +25,8 @@ public class View
 
     private List<Vector3> positions = new List<Vector3>();
 
+    public bool isParallelCoordsView = false;
+
     public View(MeshTopology type, string viewName, Visualization visRef)
     {
         visualizationReference = visRef;

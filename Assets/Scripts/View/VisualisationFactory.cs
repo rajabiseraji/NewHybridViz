@@ -381,6 +381,7 @@ public class VisualisationFactory : MonoBehaviour
         View v = new View(mtp, viewName, visReference);
         GameObject view = new GameObject(viewName);
         //view.transform.parent = transform;
+        v.isParallelCoordsView = parallel;
 
         if (!parallel)
         {
