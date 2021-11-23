@@ -265,7 +265,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void DoFilter(int AxisId, float minFilterValue) {
         Debug.Log("I'm filtering with " + AxisId + " and min value of " + minFilterValue);
         instantiatedViews.ForEach(view => {
+            // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here! 
             view.doFilter(AxisId, minFilterValue);
+        });
+    }
+
+    public void DoFilter(List<AttributeFilter> filters) {
+        Debug.Log("I'm filtering with all filters" + filters.Count + " and min value of ");
+        instantiatedViews.ForEach(view => {
+            view.doFilter(filters);
         });
     }
 

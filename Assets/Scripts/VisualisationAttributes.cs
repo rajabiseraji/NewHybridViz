@@ -8,6 +8,10 @@ public class VisualisationAttributes : MonoBehaviour {
 
     public float[] sizes = null;
 
+    public bool[] isFiltered = null;
+
+    public AttributeFilter[] GlobalAttributeFilters = null; 
+
     public float ScatterplotDefaultPointSize = 0.4f;
 
     public float MinScatterplotPointSize = 0.1f;
