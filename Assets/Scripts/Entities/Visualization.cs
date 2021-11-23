@@ -272,7 +272,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     public void DoFilter(List<AttributeFilter> filters) {
-        Debug.Log("I'm filtering with all filters" + filters.Count + " and min value of ");
+        Debug.Log("I'm filtering with all filters count of" + filters.Count);
         instantiatedViews.ForEach(view => {
             // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here!
             if(!view.isParallelCoordsView) // TODO: find a way to filter histograms and parallel coords

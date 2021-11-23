@@ -91,7 +91,6 @@ public class FilterBubbleScript : MonoBehaviour
 
     public void OnTestSliderChanged(UnityEngine.UI.Slider slider, Axis axisAsFilter)
     {
-        Debug.Log("Event handler is called at " + Time.frameCount);
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);

@@ -139,7 +139,7 @@ public class View
             //     v.SetFilterChannel(isFiltered);
             // }
         // }
-        updateVertexIndices(0);
+        // updateVertexIndices(0);
         updateFilterChannel(isFiltered);
     }
     public void doFilter(List<AttributeFilter> filters) {
@@ -154,6 +154,8 @@ public class View
                 // Take care to change this when we want to use a localized data source
                 if (attrFilter.idx == i)
                 {
+                    // Debug.Log("Now filtering with index of "+ attrFilter.idx + " : " + SceneManager.Instance.dataObject.Identifiers[i]);
+
                     float[] col = SceneManager.Instance.dataObject.GetCol(SceneManager.Instance.dataObject.DataArray, i);
                     // float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
                     // float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
@@ -162,11 +164,11 @@ public class View
 
                     for (int j = 0; j < isFiltered.Length; j++)
                     {
-                        // Debug.Log("BEGIN: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + "that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
+                        // Debug.Log("BEGIN: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + col[j]);
 
                         isFiltered[j] = (col[j] < attrFilter.minFilter || col[j] > attrFilter.maxFilter) ? 1.0f : isFiltered[j];
 
-                        //  Debug.Log("END: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + "that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
+                        //  Debug.Log("END: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
                     }
                 }
             }
@@ -177,7 +179,7 @@ public class View
             //     v.SetFilterChannel(isFiltered);
             // }
         // }
-        updateVertexIndices(0);
+        // updateVertexIndices(0);
         updateFilterChannel(isFiltered);
     }
 
