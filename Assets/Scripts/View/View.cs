@@ -133,13 +133,6 @@ public class View
                 }
             // }
         }
-            // map the filtered attribute into the normal channel of the bigmesh
-            // foreach (View v in viewList)
-            // {
-            //     v.SetFilterChannel(isFiltered);
-            // }
-        // }
-        // updateVertexIndices(0);
         updateFilterChannel(isFiltered);
     }
     public void doFilter(List<AttributeFilter> filters) {
@@ -173,13 +166,6 @@ public class View
                 }
             }
         }
-            // map the filtered attribute into the normal channel of the bigmesh
-            // foreach (View v in viewList)
-            // {
-            //     v.SetFilterChannel(isFiltered);
-            // }
-        // }
-        // updateVertexIndices(0);
         updateFilterChannel(isFiltered);
     }
 
