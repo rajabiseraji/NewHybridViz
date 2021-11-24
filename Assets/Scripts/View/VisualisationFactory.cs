@@ -131,8 +131,11 @@ public class VisualisationFactory : MonoBehaviour
         //get the array of dimension
         DiscreteBinner binner = new DiscreteBinner();
 
+        // float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
         // TODO: make a function in dobjs that does what GetCol does but with filters 
-        float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
+        float[] values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
+
+
         values = values.Where(x => x >= minFilter + 0.5f && x <= maxFilter + 0.5f).ToArray();
 
         float minVal = dobjs.DimensionsRange[Dimension].x;
@@ -217,7 +220,10 @@ public class VisualisationFactory : MonoBehaviour
         //get the array of dimension
         DiscreteBinner binner = new DiscreteBinner();
 
-        float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
+        // float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
+        
+        float[] values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
+
         //values = values.Where(x => x >= minNormalizer + 0.5f && x <= maxNormalizer + 0.5f).ToArray();
 
         float minVal = dobjs.DimensionsRange[Dimension].x;

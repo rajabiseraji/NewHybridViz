@@ -24,5 +24,6 @@ public class ApplicationConfiguration {
     public static string OnAxisReleasedInVis = "OnAxisReleasedInVis";
     public static string OnVisualizationGrabbed = "OnVisualizationGrabbed";
     public static string OnVisualizationReleased = "OnVisualizationReleased";
+    public static string OnFilterSliderChanged = "OnFilterSliderChanged";
 
 }

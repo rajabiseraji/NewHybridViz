@@ -750,35 +750,19 @@ namespace DataBinding
             // Matrix.Count in this case would be the number of data items in that column
             float[] values = new float[matrix.Count];
             int rowLength = matrix[0].Count;
+            // each matrix[i] would be one row of data 
+            // Steps: First remove the rows that break the filter condition
 
-            // I wanna say to remove the rows that don't break the condition of my filter attribute in linQ
-
-            for (int i = 0; i < rowLength; i++)
+            List<List<float>> filteredMatrix = matrix;
+            foreach (var filter in filters)
             {
-                foreach (AttributeFilter attrFilter in filters)
-                {
-                    // Take care to change this when we want to use a localized data source
-                    if (attrFilter.idx == i)
-                    {
-                        // Debug.Log("Now filtering with index of "+ attrFilter.idx + " : " + SceneManager.Instance.dataObject.Identifiers[i]);
-
-                        float[] col = SceneManager.Instance.dataObject.GetCol(SceneManager.Instance.dataObject.DataArray, i);
-                        // float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
-                        // float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
-
-                        // Col[j] is equivalent to DataArray[j][another_index]
-
-                        for (int j = 0; j < isFiltered.Length; j++)
-                        {
-                            // Debug.Log("BEGIN: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + col[j]);
-
-                            isFiltered[j] = (col[j] < attrFilter.minFilter || col[j] > attrFilter.maxFilter) ? 1.0f : isFiltered[j];
-
-                            //  Debug.Log("END: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
-                        }
-                    }
-                }
+                filteredMatrix = matrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter && rowArray[filter.idx] <= filter.maxFilter)).ToList();
             }
+
+            // At this point the filteredMatrix houses the whole filtered data that we need to show! 
+            return GetCol(filteredMatrix, colIndex);
+
+             
         }
     }
 }
