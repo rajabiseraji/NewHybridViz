@@ -96,7 +96,6 @@ public class FilterBubbleScript : MonoBehaviour
         Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
         Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
-        // axisAsFilter.SetMinFilter(normalisedValue);
 
         // We should remember that each view object has the Visualization as its direct parent
         // This could be the way for us to access the properies of its parent
