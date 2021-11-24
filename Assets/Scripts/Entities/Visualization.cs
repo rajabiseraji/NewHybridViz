@@ -227,7 +227,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             axes[0].MaxFilter,
             minNormalizer,
             maxNormalizer,
-            ref mToUpdate);
+            ref mToUpdate,
+            AttributeFilters);
 
             histogramObject.GetComponentInChildren<MeshFilter>().mesh = mToUpdate;
 
@@ -260,7 +261,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             maxFilter,
             axes[0].MinNormaliser,
             axes[0].MaxNormaliser,
-            ref mToUpdate);
+            ref mToUpdate,
+            AttributeFilters);
 
             histogramObject.GetComponentInChildren<MeshFilter>().mesh = mToUpdate;
 
@@ -418,7 +420,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 axes[0].MinFilter,
                 axes[0].MaxFilter,
                 axes[0].MinNormaliser,
-                axes[0].MaxNormaliser);
+                axes[0].MaxNormaliser,
+                AttributeFilters);
 
             GameObject hist = histT.Item1;
             histogramPositions = histT.Item2;

@@ -124,7 +124,7 @@ public class VisualisationFactory : MonoBehaviour
     }
 
 
-    public Tuple<GameObject, Vector3[]> CreateBarHistogramView(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer)
+    public Tuple<GameObject, Vector3[]> CreateBarHistogramView(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer, List<AttributeFilter> filters)
     {
         GameObject Snax = new GameObject();
 
@@ -211,7 +211,7 @@ public class VisualisationFactory : MonoBehaviour
         return new Tuple<GameObject, Vector3[]>(Snax, l.ToArray());
     }
 
-    public static void UpdatetHistogramMesh(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer, ref Mesh mesh)
+    public static void UpdatetHistogramMesh(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer, ref Mesh mesh, List<AttributeFilter> filters)
     {
         mesh.Clear();
         //get the array of dimension
