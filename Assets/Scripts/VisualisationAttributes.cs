@@ -27,6 +27,7 @@ public class VisualisationAttributes : MonoBehaviour {
     public float LinkTransparency = 0.4f;
 
     public int SizeAttribute = -1;
+    public int FilterAttribute = -2;
     public bool IsGradientColor = false; // is the colour mapping a gradient or categorical
 
     // We can use this part in order to set the default color set (or even define the colors from Tableau)

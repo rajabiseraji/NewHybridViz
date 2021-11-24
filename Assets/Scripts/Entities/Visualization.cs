@@ -32,7 +32,6 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
-
     public List<Axis> axes { get; internal set; }
     public int axesCount { get { return axes.Count; } }
 
@@ -187,6 +186,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         EventManager.StartListening(ApplicationConfiguration.OnColoredAttributeChanged, OnAttributeChanged);
         EventManager.StartListening(ApplicationConfiguration.OnLinkedAttributeChanged, OnAttributeChanged);
         EventManager.StartListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged);
+
+        // listen to filtering events
+        EventManager.StartListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);
+
         
         //ignore raycasts for brushing/details on demand
         GetComponent<SphereCollider>().gameObject.layer = 2;
@@ -197,7 +200,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         EventManager.StopListening(ApplicationConfiguration.OnSlideChangePointSize, OnChangePointSize);
         EventManager.StopListening(ApplicationConfiguration.OnColoredAttributeChanged, OnAttributeChanged);
         EventManager.StopListening(ApplicationConfiguration.OnLinkedAttributeChanged, OnAttributeChanged);
-        EventManager.StopListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged);    
+        EventManager.StopListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged); 
+        // listen to filtering events
+        EventManager.StopListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);   
 
         foreach (Axis axis in axes)
         {
@@ -1378,8 +1383,17 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     private void OnAttributeChanged(float idx)
-    {
-        UpdateVisualizations();
+    {  
+        if(idx == VisualisationAttributes.Instance.FilterAttribute) {
+            // if we're filtering a scatterplot
+            if(axes.Count == 1)
+                UpdateVisualizations();
+            else 
+                DoFilter(AttributeFilters);
+        } else {
+            // in case it was size or color attribute changes
+            UpdateVisualizations();
+        }
     }
 
     // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 

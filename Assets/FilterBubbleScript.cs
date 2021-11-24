@@ -112,7 +112,10 @@ public class FilterBubbleScript : MonoBehaviour
         }
 
         // When called without any params it would simply be the local filtering then! 
-        parentVisualization.DoFilter();
+        // parentVisualization.DoFilter();
+
+        // We need to trigger an event here that let's us know a filtering thing got changed! 
+        EventManager.TriggerEvent(ApplicationConfiguration.OnScatterplotAttributeChanged, VisualisationAttributes.Instance.FilterAttribute);
     }
 
     public void OnLinkAttributeChanged(int idx)
