@@ -150,6 +150,11 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // The DoD component that we need to change
     DetailsOnDemand DetailsOnDemandComponent = null;
 
+    // Localized DataObject for each of the visualizations
+    public DataBinding.DataObject dataObjectReference;
+
+    public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
+
     void Awake()
     {
         axes = new List<Axis>();
@@ -277,6 +282,14 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here!
             if(!view.isParallelCoordsView) // TODO: find a way to filter histograms and parallel coords
                 view.doFilter(filters);
+        });
+    }
+    public void DoFilter() {
+        Debug.Log("I'm filtering with all filters count of" + AttributeFilters.Count);
+        instantiatedViews.ForEach(view => {
+            // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here!
+            if(!view.isParallelCoordsView) // TODO: find a way to filter histograms and parallel coords
+                view.doFilter(AttributeFilters);
         });
     }
 
