@@ -38,7 +38,11 @@ public class LinkedVisualisations : MonoBehaviour, Grabbable
     // create a mesk for the linked view
     void CreateMesh()
     {
+        // If the visualizations were not active (let's say like when they get added to the filter bubble area, then the linked thing is not going to get created!)
+        // WE ADDED THIS HANDLING CODE INSIDE THE RECOGNIZER CLASS RIGHT BEFORE A LINKED VIZ IS CREATED
+
         mymesh.Clear();
+
         
         if (v1.viewType == Visualization.ViewType.Histogram && v2.viewType != Visualization.ViewType.Histogram)
         {

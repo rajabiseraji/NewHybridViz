@@ -53,6 +53,11 @@ public class ImAxesRecognizer : MonoBehaviour
         // This could be a problem for when the whole thing gets too large (when the number of the points)
         adjacency.Resize(SceneManager.Instance.sceneAxes.Count);
     }
+    void OnAxisRemoved(Axis axis)
+    {
+        // This is disabled for the time being because we cannot just shrink a two-d matrix in a random place!
+        // adjacency.Resize(SceneManager.Instance.sceneAxes.Count);
+    }
 
     //RULES SP =====================
     // The rule set for the scatterplot interactions (?)
@@ -599,6 +604,9 @@ public class ImAxesRecognizer : MonoBehaviour
                     //test the distance between 2 axes if linking 2 histograms
                     if (SP[i].viewType == Visualization.ViewType.Histogram && SP[j].viewType == Visualization.ViewType.Histogram)
                     {
+                        if(!SP[i].gameObject.activeSelf || !SP[j].gameObject.activeSelf)
+                            continue;
+
                         if (SP[i].transform.position != SP[j].transform.position
                             && Vector3.Distance(SP[i].axes[0].transform.position, SP[j].axes[0].transform.position) < PCP_DISTANCE
                             && !linkedVisualisationDictionary.ContainsKey(_name) && !linkedVisualisationDictionary.ContainsKey(_nameReverse))
@@ -612,6 +620,8 @@ public class ImAxesRecognizer : MonoBehaviour
                     }
                     else if (SP[i].viewType == Visualization.ViewType.Histogram && SP[j].viewType != Visualization.ViewType.Histogram)
                     {
+                        if(!SP[i].gameObject.activeSelf || !SP[j].gameObject.activeSelf)
+                            continue;
                          
                         if (SP[i].axes[0].transform.position != SP[j].transform.position
                             && Vector3.Distance(SP[i].axes[0].transform.position, SP[j].transform.position) < PCP_DISTANCE
@@ -626,6 +636,9 @@ public class ImAxesRecognizer : MonoBehaviour
                     }
                     else
                     {
+                        if(!SP[i].gameObject.activeSelf || !SP[j].gameObject.activeSelf)
+                            continue;
+
                         if (SP[i].transform.position != SP[j].transform.position
                             && Vector3.Distance(SP[i].transform.position, SP[j].transform.position) < PCP_DISTANCE
                             && !linkedVisualisationDictionary.ContainsKey(_name) && !linkedVisualisationDictionary.ContainsKey(_nameReverse))
@@ -707,6 +720,9 @@ public class ImAxesRecognizer : MonoBehaviour
 
     void LinkVisualisations(string _name, Visualization v1, Visualization v2)
     {
+        if(!v1.gameObject.activeSelf || !v2.gameObject.activeSelf)
+            return;
+
         GameObject lvGO = new GameObject();
         lvGO.name = _name;
         LinkedVisualisations lv = lvGO.AddComponent<LinkedVisualisations>();

@@ -84,6 +84,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             }
             seq.AppendCallback(() => {
                 other.gameObject.SetActive(false);
+
                 foreach (var axis in involvedAxes)
                 {
                     axis.gameObject.SetActive(false);

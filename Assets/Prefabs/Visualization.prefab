@@ -1781,6 +1781,7 @@ MonoBehaviour:
   MinGradientColourButton: {fileID: 0}
   MaxGradientColourButton: {fileID: 0}
   filterAxes: []
+  isGlobalFilterBubble: 0
 --- !u!1 &3813847709239667376
 GameObject:
   m_ObjectHideFlags: 0

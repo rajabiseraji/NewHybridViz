@@ -14,6 +14,8 @@ public class SceneManager : MonoBehaviour
 
     public class OnAxisAddedEvent : UnityEvent<Axis> { }
     public OnAxisAddedEvent OnAxisAdded = new OnAxisAddedEvent();
+    public class OnAxisRemovedEvent : UnityEvent<Axis> { }
+    public OnAxisRemovedEvent OnAxisRemoved = new OnAxisRemovedEvent();
 
     [SerializeField]
     GameObject axisPrefab;
@@ -120,6 +122,11 @@ public class SceneManager : MonoBehaviour
     {
         sceneAxes.Add(axis);
         OnAxisAdded.Invoke(axis);
+    }
+    public void RemoveAxis(Axis axis)
+    {
+        sceneAxes.Remove(axis);
+        OnAxisRemoved.Invoke(axis);
     }
 
     //
