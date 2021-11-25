@@ -188,7 +188,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         EventManager.StartListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged);
 
         // listen to filtering events
+        // this is for global filtering
         EventManager.StartListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);
+        // this is for local filtering
+        EventManager.StartListening(ApplicationConfiguration.OnLocalFilterSliderChanged, OnLocalFilterChanged);
 
         
         //ignore raycasts for brushing/details on demand
@@ -202,7 +205,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         EventManager.StopListening(ApplicationConfiguration.OnLinkedAttributeChanged, OnAttributeChanged);
         EventManager.StopListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged); 
         // listen to filtering events
-        EventManager.StopListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);   
+        EventManager.StopListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);
+        // this is for local filtering
+        EventManager.StopListening(ApplicationConfiguration.OnLocalFilterSliderChanged, OnLocalFilterChanged);
+  
 
         foreach (Axis axis in axes)
         {
@@ -1385,7 +1391,19 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     private void OnAttributeChanged(float idx)
     {  
         if(idx == VisualisationAttributes.Instance.FilterAttribute) {
-            // if we're filtering a scatterplot
+            // if we're globally filtering all scatterplots
+            // We add the global filters to local ones in here to make life easier! 
+            AttributeFilters.AddRange(SceneManager.Instance.globalFilters);
+            // sort the filters so that the global filters are first!
+            // this way we don't need to change anything since the filters are AND filters and we're done!
+            AttributeFilters.Sort((a, b) => {
+                if(a.isGlobal && !b.isGlobal)
+                    return 1;
+                else if(!a.isGlobal && b.isGlobal)
+                    return -1;
+                
+                return 0;
+            });
             if(axes.Count == 1)
                 UpdateVisualizations();
             else 
@@ -1394,6 +1412,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             // in case it was size or color attribute changes
             UpdateVisualizations();
         }
+    }
+    private void OnLocalFilterChanged(float visualizationId)
+    {  
+        if((int)visualizationId != GetInstanceID())
+            return;
+        
+        if(axes.Count == 1)
+            UpdateVisualizations();
+        else 
+            DoFilter(AttributeFilters);
     }
 
     // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 

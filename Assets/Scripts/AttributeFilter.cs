@@ -31,23 +31,16 @@ public class AttributeFilter
     // [Range(0.0f, 1.0f)]
     public float maxScale = 1.0f;
 
-    public AttributeFilter(int index, string attributeName, float minFilter, float maxFilter, float minScale, float maxScale) {
+    public bool isGlobal = false;
+
+    public AttributeFilter(int index, string attributeName, float minFilter, float maxFilter, float minScale, float maxScale, bool isGlobal=false) {
         this.Attribute = attributeName;
         this.idx = index;
         this.minFilter = minFilter;
         this.maxFilter = maxFilter;
         this.minScale = minScale;
         this.maxScale = maxScale;
+        this.isGlobal = isGlobal;
     }
 
-    public AttributeFilter InitFilter(int index, string attributeName, float minFilter, float maxFilter, float minScale, float maxScale) {
-        this.Attribute = attributeName;
-        this.idx = index;
-        this.minFilter = minFilter;
-        this.maxFilter = maxFilter;
-        this.minScale = minScale;
-        this.maxScale = maxScale;
-
-        return this;
-    }
 }

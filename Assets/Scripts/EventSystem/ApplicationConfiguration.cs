@@ -25,5 +25,6 @@ public class ApplicationConfiguration {
     public static string OnVisualizationGrabbed = "OnVisualizationGrabbed";
     public static string OnVisualizationReleased = "OnVisualizationReleased";
     public static string OnFilterSliderChanged = "OnFilterSliderChanged";
+    public static string OnLocalFilterSliderChanged = "OnLocalFilterSliderChanged";
 
 }

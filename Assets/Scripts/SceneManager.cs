@@ -29,6 +29,11 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     GameObject TwoDPanel;
 
+    [SerializeField]
+    public List<AttributeFilter> globalFilters;
+
+
+
     static SceneManager _instance;
     public static SceneManager Instance
     {

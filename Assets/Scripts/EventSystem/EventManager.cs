@@ -9,6 +9,7 @@ public class EventManager : MonoBehaviour
     /// TODO :Make this class generic and specialize for each type of message
     /// </summary>
     /// 
+
     public class UnityEventFloat : UnityEvent<float>
     {
 
@@ -23,6 +24,7 @@ public class EventManager : MonoBehaviour
     }
 
 
+    // private Dictionary<string, UnityEventFloat> eventDictionary;
     private Dictionary<string, UnityEventFloat> eventDictionary;
     private Dictionary<string, UnityEventAxis> axisEventDictionary;
     private Dictionary<string, UnityEventVisualization> visualizationEventDictionary;
