@@ -756,7 +756,7 @@ namespace DataBinding
             List<List<float>> filteredMatrix = matrix;
             foreach (var filter in filters)
             {
-                filteredMatrix = matrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter && rowArray[filter.idx] <= filter.maxFilter)).ToList();
+                filteredMatrix = filteredMatrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter && rowArray[filter.idx] <= filter.maxFilter)).ToList();
             }
 
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 

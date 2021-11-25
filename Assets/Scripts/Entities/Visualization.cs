@@ -1390,6 +1390,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void OnAttributeChanged(float idx)
     {  
+        Debug.Log("OnAttributeChanged + " + AttributeFilters.Count);
+        Debug.Log("OnAttributeChanged + " + idx);
         if(idx == VisualisationAttributes.Instance.FilterAttribute) {
             // if we're globally filtering all scatterplots
             // We add the global filters to local ones in here to make life easier! 
@@ -1417,7 +1419,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {  
         if((int)visualizationId != GetInstanceID())
             return;
-        
+        Debug.Log("OnlocalfilterChaned + " + AttributeFilters.Count);
         if(axes.Count == 1)
             UpdateVisualizations();
         else 

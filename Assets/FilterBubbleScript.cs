@@ -28,7 +28,7 @@ public class FilterBubbleScript : MonoBehaviour
 
     public List<Axis> filterAxes = new List<Axis>();
 
-    private bool isGlobalFilterBubble = false;
+    public bool isGlobalFilterBubble = false;
 
     // public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
@@ -79,7 +79,7 @@ public class FilterBubbleScript : MonoBehaviour
             clonedSlider.GetComponent<UnityEngine.UI.Slider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<UnityEngine.UI.Slider>(), axis);});
 
             filterAxes.Add(axis);
-            Debug.Log("Added one! : " + axis.name);
+            // Debug.Log("Added one! : " + axis.name);
 
             // TODO: figure out what to do about duplicate axes
 
@@ -108,9 +108,9 @@ public class FilterBubbleScript : MonoBehaviour
     {
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
-        Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
+        // Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
 
         // We should remember that each view object has the Visualization as its direct parent
         // This could be the way for us to access the properies of its parent

@@ -28,6 +28,8 @@ public class SceneManager : MonoBehaviour
 
     [SerializeField]
     GameObject TwoDPanel;
+    [SerializeField]
+    GameObject GlobalFilterPanel;
 
     [SerializeField]
     public List<AttributeFilter> globalFilters;
@@ -56,6 +58,12 @@ public class SceneManager : MonoBehaviour
         TwoDPanel.transform.position += (Camera.main.transform.forward * 1f) + (Camera.main.transform.up * -0.1f) + (Camera.main.transform.right * 0.4f);
         TwoDPanel.transform.parent = dataShelfPanel;
         TwoDPanel.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
+
+        // Get the global filters in front of the camera too
+        GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
+        GlobalFilterPanel.transform.rotation = Camera.main.transform.rotation;
+        GlobalFilterPanel.transform.position = Camera.main.transform.position;
+        GlobalFilterPanel.transform.position += (Camera.main.transform.forward * 0.2f);
         
 
         // Vector3 dataShelfZDirection = 

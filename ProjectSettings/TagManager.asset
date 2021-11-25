@@ -23,6 +23,7 @@ TagManager:
   - ScreenOverlay
   - FilterBubble
   - SceneManager
+  - GlobalFilterBubble
   layers:
   - Default
   - TransparentFX

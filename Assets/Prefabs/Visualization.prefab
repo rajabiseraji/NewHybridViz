@@ -541,6 +541,7 @@ MonoBehaviour:
   minZFilter: -1
   maxZFilter: 1
   viewType: 0
+  AttributeFilters: []
 --- !u!135 &135338778821631514
 SphereCollider:
   m_ObjectHideFlags: 0
