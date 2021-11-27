@@ -27,6 +27,8 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     public Vector3 initialScale;
     Vector3 rescaled = Vector3.one;
 
+    public bool isGlobalFilterBubble = false;
+
     // Use this for initialization
     void Start () {
         //initialScale = transform.localScale;
@@ -36,7 +38,10 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         rescaled.z *= 2f;
 
         Debug.Assert((filterTextsGameobject != null), "The fitler text ref object cannot be null");
-        Debug.Assert((visReference != null), "The visualisation ref object cannot be null");
+
+        if(!isGlobalFilterBubble)
+            Debug.Assert((visReference != null), "The visualisation ref object cannot be null");
+
         Debug.Assert((filterBubbleGameobject != null), "The filter bubble object cannot be null");
         Debug.Assert((filterBubbleCompactGameobject != null), "The filter bubble object cannot be null");
         if(filterBubbleCompactGameobject && filterBubbleGameobject) {
@@ -59,8 +64,13 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     {
         OnEntered.Invoke();
         // Make sure that we have some fitlers to display before actually doing it! 
-        if(visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0) 
-            return;
+        if(!isGlobalFilterBubble) {
+            if(visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0) 
+                return;
+        } else {
+            if(SceneManager.Instance.globalFilters == null || SceneManager.Instance.globalFilters.Count == 0) 
+                return;
+        }
 
         if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
             Sequence seq = DOTween.Sequence();
@@ -98,7 +108,11 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
                     axis.gameObject.SetActive(false);
                 }
                 filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
-                changeCompactFilterText(visReference.AttributeFilters);
+               
+                if(!isGlobalFilterBubble)
+                    changeCompactFilterText(visReference.AttributeFilters);
+                else 
+                    changeCompactFilterText(SceneManager.Instance.globalFilters);
             });
         }
     }
@@ -107,7 +121,10 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     {
         OnExited.Invoke();
         if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
-            changeCompactFilterText(visReference.AttributeFilters);
+            if(!isGlobalFilterBubble)
+                changeCompactFilterText(visReference.AttributeFilters);
+            else 
+                changeCompactFilterText(SceneManager.Instance.globalFilters);
             Sequence seq = DOTween.Sequence();
             seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
@@ -147,8 +164,10 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     }
 
     public void changeCompactFilterText(List<AttributeFilter> filters) {
+        var localFilters = isGlobalFilterBubble ? SceneManager.Instance.globalFilters : filters;
+
         string filterText = "";
-        foreach (var filter in filters)
+        foreach (var filter in localFilters)
         {
             filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + SceneManager.Instance.dataObject.getOriginalValue(filter.minFilter, filter.idx) + "-" + SceneManager.Instance.dataObject.getOriginalValue(filter.maxFilter, filter.idx) + "], ";
         }
