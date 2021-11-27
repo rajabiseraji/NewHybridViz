@@ -9,8 +9,11 @@ public class FilterBubbleScript : MonoBehaviour
 {
 
     public Visualization parentVisualization;
-    public GameObject sliderPrefab; 
+    public GameObject sliderPrefab;
+
+    public  GameObject spacerprefab; 
     public Transform controlGameobject;
+    public GameObject labelGameobject;
 
 
     [Tooltip("A list of dropdowns that will be automatically populated with attribute names")]
@@ -45,6 +48,8 @@ public class FilterBubbleScript : MonoBehaviour
         // Make it transparent at the beginning
         GetComponentInChildren<CanvasGroup>().alpha = 0f;
 
+        labelGameobject.GetComponent<Text>().text = parentVisualization.name;
+
         if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
             // SteamVR_TrackedController activeController = GameObject.FindGameObjectsWithTag("Controller").FirstOrDefault().GetComponent<SteamVR_TrackedController>();
             GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
@@ -77,6 +82,7 @@ public class FilterBubbleScript : MonoBehaviour
     public void AddNewFilter(List<Axis> axes) {
         foreach (var axis in axes)
         {
+            GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
             clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);

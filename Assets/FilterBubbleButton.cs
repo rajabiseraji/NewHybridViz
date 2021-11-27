@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using DG.Tweening;
 
@@ -11,6 +12,8 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     public GameObject filterBubbleGameobject;
     private CanvasGroup filterBubbleMenuCanvas;
     public GameObject filterBubbleCompactGameobject;
+
+    public Text filterTextsGameobject;
 
     public Visualization visReference; 
     private CanvasGroup filterBubbleCompactMenuCanvas;
@@ -32,6 +35,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         rescaled.y *= 2f;
         rescaled.z *= 2f;
 
+        Debug.Assert((filterTextsGameobject != null), "The fitler text ref object cannot be null");
         Debug.Assert((visReference != null), "The visualisation ref object cannot be null");
         Debug.Assert((filterBubbleGameobject != null), "The filter bubble object cannot be null");
         Debug.Assert((filterBubbleCompactGameobject != null), "The filter bubble object cannot be null");
@@ -54,6 +58,10 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     public void OnEnter(WandController controller)
     {
         OnEntered.Invoke();
+        // Make sure that we have some fitlers to display before actually doing it! 
+        if(visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0) 
+            return;
+
         if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
             Sequence seq = DOTween.Sequence();
             seq.Append(filterBubbleCompactMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
@@ -73,20 +81,14 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             involvedAxes = other.GetComponent<Visualization>().axes;
             if(involvedAxes.Any(axis => axis.isPrototype))
                 return;
-            // } 
-            // else {
-            //     involvedAxes = new List<Axis>();
-            //     involvedAxes.Add(other.GetComponent<Axis>());
-            // }
 
-            // TODO:Call a function from the FilterBubbleScript to make the sliders (or toggles and whatnot)
-
+            
             // Here we're making sure that both the axes and the visualization will hide after hitting one another
             Sequence seq = DOTween.Sequence();
             seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
             foreach (var axis in involvedAxes)
             {
-              seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));  
+              seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
             }
             seq.AppendCallback(() => {
                 other.gameObject.SetActive(false);
@@ -96,6 +98,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
                     axis.gameObject.SetActive(false);
                 }
                 filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
+                changeCompactFilterText(visReference.AttributeFilters);
             });
         }
     }
@@ -104,6 +107,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     {
         OnExited.Invoke();
         if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
+            changeCompactFilterText(visReference.AttributeFilters);
             Sequence seq = DOTween.Sequence();
             seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
@@ -139,9 +143,15 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     // Update is called once per frame
     void Update()
     {
-        // This is of course very bad for the performance! so maybe do something about it! 
-        // TODO: performance fix in here
-        // Check if the parent visualization's axes are on the proto then just hide the whole thing at the beginning
         
+    }
+
+    public void changeCompactFilterText(List<AttributeFilter> filters) {
+        string filterText = "";
+        foreach (var filter in filters)
+        {
+            filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + SceneManager.Instance.dataObject.getOriginalValue(filter.minFilter, filter.idx) + "-" + SceneManager.Instance.dataObject.getOriginalValue(filter.maxFilter, filter.idx) + "], ";
+        }
+        filterTextsGameobject.text = filterText;
     }
 }
