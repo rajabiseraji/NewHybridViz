@@ -63,9 +63,10 @@ public class SceneManager : MonoBehaviour
 
         // Get the global filters in front of the camera too
         GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
-        GlobalFilterPanel.transform.rotation = Camera.main.transform.rotation;
-        GlobalFilterPanel.transform.position = Camera.main.transform.position;
-        GlobalFilterPanel.transform.position += (Camera.main.transform.forward * 0.2f);
+        Transform mainCam = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        GlobalFilterPanel.transform.rotation = mainCam.rotation;
+        // GlobalFilterPanel.transform.position = mainCam.position;
+        GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
         
 
         // Vector3 dataShelfZDirection = 

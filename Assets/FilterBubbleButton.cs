@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using DG.Tweening;
@@ -10,6 +11,8 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     public GameObject filterBubbleGameobject;
     private CanvasGroup filterBubbleMenuCanvas;
     public GameObject filterBubbleCompactGameobject;
+
+    public Visualization visReference; 
     private CanvasGroup filterBubbleCompactMenuCanvas;
 
     [SerializeField]
@@ -29,6 +32,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         rescaled.y *= 2f;
         rescaled.z *= 2f;
 
+        Debug.Assert((visReference != null), "The visualisation ref object cannot be null");
         Debug.Assert((filterBubbleGameobject != null), "The filter bubble object cannot be null");
         Debug.Assert((filterBubbleCompactGameobject != null), "The filter bubble object cannot be null");
         if(filterBubbleCompactGameobject && filterBubbleGameobject) {
@@ -67,6 +71,8 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             List<Axis> involvedAxes;
             // if(other.GetComponent<Visualization>()) {
             involvedAxes = other.GetComponent<Visualization>().axes;
+            if(involvedAxes.Any(axis => axis.isPrototype))
+                return;
             // } 
             // else {
             //     involvedAxes = new List<Axis>();
@@ -133,5 +139,9 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     // Update is called once per frame
     void Update()
     {
+        // This is of course very bad for the performance! so maybe do something about it! 
+        // TODO: performance fix in here
+        // Check if the parent visualization's axes are on the proto then just hide the whole thing at the beginning
+        
     }
 }

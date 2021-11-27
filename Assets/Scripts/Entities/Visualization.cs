@@ -154,6 +154,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
+    public GameObject filterBubbleGameobject;
+    public GameObject filterBubbleButtonGameobject;
+    public GameObject filterBubbleCompactGameobject;
+
     void Awake()
     {
         axes = new List<Axis>();
@@ -178,6 +182,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             string tmp = name.Replace("axis", "");
             label.text = tmp.Replace("visualisation", "");
         }
+
+        Debug.Assert((filterBubbleGameobject != null), "In Vis: The filter bubble object cannot be null");
+        Debug.Assert((filterBubbleButtonGameobject != null), "In Vis: The filter bubble button object cannot be null");
+        Debug.Assert((filterBubbleCompactGameobject != null), "In Vis: The filter bubble object cannot be null");
 
         //listen to menu events
         EventManager.StartListening(ApplicationConfiguration.OnSlideChangePointSize, OnChangePointSize);
@@ -640,6 +648,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
+
+         CheckFilterBubble();
+
         // Check to see if the visualization is falling down! 
         // If they are, then just get rid of them and destroy the whole thing
         if(transform.position.y < -30f) {
@@ -907,6 +918,28 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 default:
                     break;
             }
+        }
+    }
+
+    // Called every frame
+    private void CheckFilterBubble() {
+        // This is of course very bad for the performance! so maybe do something about it! 
+        // TODO: performance fix in here
+        // Check if the parent visualization's axes are on the proto then just hide the whole thing at the beginning
+        
+            
+        // if(axes.Any(axis => axis.isPrototype || axis.parentIsMoving)) {
+        if(axes.Any(axis => axis.transform.parent.tag == "DataShelfPanel")) {
+            // axes.ForEach(axis => {
+            //     Debug.Log("in viz " + name + " with axis " + axis.name);
+            // });
+            filterBubbleButtonGameobject.SetActive(false);
+            filterBubbleGameobject.SetActive(false);
+            filterBubbleCompactGameobject.SetActive(false);
+        } else {
+            filterBubbleButtonGameobject.SetActive(true);
+            filterBubbleGameobject.SetActive(true);
+            filterBubbleCompactGameobject.SetActive(true);
         }
     }
 

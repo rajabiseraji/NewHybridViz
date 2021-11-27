@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -9,6 +10,10 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     Vector3[] vertices;
 
     public List<Axis> ConnectedAxes = new List<Axis>();
+
+    private Vector3 MyPrevPosition;
+
+    public bool AmIMoving = false;
     void Start()
     {
         // mesh = GetComponent<MeshFilter>().mesh;
@@ -17,6 +22,8 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
         // transform.parent.rotation = Camera.main.transform.rotation;
         // transform.parent.Rotate(0, -90f, 0, Space.Self);
         // transform.parent.position = Camera.main.transform.position + (Camera.main.transform.right * 0.5f);
+
+        MyPrevPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -35,7 +42,14 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
             }
         }
 
+        // Check if the parent dataShelf is moving
+        if(MyPrevPosition.Equals(transform.position)) {
+            AmIMoving = false;
+        } else 
+            AmIMoving = true;
         // TODO: implement a check that removes the axis that its Z (in planes coords) distance with our plane is more than 0.25f 
+
+        MyPrevPosition = transform.position;
     }
 
     void OnTriggerEnter(Collider other) {
@@ -124,7 +138,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     }
 
     IEnumerator DoToggleBackChildAxis() {
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitUntil(() => AmIMoving == false);
         toggleChildAxesClonig(true);
     }
 

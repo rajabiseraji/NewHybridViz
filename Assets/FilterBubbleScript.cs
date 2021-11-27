@@ -27,6 +27,7 @@ public class FilterBubbleScript : MonoBehaviour
     public Button MaxGradientColourButton;
 
     public List<Axis> filterAxes = new List<Axis>();
+    
 
     public bool isGlobalFilterBubble = false;
 
@@ -44,7 +45,12 @@ public class FilterBubbleScript : MonoBehaviour
         // Make it transparent at the beginning
         GetComponentInChildren<CanvasGroup>().alpha = 0f;
 
-        GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+        if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
+            // SteamVR_TrackedController activeController = GameObject.FindGameObjectsWithTag("Controller").FirstOrDefault().GetComponent<SteamVR_TrackedController>();
+            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+        } else {
+            Debug.LogWarning("There's no controller!");
+        }
         
     }
 
@@ -53,6 +59,10 @@ public class FilterBubbleScript : MonoBehaviour
             if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
                 GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
             }
+        } 
+
+        if(GetComponent<ViveMenu>().Camera == null) {
+            GetComponent<ViveMenu>().Camera = Camera.main.gameObject;
         }
     }
 

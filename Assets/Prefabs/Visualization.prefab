@@ -542,6 +542,9 @@ MonoBehaviour:
   maxZFilter: 1
   viewType: 0
   AttributeFilters: []
+  filterBubbleGameobject: {fileID: 3775835767712840229}
+  filterBubbleButtonGameobject: {fileID: 1245314981299623569}
+  filterBubbleCompactGameobject: {fileID: 7649386258716422347}
 --- !u!135 &135338778821631514
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1123,6 +1126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   filterBubbleGameobject: {fileID: 3775835767712840229}
   filterBubbleCompactGameobject: {fileID: 7649386258716422347}
+  visReference: {fileID: 114548593337877974}
   OnEntered:
     m_PersistentCalls:
       m_Calls:
