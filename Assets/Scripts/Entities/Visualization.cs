@@ -929,7 +929,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         
             
         // if(axes.Any(axis => axis.isPrototype || axis.parentIsMoving)) {
-        if(axes.Any(axis => axis.transform.parent.tag == "DataShelfPanel")) {
+        if(axes.Any(axis => axis.transform.parent != null && axis.transform.parent.tag == "DataShelfPanel")) {
             // axes.ForEach(axis => {
             //     Debug.Log("in viz " + name + " with axis " + axis.name);
             // });
