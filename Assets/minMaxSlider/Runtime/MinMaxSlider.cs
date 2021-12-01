@@ -285,7 +285,7 @@ namespace Min_Max_Slider
 		/// </summary>
 		private void GetWorldCorners()
 		{
-			sliderBounds.GetWorldCorners(worldCorners);
+			sliderBounds.GetLocalCorners(worldCorners);
 		}
 
 		/// <summary>
@@ -296,11 +296,11 @@ namespace Min_Max_Slider
 		private void SetHandleValue01(Transform handle, float value01)
 		{
 			GetWorldCorners();
+			
 			Vector2 pos = new Vector2(
 				Mathf.Lerp(worldCorners[0].x, worldCorners[2].x, value01),
 				worldCorners[0].y + (worldCorners[1].y - worldCorners[0].y) / 2f);
-
-			handle.position = new Vector3(pos.x, pos.y, handle.position.z);
+			handle.localPosition = new Vector3(pos.x, pos.y, handle.localPosition.z);
 		}
 
 		/// <summary>
