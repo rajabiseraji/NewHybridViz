@@ -1,0 +1,27 @@
+{
+  "name": "com.brogan89.minmaxslider",
+  "displayName": "Min Max Slider",
+  "version": "1.2.1",
+  "description": "Min Max Slider UI Component for Unity",
+  "keywords": [
+    "Min",
+    "Max",
+    "Slider",
+    "Range"
+  ],
+  "category": "UI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brogan89/MinMaxSlider.git"
+  },
+  "dependencies": {
+    "com.unity.textmeshpro": "2.0.1"
+  },
+  "samples": [
+  {
+    "displayName": "Demo",
+    "description": "Demos MinMaxSlider in both Overlay and Screen Space Camera canvases",
+    "path": "Example~/Demo"
+  }
+]
+}
