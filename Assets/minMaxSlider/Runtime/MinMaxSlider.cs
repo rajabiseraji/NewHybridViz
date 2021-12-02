@@ -44,8 +44,8 @@ namespace Min_Max_Slider
 
 		[Header("Values")]
 		public bool wholeNumbers;
-		[SerializeField] public float minValue = 25;
-		[SerializeField] public float maxValue = 75;
+		[SerializeField] public float minValue = 0;
+		[SerializeField] public float maxValue = 100;
 
 		public MinMaxValues Values { get { return new MinMaxValues(minValue, maxValue, minLimit, maxLimit); } }
 
@@ -66,6 +66,7 @@ namespace Min_Max_Slider
 		private float dragStartMaxValue01;
 		private DragState dragState;
 		private readonly Vector3[] worldCorners = new Vector3[4];
+		private readonly Vector3[] localCorners = new Vector3[4];
 		private bool passDragEvents; // this allows drag events to be passed through to scrollers
 
 		private Camera mainCamera;
@@ -79,9 +80,12 @@ namespace Min_Max_Slider
 			if (!sliderBounds)
 				sliderBounds = transform as RectTransform;
 
+			Camera uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+			Debug.Log(uiCamera);
+
 			parentCanvas = GetComponentInParent<Canvas>();
 			isOverlayCanvas = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay;
-			mainCamera = customCamera != null ? customCamera : Camera.main;
+			mainCamera = customCamera != null ? customCamera : uiCamera ? uiCamera : Camera.main;
 		}
 
 		public void SetLimits(float minLimit, float maxLimit)
@@ -158,10 +162,14 @@ namespace Min_Max_Slider
 
 		public void OnBeginDrag(PointerEventData eventData)
 		{
+			Camera uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
 			var clickPosition = isOverlayCanvas
 				? (Vector3) eventData.position
 				: mainCamera.ScreenToWorldPoint(eventData.position);
-
+			Debug.Log("data point is: " + eventData.position.x);
+			Debug.Log("clicked point is: " + clickPosition.x);
+			Debug.Log("min handle point is: " + minHandle.position.x);
+			Debug.Log("max handle point is: " + maxHandle.position.x);
 			passDragEvents = Math.Abs(eventData.delta.x) < Math.Abs(eventData.delta.y);
 
 			if (passDragEvents)
@@ -192,6 +200,9 @@ namespace Min_Max_Slider
 
 		public void OnDrag(PointerEventData eventData)
 		{
+			// Debug.Log("Dragging");
+			// Debug.Log(eventData.position);
+			// Debug.Log(eventData.currentInputModule);
 			var clickPosition = isOverlayCanvas
 				? (Vector3) eventData.position
 				: mainCamera.ScreenToWorldPoint(eventData.position);
@@ -285,7 +296,11 @@ namespace Min_Max_Slider
 		/// </summary>
 		private void GetWorldCorners()
 		{
-			sliderBounds.GetLocalCorners(worldCorners);
+			sliderBounds.GetWorldCorners(worldCorners);
+		}
+		private void GetLocalCorners()
+		{
+			sliderBounds.GetLocalCorners(localCorners);
 		}
 
 		/// <summary>
@@ -295,11 +310,12 @@ namespace Min_Max_Slider
 		/// <param name="value01"></param>
 		private void SetHandleValue01(Transform handle, float value01)
 		{
-			GetWorldCorners();
+			// GetWorldCorners();
+			GetLocalCorners();
 			
 			Vector2 pos = new Vector2(
-				Mathf.Lerp(worldCorners[0].x, worldCorners[2].x, value01),
-				worldCorners[0].y + (worldCorners[1].y - worldCorners[0].y) / 2f);
+				Mathf.Lerp(localCorners[0].x, localCorners[2].x, value01),
+				localCorners[0].y + (localCorners[1].y - localCorners[0].y) / 2f);
 			handle.localPosition = new Vector3(pos.x, pos.y, handle.localPosition.z);
 		}
 

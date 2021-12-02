@@ -51,8 +51,10 @@ namespace Wacki
             raycaster = UICamera.gameObject.AddComponent<PhysicsRaycaster>();
             UICamera.clearFlags = CameraClearFlags.Nothing;
             UICamera.enabled = false;
+            UICamera.stereoTargetEye = StereoTargetEyeMask.None;
             UICamera.fieldOfView = 5;
             UICamera.nearClipPlane = 0.01f;
+            UICamera.tag = "UICamera";
 
             // Find canvases in the scene and assign our custom
             // UICamera to them

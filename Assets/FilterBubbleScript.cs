@@ -46,9 +46,11 @@ public class FilterBubbleScript : MonoBehaviour
         // }
 
         // Make it transparent at the beginning
-        GetComponentInChildren<CanvasGroup>().alpha = 0f;
-
-        labelGameobject.GetComponent<Text>().text = parentVisualization.name;
+        if(!isGlobalFilterBubble)
+            GetComponentInChildren<CanvasGroup>().alpha = 0f;
+        
+        if(!isGlobalFilterBubble)
+            labelGameobject.GetComponent<Text>().text = parentVisualization.name;
 
         if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
             // SteamVR_TrackedController activeController = GameObject.FindGameObjectsWithTag("Controller").FirstOrDefault().GetComponent<SteamVR_TrackedController>();
@@ -85,14 +87,20 @@ public class FilterBubbleScript : MonoBehaviour
             GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
-            clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
-            clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
+            float minLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
+            float maxLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
+
+            Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
+            
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(minLimit, maxLimit);
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
 
             clonedSlider.GetComponentInChildren<Text>().text = axis.name;
 
-            clonedSlider.GetComponent<UnityEngine.UI.Slider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<UnityEngine.UI.Slider>(), axis);});
+            // The min max slider has a minValue and maxValue as the slider parts
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axis);});
 
             filterAxes.Add(axis);
             // Debug.Log("Added one! : " + axis.name);
@@ -120,10 +128,11 @@ public class FilterBubbleScript : MonoBehaviour
         }
     }
 
-    public void OnTestSliderChanged(UnityEngine.UI.Slider slider, Axis axisAsFilter)
+    public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)
     {
         // TODO: tell the visualization class that something has been changed and it needs to be updated
-        float normalisedValue = SceneManager.Instance.dataObject.normaliseValue(slider.value, slider.minValue, slider.maxValue, 0, 1f);
+        float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.minValue, axisAsFilter.MinNormaliser, axisAsFilter.MaxNormaliser, 0, 1f);
+        float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.maxValue, axisAsFilter.MinNormaliser, axisAsFilter.MaxNormaliser, 0, 1f);
         // Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
         // Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
         // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
@@ -139,7 +148,8 @@ public class FilterBubbleScript : MonoBehaviour
             int foundGlobalIndex = SceneManager.Instance.globalFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
             if(foundGlobalIndex != -1) {
                 // For now I'm just changing the minFilter value, later we're gonna go more into details
-                SceneManager.Instance.globalFilters[foundGlobalIndex].minFilter = normalisedValue;
+                SceneManager.Instance.globalFilters[foundGlobalIndex].minFilter = normalisedMinValue;
+                SceneManager.Instance.globalFilters[foundGlobalIndex].maxFilter = normalisedMaxValue;
             }
 
             // This triggers it for all of the visualizations
@@ -149,7 +159,8 @@ public class FilterBubbleScript : MonoBehaviour
             int foundIndex = parentVisualization.AttributeFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
             if(foundIndex != -1) {
                 // For now I'm just changing the minFilter value, later we're gonna go more into details
-                parentVisualization.AttributeFilters[foundIndex].minFilter = normalisedValue;
+                parentVisualization.AttributeFilters[foundIndex].minFilter = normalisedMinValue;
+                parentVisualization.AttributeFilters[foundIndex].maxFilter = normalisedMaxValue;
             }
 
             // When called without any params it would simply be the local filtering then! 
