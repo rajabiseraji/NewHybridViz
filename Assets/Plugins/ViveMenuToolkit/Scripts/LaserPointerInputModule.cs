@@ -126,6 +126,11 @@ namespace Wacki
                 // trigger a raycast
                 eventSystem.RaycastAll(data.pointerEvent, m_RaycastResultCache);
                 data.pointerEvent.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+                RaycastResult r = data.pointerEvent.pointerCurrentRaycast;
+                Vector3 raycastHitPoint = new Vector3(data.pointerEvent.position.x, data.pointerEvent.position.y, r.distance);
+                
+                r.worldPosition = UICamera.ScreenToWorldPoint(raycastHitPoint);
+                data.pointerEvent.pointerCurrentRaycast = r;
                 m_RaycastResultCache.Clear();
 
                 // make sure our controller knows about the raycast result
