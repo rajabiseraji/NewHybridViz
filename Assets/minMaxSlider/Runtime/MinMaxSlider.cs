@@ -34,6 +34,8 @@ namespace Min_Max_Slider
 		//[SerializeField] private TextMeshProUGUI minText = null;
 		//[SerializeField] private TextMeshProUGUI maxText = null;
 		[SerializeField] private string minText = null;
+		[SerializeField] private GameObject minTextGo = null;
+		[SerializeField] private GameObject maxTextGo = null;
 		[SerializeField] private string maxText = null;
 		[SerializeField] private string textFormat = "0";
 
@@ -152,11 +154,13 @@ namespace Min_Max_Slider
 
 		private void UpdateText()
 		{
-			//if (minText) minText.SetText(minValue.ToString(textFormat));
-			//if (maxText) maxText.SetText(maxValue.ToString(textFormat));
 
 			minText = minValue.ToString(textFormat);
 			maxText = maxValue.ToString(textFormat);
+			
+			if (minTextGo) minTextGo.GetComponent<Text>().text = minText;
+			if (maxTextGo) maxTextGo.GetComponent<Text>().text = maxText;
+			
 		}
 
 		private void UpdateMiddleGraphic()

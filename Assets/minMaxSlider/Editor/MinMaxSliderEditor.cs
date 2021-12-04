@@ -13,7 +13,9 @@ public class MinMaxSliderEditor : SelectableEditor
 	private SerializedProperty _minHandle;
 	private SerializedProperty _maxHandle;
 	private SerializedProperty _minText;
+	private SerializedProperty _minTextGameObject;
 	private SerializedProperty _maxText;
+	private SerializedProperty _maxTextGameObject;
 	private SerializedProperty _textFormat;
 	private SerializedProperty _middleGraphic;
 	private SerializedProperty _minLimit;
@@ -35,6 +37,8 @@ public class MinMaxSliderEditor : SelectableEditor
 		_maxHandle = serializedObject.FindProperty("maxHandle");
 		_minText = serializedObject.FindProperty("minText");
 		_maxText = serializedObject.FindProperty("maxText");
+		_minTextGameObject = serializedObject.FindProperty("minTextGo");
+		_maxTextGameObject = serializedObject.FindProperty("maxTextGo");
 		_textFormat = serializedObject.FindProperty("textFormat");
 		_middleGraphic = serializedObject.FindProperty("middleGraphic");
 		_minLimit = serializedObject.FindProperty("minLimit");
@@ -64,6 +68,8 @@ public class MinMaxSliderEditor : SelectableEditor
 
 		EditorGUILayout.PropertyField(_minText);
 		EditorGUILayout.PropertyField(_maxText);
+		EditorGUILayout.PropertyField(_minTextGameObject);
+		EditorGUILayout.PropertyField(_maxTextGameObject);
 		EditorGUILayout.PropertyField(_textFormat);
 
 		EditorGUILayout.PropertyField(_minLimit);
