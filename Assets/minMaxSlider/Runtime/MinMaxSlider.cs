@@ -182,16 +182,16 @@ namespace Min_Max_Slider
 				: eventData.pointerCurrentRaycast.worldPosition;
 			// clickPosition.z = eventData.pointerCurrentRaycast.gameObject.transform.position.z;
 			var localClickPosition = transform.InverseTransformPoint(clickPosition);
-			Debug.Log("HIT OBJECT IS: " + eventData.pointerCurrentRaycast.gameObject.name);
+			// Debug.Log("HIT OBJECT IS: " + eventData.pointerCurrentRaycast.gameObject.name);
 			// GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			// sphere.transform.localScale = Vector3.one * 0.02f;
 			// sphere.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
 			// sphere.transform.position = clickPosition;
 
-			Debug.Log("clicked point is: " + clickPosition.x);
-			Debug.Log("local clicked point is: " + localClickPosition.x);
-			Debug.Log("min handle point is: " + minHandle.transform.localPosition.x);
-			Debug.Log("max handle point is: " + maxHandle.transform.localPosition.x);
+			// Debug.Log("clicked point is: " + clickPosition.x);
+			// Debug.Log("local clicked point is: " + localClickPosition.x);
+			// Debug.Log("min handle point is: " + minHandle.transform.localPosition.x);
+			// Debug.Log("max handle point is: " + maxHandle.transform.localPosition.x);
 			passDragEvents = Math.Abs(eventData.delta.x) < Math.Abs(eventData.delta.y);
 
 			if (passDragEvents)
@@ -205,11 +205,11 @@ namespace Min_Max_Slider
 				// dragStartMaxValue01 = GetValue01(maxHandle.position.x);
 				dragStartMinValue01 = GetValue01Local(minHandle.localPosition.x);
 				dragStartMaxValue01 = GetValue01Local(maxHandle.localPosition.x);
-				Debug.Log("d start: " + dragStartPosition);
-				Debug.Log("dstart min value: " + dragStartMinValue01);
-				Debug.Log("dstart max value: " + dragStartMaxValue01);
-				Debug.Log("IS WITHIN min RECT " + IsWithinRectLocal(minHandle, dragStartPosition));
-				Debug.Log("IS WITHIN max RECT " + IsWithinRectLocal(maxHandle, dragStartPosition));
+				// Debug.Log("d start: " + dragStartPosition);
+				// Debug.Log("dstart min value: " + dragStartMinValue01);
+				// Debug.Log("dstart max value: " + dragStartMaxValue01);
+				// Debug.Log("IS WITHIN min RECT " + IsWithinRectLocal(minHandle, dragStartPosition));
+				// Debug.Log("IS WITHIN max RECT " + IsWithinRectLocal(maxHandle, dragStartPosition));
 				
 
 				// set drag state
@@ -397,16 +397,16 @@ namespace Min_Max_Slider
 		{
 			Vector3[] corners = new Vector3[4];
 			rect.GetWorldCorners(corners);
-			Debug.Log("From ISWHITHIN RECT: world positino x is: " + worldPosition.x);
-			Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
+			// Debug.Log("From ISWHITHIN RECT: world positino x is: " + worldPosition.x);
+			// Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
 			return worldPosition.x > corners[0].x - 0.001f && worldPosition.x < corners[2].x + 0.001f;
 		}
 		private static bool IsWithinRectLocal(RectTransform rect, Vector2 localPosition)
 		{
 			Vector3[] corners = new Vector3[4];
 			rect.GetLocalCorners(corners);
-			Debug.Log("From ISWHITHIN RECT: local positino x is: " + localPosition.x);
-			Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
+			// Debug.Log("From ISWHITHIN RECT: local positino x is: " + localPosition.x);
+			// Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
 			return localPosition.x > corners[0].x - 0.001f && localPosition.x < corners[2].x + 0.001f;
 		}
 
