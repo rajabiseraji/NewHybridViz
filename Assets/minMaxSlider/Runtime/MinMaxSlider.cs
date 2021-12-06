@@ -83,7 +83,7 @@ namespace Min_Max_Slider
 				sliderBounds = transform as RectTransform;
 
 			Camera uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
-
+			
 			parentCanvas = GetComponentInParent<Canvas>();
 			isOverlayCanvas = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay;
 			mainCamera = customCamera != null ? customCamera : uiCamera ? uiCamera : Camera.main;
@@ -181,6 +181,7 @@ namespace Min_Max_Slider
 				? (Vector3) eventData.position
 				: eventData.pointerCurrentRaycast.worldPosition;
 			// clickPosition.z = eventData.pointerCurrentRaycast.gameObject.transform.position.z;
+			var localClickPosition = transform.InverseTransformPoint(clickPosition);
 			Debug.Log("HIT OBJECT IS: " + eventData.pointerCurrentRaycast.gameObject.name);
 			// GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			// sphere.transform.localScale = Vector3.one * 0.02f;
@@ -188,8 +189,9 @@ namespace Min_Max_Slider
 			// sphere.transform.position = clickPosition;
 
 			Debug.Log("clicked point is: " + clickPosition.x);
-			Debug.Log("min handle point is: " + minHandle.transform.position.x);
-			Debug.Log("max handle point is: " + maxHandle.transform.position.x);
+			Debug.Log("local clicked point is: " + localClickPosition.x);
+			Debug.Log("min handle point is: " + minHandle.transform.localPosition.x);
+			Debug.Log("max handle point is: " + maxHandle.transform.localPosition.x);
 			passDragEvents = Math.Abs(eventData.delta.x) < Math.Abs(eventData.delta.y);
 
 			if (passDragEvents)
@@ -198,23 +200,25 @@ namespace Min_Max_Slider
 			}
 			else
 			{
-				dragStartPosition = clickPosition;
-				dragStartMinValue01 = GetValue01(minHandle.position.x);
-				dragStartMaxValue01 = GetValue01(maxHandle.position.x);
+				dragStartPosition = localClickPosition;
+				// dragStartMinValue01 = GetValue01(minHandle.position.x);
+				// dragStartMaxValue01 = GetValue01(maxHandle.position.x);
+				dragStartMinValue01 = GetValue01Local(minHandle.localPosition.x);
+				dragStartMaxValue01 = GetValue01Local(maxHandle.localPosition.x);
 				Debug.Log("d start: " + dragStartPosition);
 				Debug.Log("dstart min value: " + dragStartMinValue01);
 				Debug.Log("dstart max value: " + dragStartMaxValue01);
-				Debug.Log("IS WITHIN min RECT " + IsWithinRect(minHandle, dragStartPosition));
-				Debug.Log("IS WITHIN max RECT " + IsWithinRect(maxHandle, dragStartPosition));
+				Debug.Log("IS WITHIN min RECT " + IsWithinRectLocal(minHandle, dragStartPosition));
+				Debug.Log("IS WITHIN max RECT " + IsWithinRectLocal(maxHandle, dragStartPosition));
 				
 
 				// set drag state
-				if (dragStartPosition.x < minHandle.position.x || IsWithinRect(minHandle, dragStartPosition))
+				if (dragStartPosition.x < minHandle.localPosition.x || IsWithinRectLocal(minHandle, dragStartPosition))
 				{
 					dragState = DragState.Min;
 					minHandle.SetAsLastSibling();
 				}
-				else if (dragStartPosition.x > maxHandle.position.x || IsWithinRect(maxHandle, dragStartPosition))
+				else if (dragStartPosition.x > maxHandle.localPosition.x || IsWithinRectLocal(maxHandle, dragStartPosition))
 				{
 					dragState = DragState.Max;
 					maxHandle.SetAsLastSibling();
@@ -229,6 +233,8 @@ namespace Min_Max_Slider
 			var clickPosition = isOverlayCanvas
 				? (Vector3) eventData.position
 				: eventData.pointerCurrentRaycast.worldPosition;
+			
+			var localClickPosition = transform.InverseTransformPoint(clickPosition);
 
 			if (passDragEvents)
 			{
@@ -240,18 +246,18 @@ namespace Min_Max_Slider
 
 				if (dragState == DragState.Min || dragState == DragState.Max)
 				{
-					float dragPosition01 = GetValue01(clickPosition.x);
-					float minHandleValue = GetValue01(minHandle.position.x);
-					float maxHandleValue = GetValue01(maxHandle.position.x);
+					float dragPosition01 = GetValue01Local(localClickPosition.x);
+					float minHandleValue = GetValue01Local(minHandle.localPosition.x);
+					float maxHandleValue = GetValue01Local(maxHandle.localPosition.x);
 
 					if (dragState == DragState.Min) {
 						SetHandleValue01(minHandle, Mathf.Clamp(dragPosition01, 0, maxHandleValue));
-						float minChanged = Mathf.Lerp(minLimit, maxLimit, GetValue01(minHandle.position.x));
+						float minChanged = Mathf.Lerp(minLimit, maxLimit, GetValue01Local(minHandle.localPosition.x));
 						SetValueLowImpact(minChanged, maxValue);
 					}
 					else if (dragState == DragState.Max) {
 						SetHandleValue01(maxHandle, Mathf.Clamp(dragPosition01, minHandleValue, 1));
-						float maxChanged = Mathf.Lerp(minLimit, maxLimit, GetValue01(maxHandle.position.x));
+						float maxChanged = Mathf.Lerp(minLimit, maxLimit, GetValue01Local(maxHandle.localPosition.x));
 						SetValueLowImpact(minValue, maxChanged);
 					}
 				}
@@ -299,8 +305,8 @@ namespace Min_Max_Slider
 			}
 			else
 			{
-				float minHandleValue = GetValue01(minHandle.position.x);
-				float maxHandleValue = GetValue01(maxHandle.position.x);
+				float minHandleValue = GetValue01Local(minHandle.localPosition.x);
+				float maxHandleValue = GetValue01Local(maxHandle.localPosition.x);
 
 				// this safe guards a possible situation where the slides can get stuck
 				if (Math.Abs(minHandleValue) < FLOAT_TOL && Math.Abs(maxHandleValue) < FLOAT_TOL)
@@ -368,6 +374,12 @@ namespace Min_Max_Slider
 			float posX = Mathf.Clamp(worldPositionX, worldCorners[0].x, worldCorners[2].x);
 			return GetPercentage(worldCorners[0].x, worldCorners[2].x, posX);
 		}
+		private float GetValue01Local(float localPositionX)
+		{
+			GetLocalCorners();
+			float posX = Mathf.Clamp(localPositionX, localCorners[0].x, localCorners[2].x);
+			return GetPercentage(localCorners[0].x, localCorners[2].x, posX);
+		}
 
 		/// <summary>
 		/// Returns percentage of input based on min and max values
@@ -385,7 +397,17 @@ namespace Min_Max_Slider
 		{
 			Vector3[] corners = new Vector3[4];
 			rect.GetWorldCorners(corners);
+			Debug.Log("From ISWHITHIN RECT: world positino x is: " + worldPosition.x);
+			Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
 			return worldPosition.x > corners[0].x - 0.001f && worldPosition.x < corners[2].x + 0.001f;
+		}
+		private static bool IsWithinRectLocal(RectTransform rect, Vector2 localPosition)
+		{
+			Vector3[] corners = new Vector3[4];
+			rect.GetLocalCorners(corners);
+			Debug.Log("From ISWHITHIN RECT: local positino x is: " + localPosition.x);
+			Debug.Log("From ISWHITHIN RECT: CORNERS ARE: " + corners[0].x  + " corner 2 " + corners[2].x);
+			return localPosition.x > corners[0].x - 0.001f && localPosition.x < corners[2].x + 0.001f;
 		}
 
 		[Serializable]
