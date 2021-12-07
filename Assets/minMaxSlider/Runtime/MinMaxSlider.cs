@@ -89,6 +89,13 @@ namespace Min_Max_Slider
 			mainCamera = customCamera != null ? customCamera : uiCamera ? uiCamera : Camera.main;
 		}
 
+		public float[] GetPercentageValues() {
+			var retArr = new float[2];
+			retArr[0] = GetPercentage(minLimit, maxLimit, minValue);
+			retArr[1] = GetPercentage(minLimit, maxLimit, maxValue);
+			return retArr;
+		}
+
 		public void SetLimits(float minLimit, float maxLimit)
 		{
 			this.minLimit = wholeNumbers ? Mathf.RoundToInt(minLimit) : minLimit;

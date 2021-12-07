@@ -153,6 +153,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public DataBinding.DataObject dataObjectReference;
 
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
+    private List<AttributeFilter> GlobalFiltersInstance = new List<AttributeFilter>();
 
     public GameObject filterBubbleGameobject;
     public GameObject filterBubbleButtonGameobject;
@@ -197,7 +198,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         // listen to filtering events
         // this is for global filtering
-        EventManager.StartListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);
+        EventManager.StartListening(ApplicationConfiguration.OnFilterSliderChanged, OnGlobalFilterChanged);
         // this is for local filtering
         EventManager.StartListening(ApplicationConfiguration.OnLocalFilterSliderChanged, OnLocalFilterChanged);
 
@@ -213,7 +214,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         EventManager.StopListening(ApplicationConfiguration.OnLinkedAttributeChanged, OnAttributeChanged);
         EventManager.StopListening(ApplicationConfiguration.OnScatterplotAttributeChanged, OnAttributeChanged); 
         // listen to filtering events
-        EventManager.StopListening(ApplicationConfiguration.OnFilterSliderChanged, OnAttributeChanged);
+        EventManager.StopListening(ApplicationConfiguration.OnFilterSliderChanged, OnGlobalFilterChanged);
         // this is for local filtering
         EventManager.StopListening(ApplicationConfiguration.OnLocalFilterSliderChanged, OnLocalFilterChanged);
   
@@ -247,7 +248,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             minNormalizer,
             maxNormalizer,
             ref mToUpdate,
-            AttributeFilters);
+            AddandSortRange(AttributeFilters, GlobalFiltersInstance));
 
             histogramObject.GetComponentInChildren<MeshFilter>().mesh = mToUpdate;
 
@@ -281,7 +282,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             axes[0].MinNormaliser,
             axes[0].MaxNormaliser,
             ref mToUpdate,
-            AttributeFilters);
+            AddandSortRange(AttributeFilters, GlobalFiltersInstance));
 
             histogramObject.GetComponentInChildren<MeshFilter>().mesh = mToUpdate;
 
@@ -440,7 +441,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 axes[0].MaxFilter,
                 axes[0].MinNormaliser,
                 axes[0].MaxNormaliser,
-                AttributeFilters);
+                AddandSortRange(AttributeFilters, GlobalFiltersInstance));
 
             GameObject hist = histT.Item1;
             histogramPositions = histT.Item2;
@@ -1423,30 +1424,29 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void OnAttributeChanged(float idx)
     {  
+        UpdateVisualizations();
+    }
+
+    private void OnGlobalFilterChanged(float filterAxisId) {
         Debug.Log("OnAttributeChanged + " + AttributeFilters.Count);
-        Debug.Log("OnAttributeChanged + " + idx);
-        if(idx == VisualisationAttributes.Instance.FilterAttribute) {
-            // if we're globally filtering all scatterplots
-            // We add the global filters to local ones in here to make life easier! 
-            AttributeFilters.AddRange(SceneManager.Instance.globalFilters);
-            // sort the filters so that the global filters are first!
-            // this way we don't need to change anything since the filters are AND filters and we're done!
-            AttributeFilters.Sort((a, b) => {
-                if(a.isGlobal && !b.isGlobal)
-                    return 1;
-                else if(!a.isGlobal && b.isGlobal)
-                    return -1;
-                
-                return 0;
-            });
-            if(axes.Count == 1)
-                UpdateVisualizations();
-            else 
-                DoFilter(AttributeFilters);
-        } else {
-            // in case it was size or color attribute changes
+        Debug.Log("OnAttributeChanged + " + filterAxisId);
+        
+        // AttributeFilter filterToBeAdded = SceneManager.Instance.globalFilters.Find(f => f.idx == filterAxisId);
+        // int foundIndex = AttributeFilters.FindIndex(filter => filter.idx == filterAxisId && filter.isGlobal);
+        // if(foundIndex != -1)
+        //     AttributeFilters[foundIndex] = filterToBeAdded;
+        // else 
+        //     AttributeFilters.Add(filterToBeAdded);
+
+        GlobalFiltersInstance = SceneManager.Instance.globalFilters;
+
+
+
+        
+        if(axes.Count == 1)
             UpdateVisualizations();
-        }
+        else 
+            DoFilter(AddandSortRange(AttributeFilters, GlobalFiltersInstance));
     }
     private void OnLocalFilterChanged(float visualizationId)
     {  
@@ -1457,6 +1457,24 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             UpdateVisualizations();
         else 
             DoFilter(AttributeFilters);
+    }
+
+    private List<AttributeFilter> AddandSortRange(List<AttributeFilter> src, List<AttributeFilter> toBeAdded) {
+        var newList = new List<AttributeFilter>(src); 
+        newList.AddRange(toBeAdded);
+
+        // sort the filters so that the global filters are first!
+        // this way we don't need to change anything since the filters are AND filters and we're done!
+        newList.Sort((a, b) => {
+            if(a.isGlobal && !b.isGlobal)
+                return 1;
+            else if(!a.isGlobal && b.isGlobal)
+                return -1;
+            
+            return 0;
+        });
+
+        return newList;
     }
 
     // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 

@@ -46,7 +46,7 @@ public class FilterBubbleScript : MonoBehaviour
         // }
 
         // Make it transparent at the beginning
-        if(!isGlobalFilterBubble)
+        // if(!isGlobalFilterBubble)
             GetComponentInChildren<CanvasGroup>().alpha = 0f;
         
         if(!isGlobalFilterBubble)
@@ -91,6 +91,8 @@ public class FilterBubbleScript : MonoBehaviour
             float maxLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
 
             Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
+            Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
+            Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
             
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(minLimit, maxLimit);
@@ -131,11 +133,15 @@ public class FilterBubbleScript : MonoBehaviour
     public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)
     {
         // TODO: tell the visualization class that something has been changed and it needs to be updated
-        float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.minValue, axisAsFilter.MinNormaliser, axisAsFilter.MaxNormaliser, 0, 1f);
-        float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.maxValue, axisAsFilter.MinNormaliser, axisAsFilter.MaxNormaliser, 0, 1f);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's now: " + slider.value);
-        // Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised value is: " + normalisedValue);
+        float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[0], axisAsFilter.MinNormaliser + 0.505f, axisAsFilter.MaxNormaliser + 0.505f, 0, 1f);
+        float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[1], axisAsFilter.MinNormaliser + 0.505f, axisAsFilter.MaxNormaliser + 0.505f, 0, 1f);
+        Debug.Log(axisAsFilter.name + "'s value has changed and it's min is now: " + slider.minValue);
+        Debug.Log(axisAsFilter.name + "'s value has changed and it's max is now: " + slider.maxValue);
+        Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
+        Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised min value is: " + normalisedMinValue);
+        Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised max value is: " + normalisedMaxValue);
+        Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR min value is: " + axisAsFilter.MinNormaliser);
+        Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR max value is: " + axisAsFilter.MaxNormaliser);
 
         // We should remember that each view object has the Visualization as its direct parent
         // This could be the way for us to access the properies of its parent
@@ -153,7 +159,7 @@ public class FilterBubbleScript : MonoBehaviour
             }
 
             // This triggers it for all of the visualizations
-            EventManager.TriggerEvent(ApplicationConfiguration.OnFilterSliderChanged, VisualisationAttributes.Instance.FilterAttribute);
+            EventManager.TriggerEvent(ApplicationConfiguration.OnFilterSliderChanged, axisAsFilter.axisId);
         } else {
             // if it's local
             int foundIndex = parentVisualization.AttributeFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
