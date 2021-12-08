@@ -753,10 +753,11 @@ namespace DataBinding
             // each matrix[i] would be one row of data 
             // Steps: First remove the rows that break the filter condition
 
-            List<List<float>> filteredMatrix = matrix;
+            List<List<float>> filteredMatrix = new List<List<float>>(matrix);
+            // this list thingy might be very memory consuming
             foreach (var filter in filters)
             {
-                filteredMatrix = filteredMatrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter && rowArray[filter.idx] <= filter.maxFilter)).ToList();
+                filteredMatrix = filteredMatrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)).ToList();
             }
 
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 

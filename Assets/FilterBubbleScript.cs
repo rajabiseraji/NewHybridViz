@@ -132,9 +132,25 @@ public class FilterBubbleScript : MonoBehaviour
 
     public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)
     {
+        /* VERY IMPORTANT */
+        /* VERY IMPORTANT */
+        /* VERY IMPORTANT */
+
+        /* THE FILTERS IN THE SYSTEM ARE ORIGINALLY BETWEEN -.5 AND .5 AS IT'S THERE IN THE 
+            AXIS RANGE WIDGET!
+         */
+
+        /* VERY IMPORTANT */
+        /* VERY IMPORTANT */
+        /* VERY IMPORTANT */
+
+
+
         // TODO: tell the visualization class that something has been changed and it needs to be updated
-        float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[0], axisAsFilter.MinNormaliser + 0.505f, axisAsFilter.MaxNormaliser + 0.505f, 0, 1f);
-        float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[1], axisAsFilter.MinNormaliser + 0.505f, axisAsFilter.MaxNormaliser + 0.505f, 0, 1f);
+        float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[0], 0, 1f, -0.5f, 0.5f);
+        float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[1], 0, 1f, -0.5f, 0.5f);
+        Debug.Log(axisAsFilter.name + "'s min percentage is " + slider.GetPercentageValues()[0]);
+        Debug.Log(axisAsFilter.name + "'s max percentage is: " + slider.GetPercentageValues()[1]);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's min is now: " + slider.minValue);
         Debug.Log(axisAsFilter.name + "'s value has changed and it's max is now: " + slider.maxValue);
         Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);

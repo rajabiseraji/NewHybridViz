@@ -408,7 +408,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // TODO: make it more performant by removing the destroy steps and 
     // changing them into; modify steps in runtime
     // This is only called when an attribiute is changed or when a new axis is added
-    public void UpdateVisualizations()
+    public void UpdateVisualizations(DataBinding.DataObject dobjs = null)
     {
         foreach (Transform t in histogramObject.transform)
         {
@@ -427,10 +427,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             Destroy(t.gameObject);
         }
 
+        var usedDataObject = dobjs !=  null ? dobjs : SceneManager.Instance.dataObject;
+
         if (axes.Count == 1)
         {
             // Visualization factory gets the specs for each of the histograms and then spits it out as a Tuple of the created histogram gameobject and the postions of that gameobject!
-            Staxes.Tuple<GameObject, Vector3[]> histT = VisualisationFactory.Instance.CreateBarHistogramView(SceneManager.Instance.dataObject,
+            Staxes.Tuple<GameObject, Vector3[]> histT = VisualisationFactory.Instance.CreateBarHistogramView(usedDataObject,
                 axes[0].axisId,
                 (int)HISTOGRAM_BIN_SIZE,
                 false,
@@ -457,7 +459,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             referenceAxis.horizontal = axisH;
             referenceAxis.vertical = axisV;
 
-            Staxes.Tuple<GameObject, View> parallelT = VisualisationFactory.Instance.CreateSingle2DView(this,SceneManager.Instance.dataObject, axes[0].axisId, axes[1].axisId, -1, VisualisationAttributes.Instance.LinkedAttribute,
+            Staxes.Tuple<GameObject, View> parallelT = VisualisationFactory.Instance.CreateSingle2DView(this,usedDataObject, axes[0].axisId, axes[1].axisId, -1, VisualisationAttributes.Instance.LinkedAttribute,
                 MeshTopology.Lines, VisualisationFactory.Instance.linesGraphMaterial, true);
             GameObject parallel = parallelT.Item1;
             parallel.transform.SetParent(parallelCoordsObject.transform, false);
@@ -471,7 +473,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             DetailsOnDemandComponent.VisualizationReference = this;
             parallelT.Item1.GetComponentInChildren<DetailsOnDemand>().setTransformParent(transform);
 
-            Staxes.Tuple<GameObject, View> scatter2DT = VisualisationFactory.Instance.CreateSingle2DView(this, SceneManager.Instance.dataObject, axisH.axisId, axisV.axisId, -1, VisualisationAttributes.Instance.LinkedAttribute, MeshTopology.Points,
+            Staxes.Tuple<GameObject, View> scatter2DT = VisualisationFactory.Instance.CreateSingle2DView(this, usedDataObject, axisH.axisId, axisV.axisId, -1, VisualisationAttributes.Instance.LinkedAttribute, MeshTopology.Points,
                 VisualisationAttributes.Instance.LinkedAttribute < 0 ? VisualisationFactory.Instance.pointCloudMaterial : VisualisationFactory.Instance.connectedPointLineMaterial);
             GameObject scatter2 = scatter2DT.Item1;
 
@@ -525,7 +527,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             if (horizontal != null && axisV != null && depth != null)
             {
 
-                Staxes.Tuple<GameObject, View> scatter3DT = VisualisationFactory.Instance.CreateSingle2DView(this, SceneManager.Instance.dataObject,
+                Staxes.Tuple<GameObject, View> scatter3DT = VisualisationFactory.Instance.CreateSingle2DView(this, usedDataObject,
                     referenceAxis.horizontal.axisId, referenceAxis.vertical.axisId, referenceAxis.depth.axisId, VisualisationAttributes.Instance.LinkedAttribute, MeshTopology.Points,
                     VisualisationAttributes.Instance.LinkedAttribute < 0 ? VisualisationFactory.Instance.pointCloudMaterial : VisualisationFactory.Instance.connectedPointLineMaterial, false);
 
@@ -545,7 +547,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 DetailsOnDemandComponent.VisualizationReference = this;
 
                 //TODO: erase
-                //scatter3DT.Item2.updateSizeChannel(1, SceneManager.Instance.dataObject.getDimension(1));
+                //scatter3DT.Item2.updateSizeChannel(1, usedDataObject.getDimension(1));
             }
         }
         else if (axes.Count == 4)
@@ -563,7 +565,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             referenceAxis.horizontal2 = axisH2;
 
             //create the linked visualisation
-            var linkedView = VisualisationFactory.Instance.CreateLinked2DScatterplotsViews(this, SceneManager.Instance.dataObject,
+            var linkedView = VisualisationFactory.Instance.CreateLinked2DScatterplotsViews(this, usedDataObject,
                 axisH1.axisId, axisV1.axisId, axisH2.axisId, axisV2.axisId,
                 VisualisationFactory.Instance.linkedViewsMaterial);
             linkedView.Item1.transform.SetParent(linkedScatterplots.transform, false);
@@ -1428,35 +1430,72 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     private void OnGlobalFilterChanged(float filterAxisId) {
-        Debug.Log("OnAttributeChanged + " + AttributeFilters.Count);
-        Debug.Log("OnAttributeChanged + " + filterAxisId);
+        Debug.Log("On global filter changed + " + AttributeFilters.Count);
+        Debug.Log("On global filter changed + " + filterAxisId);
         
-        // AttributeFilter filterToBeAdded = SceneManager.Instance.globalFilters.Find(f => f.idx == filterAxisId);
-        // int foundIndex = AttributeFilters.FindIndex(filter => filter.idx == filterAxisId && filter.isGlobal);
-        // if(foundIndex != -1)
-        //     AttributeFilters[foundIndex] = filterToBeAdded;
-        // else 
-        //     AttributeFilters.Add(filterToBeAdded);
-
         GlobalFiltersInstance = SceneManager.Instance.globalFilters;
 
 
 
-        
-        if(axes.Count == 1)
-            UpdateVisualizations();
-        else 
+        // We should also update the normalizers and then call the onAxisNormalize to take care of the thing!
+
+        // The way to do it is that: 
+        // For more than Axes count of 1 - we put the code in the DoFilter so that it invokes the axis.onNormalize for each of the involved axes
+
+        // for histograms we can do it in UpdateVisualization
+        // Basically call the set min and set max of the only involved axis 
+        filterAndNormalise(axes);
+        if(axes.Count == 1) {
+            // UpdateVisualizations();
+        }
+        else {
             DoFilter(AddandSortRange(AttributeFilters, GlobalFiltersInstance));
+        }
     }
     private void OnLocalFilterChanged(float visualizationId)
     {  
+        // We should also update the normalizers and then call the onAxisNormalize to take care of the thing!
         if((int)visualizationId != GetInstanceID())
             return;
         Debug.Log("OnlocalfilterChaned + " + AttributeFilters.Count);
-        if(axes.Count == 1)
-            UpdateVisualizations();
-        else 
+        filterAndNormalise(axes);
+        if(axes.Count == 1) {
+            // UpdateVisualizations();
+        }
+        else {
             DoFilter(AttributeFilters);
+        }
+    }
+
+    private void filterAndNormalise(List<Axis> axes) {
+        foreach (var axis in axes)
+        {
+            float[] filteredValues = SceneManager.Instance.dataObject.getFilteredCol(SceneManager.Instance.dataObject.DataArray, axis.axisId, AddandSortRange(AttributeFilters, GlobalFiltersInstance));
+
+            // if empty
+            if(!filteredValues.Any())
+                continue;
+
+            float minVal = SceneManager.Instance.dataObject.DimensionsRange[axis.axisId].x;
+            float maxVal = SceneManager.Instance.dataObject.DimensionsRange[axis.axisId].y;
+
+            float newMinNormaliser = UtilMath.normaliseValue(filteredValues.Min(), 0, 1f, -0.505f, 0.505f);
+            float newMaxNormaliser = UtilMath.normaliseValue(filteredValues.Max(), 0, 1f, -0.505f, 0.505f);
+            if(newMaxNormaliser - newMinNormaliser < 0.005f)
+                newMaxNormaliser = newMinNormaliser + 0.005f;
+            Debug.Log("min VAL value was: " + minVal);
+            Debug.Log("max VAL normaliser value was: " + maxVal);
+            Debug.Log("filtered.min: " + filteredValues.Min());
+            Debug.Log("filtered.max: " + filteredValues.Max());
+            Debug.Log("newmin norm: " + newMinNormaliser);
+            Debug.Log("newmax norm: " + newMaxNormaliser);
+            Debug.Log("Prev min normaliser value was: " + axis.MinNormaliser);
+            Debug.Log("Prev max normaliser value was: " + axis.MaxNormaliser);
+            axis.SetMinNormalizer(newMinNormaliser);
+            axis.SetMaxNormalizer(newMaxNormaliser);
+            Debug.Log("NEW min normaliser value was: " + axis.MinNormaliser);
+            Debug.Log("NEW MAX normaliser value was: " + axis.MaxNormaliser);
+        }
     }
 
     private List<AttributeFilter> AddandSortRange(List<AttributeFilter> src, List<AttributeFilter> toBeAdded) {

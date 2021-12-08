@@ -131,15 +131,35 @@ public class VisualisationFactory : MonoBehaviour
         //get the array of dimension
         DiscreteBinner binner = new DiscreteBinner();
 
+        
         // float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
         // TODO: make a function in dobjs that does what GetCol does but with filters 
-        float[] values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
-
+        float[]  values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
 
         values = values.Where(x => x >= minFilter + 0.5f && x <= maxFilter + 0.5f).ToArray();
 
+        // generate the mesh
+        MeshFilter filter = Snax.AddComponent<MeshFilter>();
+        Mesh mesh = new Mesh();
+        filter.mesh = mesh;
+
+        //create the data points height (~ histo)
+        List<Vector3> l = new List<Vector3>();
+
+        /* WHAT THE HELL HAPPENS WHEN values BECOMES EMPTY!!!! */
+
+        if(!values.Any())
+        {
+            MeshRenderer mR = Snax.AddComponent<MeshRenderer>();
+            mR.material = histogramMaterial;
+            return new Tuple<GameObject, Vector3[]>(Snax, l.ToArray());
+        }
+
         float minVal = dobjs.DimensionsRange[Dimension].x;
         float maxVal = dobjs.DimensionsRange[Dimension].y;
+
+        // float minNormInternal = UtilMath.normaliseValue(values.Min(), minVal, maxVal, -0.5f, 0.5f);
+        // float maxNormInternal = UtilMath.normaliseValue(values.Max(), minVal, maxVal, -0.5f, 0.5f);
 
         binner.MakeIntervals(values, dobjs.Metadata[Dimension].binCount);
         foreach (float value in values)
@@ -153,8 +173,6 @@ public class VisualisationFactory : MonoBehaviour
         float minBin = Mathf.Min(bins.Min(), 0);
         float maxBin = bins.Max();
 
-        //create the data points height (~ histo)
-        List<Vector3> l = new List<Vector3>();
         for (int i = 0; i < bins.Length; i++)
         {
             // normalize positions to range in -0.5...0.5
@@ -166,10 +184,7 @@ public class VisualisationFactory : MonoBehaviour
             l.Add(v);
         }
 
-        // generate the mesh
-        MeshFilter filter = Snax.AddComponent<MeshFilter>();
-        Mesh mesh = new Mesh();
-        filter.mesh = mesh;
+        
 
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
@@ -224,10 +239,21 @@ public class VisualisationFactory : MonoBehaviour
         
         float[] values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
 
+        if(!values.Any()) {
+            mesh.Clear();
+            return;
+        }
+
         //values = values.Where(x => x >= minNormalizer + 0.5f && x <= maxNormalizer + 0.5f).ToArray();
 
         float minVal = dobjs.DimensionsRange[Dimension].x;
         float maxVal = dobjs.DimensionsRange[Dimension].y;
+
+        // Autoscaling the data here: 
+        // Setting the min and max normaliser to min and max of the data! 
+        // NOTE: MIN AND MAX NORMALISER ARE ORIGINIALLY BETWEEN -0.5 AND 0.5
+        // float minNormInternal = UtilMath.normaliseValue(values.Min(), minVal, maxVal, -0.5f, 0.5f);
+        // float maxNormInternal = UtilMath.normaliseValue(values.Max(), minVal, maxVal, -0.5f, 0.5f);
 
         binner.MakeIntervals(values, dobjs.Metadata[Dimension].binCount);
         foreach (float value in values)
@@ -241,8 +267,7 @@ public class VisualisationFactory : MonoBehaviour
         float minBin = bins.Min();
         float maxBin = bins.Max();
 
-        float minNormInternal = 0f;
-        float maxNormInternal = 0f;
+        
 
         //create the data points height (~ histo)
         List<Vector3> l = new List<Vector3>();
