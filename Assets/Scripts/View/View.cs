@@ -159,7 +159,7 @@ public class View
                     {
                         // Debug.Log("BEGIN: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + col[j]);
 
-                        isFiltered[j] = (col[j] < attrFilter.minFilter || col[j] > attrFilter.maxFilter) ? 1.0f : isFiltered[j];
+                        isFiltered[j] = (col[j] < attrFilter.minFilter + 0.5f || col[j] > attrFilter.maxFilter + 0.5f) ? 1.0f : isFiltered[j];
 
                         //  Debug.Log("END: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + " that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
                     }
