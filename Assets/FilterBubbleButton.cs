@@ -178,7 +178,13 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     }
 
     public void changeCompactFilterText() {
-        var localFilters = AddandSortRange(SceneManager.Instance.globalFilters, visReference.AttributeFilters);
+        List<AttributeFilter> localFilters;
+
+        if(isGlobalFilterBubble)
+            localFilters = SceneManager.Instance.globalFilters;
+        else
+            localFilters = visReference.AttributeFilters;
+            
         string filterText = ""; 
 
         
