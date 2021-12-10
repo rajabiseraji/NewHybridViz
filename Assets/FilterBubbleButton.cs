@@ -165,11 +165,17 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     public void changeCompactFilterText(List<AttributeFilter> filters) {
         var localFilters = isGlobalFilterBubble ? SceneManager.Instance.globalFilters : filters;
-
-        string filterText = "";
-        foreach (var filter in localFilters)
+        string filterText = ""; 
+        for (int i = 0; i < localFilters.Count; i++)
         {
-            filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + SceneManager.Instance.dataObject.getOriginalValue(filter.minFilter, filter.idx) + "-" + SceneManager.Instance.dataObject.getOriginalValue(filter.maxFilter, filter.idx) + "], ";
+            var filter = localFilters[i];
+            if(i > 1) {
+                filterText = filterText + ", ...";
+                break;
+            }
+            Debug.Log("min filter and max are " + (filter.minFilter+0.5f) + " " + (filter.maxFilter+0.5f));
+            Debug.Log("Test is " + SceneManager.Instance.dataObject.getOriginalValue(0f, filter.idx) + " " + SceneManager.Instance.dataObject.getOriginalValue(1f, filter.idx));
+            filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + SceneManager.Instance.dataObject.getOriginalValue(filter.minFilter + 0.5f, filter.idx) + "-" + SceneManager.Instance.dataObject.getOriginalValue(filter.maxFilter + 0.5f, filter.idx) + "]" + (i < 1 ? "\n " : "");
         }
         filterTextsGameobject.text = filterText;
     }
