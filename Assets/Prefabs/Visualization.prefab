@@ -648,7 +648,7 @@ GameObject:
   - component: {fileID: 3005133096358292058}
   - component: {fileID: 5361860278839895032}
   - component: {fileID: 1040606255149369041}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: FilterBubbleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -857,8 +857,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: 10}
-  m_SizeDelta: {x: 383.9, y: 49.9}
+  m_AnchoredPosition: {x: 5.055, y: 22.67}
+  m_SizeDelta: {x: 442.00992, y: 49.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6471960645826323679
 CanvasRenderer:
@@ -889,11 +889,11 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 34
-    m_FontStyle: 0
+    m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 44
-    m_Alignment: 0
+    m_Alignment: 1
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1065,7 +1065,7 @@ GameObject:
   - component: {fileID: 7921509969078378520}
   - component: {fileID: 7239295752670202684}
   - component: {fileID: 3083261791277966882}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Hilight (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1427,8 +1427,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: -35}
-  m_SizeDelta: {x: 383.9, y: 49.9}
+  m_AnchoredPosition: {x: 2.8, y: -26.5}
+  m_SizeDelta: {x: 437.52115, y: 66.92497}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2048560883432946527
 CanvasRenderer:
@@ -1458,12 +1458,12 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 28
+    m_FontSize: 25
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 0
-    m_MaxSize: 44
-    m_Alignment: 3
+    m_BestFit: 1
+    m_MinSize: 2
+    m_MaxSize: 25
+    m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 0
