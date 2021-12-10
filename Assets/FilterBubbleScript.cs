@@ -84,9 +84,10 @@ public class FilterBubbleScript : MonoBehaviour
     public void AddNewFilter(List<Axis> axes) {
         foreach (var axis in axes)
         {
+            sliderPrefab.SetActive(false);
             GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
-            sliderPrefab.SetActive(false);
+            clonedSlider.SetActive(true);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
             float minLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
             float maxLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
