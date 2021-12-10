@@ -109,10 +109,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
                 }
                 filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
                
-                if(!isGlobalFilterBubble)
-                    changeCompactFilterText(visReference.AttributeFilters);
-                else 
-                    changeCompactFilterText(SceneManager.Instance.globalFilters);
+                changeCompactFilterText();
             });
         }
     }
@@ -121,14 +118,29 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     {
         OnExited.Invoke();
         if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
-            if(!isGlobalFilterBubble)
-                changeCompactFilterText(visReference.AttributeFilters);
-            else 
-                changeCompactFilterText(SceneManager.Instance.globalFilters);
+            changeCompactFilterText();
             Sequence seq = DOTween.Sequence();
             seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
         }
+    }
+
+    private List<AttributeFilter> AddandSortRange(List<AttributeFilter> src, List<AttributeFilter> toBeAdded) {
+        var newList = new List<AttributeFilter>(src); 
+        newList.AddRange(toBeAdded);
+
+        // sort the filters so that the global filters are first!
+        // this way we don't need to change anything since the filters are AND filters and we're done!
+        newList.Sort((a, b) => {
+            if(a.isGlobal && !b.isGlobal)
+                return 1;
+            else if(!a.isGlobal && b.isGlobal)
+                return -1;
+            
+            return 0;
+        });
+
+        return newList;
     }
 
     public bool OnGrab(WandController controller)
@@ -163,8 +175,8 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         
     }
 
-    public void changeCompactFilterText(List<AttributeFilter> filters) {
-        var localFilters = isGlobalFilterBubble ? SceneManager.Instance.globalFilters : filters;
+    public void changeCompactFilterText() {
+        var localFilters = AddandSortRange(SceneManager.Instance.globalFilters, visReference.AttributeFilters);
         string filterText = ""; 
 
         
