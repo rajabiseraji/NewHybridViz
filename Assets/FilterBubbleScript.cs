@@ -125,7 +125,7 @@ public class FilterBubbleScript : MonoBehaviour
                 // for now if it already exists we're not going to add it, but later we can just replace it with the new one or add it on top and give it another ID or something ... basically having two filters of the same sort (shouldn't be any problem)
 
                 if(!exists) {
-                    parentVisualization.AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, 0f, 1f, 0f, 1f));
+                    parentVisualization.AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f));
                 }
             }
 

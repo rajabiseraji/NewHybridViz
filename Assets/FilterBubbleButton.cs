@@ -166,16 +166,40 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     public void changeCompactFilterText(List<AttributeFilter> filters) {
         var localFilters = isGlobalFilterBubble ? SceneManager.Instance.globalFilters : filters;
         string filterText = ""; 
+
+        
         for (int i = 0; i < localFilters.Count; i++)
         {
             var filter = localFilters[i];
+            string minimumValueDimensionLabel = "";
+            string maximumValueDimensionLabel = "";
+            Vector2 AttributeRange = SceneManager.Instance.dataObject.DimensionsRange[filter.idx];
             if(i > 1) {
                 filterText = filterText + ", ...";
                 break;
             }
-            Debug.Log("min filter and max are " + (filter.minFilter+0.5f) + " " + (filter.maxFilter+0.5f));
-            Debug.Log("Test is " + SceneManager.Instance.dataObject.getOriginalValue(0f, filter.idx) + " " + SceneManager.Instance.dataObject.getOriginalValue(1f, filter.idx));
-            filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + SceneManager.Instance.dataObject.getOriginalValue(filter.minFilter + 0.5f, filter.idx) + "-" + SceneManager.Instance.dataObject.getOriginalValue(filter.maxFilter + 0.5f, filter.idx) + "]" + (i < 1 ? "\n " : "");
+
+            string type = SceneManager.Instance.dataObject.TypeDimensionDictionary1[filter.idx];
+
+            if (type == "float")
+            {
+                minimumValueDimensionLabel = Mathf.Lerp(AttributeRange.x, AttributeRange.y, filter.minFilter + 0.5f).ToString("0");
+                maximumValueDimensionLabel = Mathf.Lerp(AttributeRange.x, AttributeRange.y, filter.maxFilter + 0.5f).ToString("0");
+            }
+
+            else if (type == "string")
+            {
+                float minValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, filter.minFilter + 0.5f);
+                float maxValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, filter.maxFilter + 0.5f);
+
+                float nearestMinValue = UtilMath.ClosestTo(SceneManager.Instance.dataObject.TextualDimensions.Keys.ToList(), minValue);
+                float nearestMaxValue = UtilMath.ClosestTo(SceneManager.Instance.dataObject.TextualDimensions.Keys.ToList(), maxValue);
+
+                minimumValueDimensionLabel = SceneManager.Instance.dataObject.TextualDimensions[nearestMinValue].ToString();
+                maximumValueDimensionLabel = SceneManager.Instance.dataObject.TextualDimensions[nearestMaxValue].ToString();
+            }
+
+            filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + minimumValueDimensionLabel + "-" + maximumValueDimensionLabel + "]" + (i < 1 ? "\n " : "");
         }
         filterTextsGameobject.text = filterText;
     }
