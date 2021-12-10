@@ -44,6 +44,10 @@ public class WandController : MonoBehaviour
 
     bool isTouchDown;
 
+    public bool gripDown = false;
+    public bool gripUp = false;
+    public bool gripping = false;
+
     SteamVR_TrackedObject trackedObject;
     SteamVR_Controller.Device controller;
     
@@ -110,15 +114,15 @@ public class WandController : MonoBehaviour
 
     void Update()
     {
-        bool gripDown = isOculusRift?
+        gripDown = isOculusRift?
             OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger, OculusController)
             : controller.GetPressDown(gripButton);
 
-        bool gripUp = isOculusRift ?
+        gripUp = isOculusRift ?
             OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
             : controller.GetPressUp(gripButton);
 
-        bool gripping = isOculusRift ?
+        gripping = isOculusRift ?
             OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
             : controller.GetPress(gripButton);
 

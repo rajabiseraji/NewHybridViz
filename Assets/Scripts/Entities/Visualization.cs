@@ -1483,18 +1483,18 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             float newMaxNormaliser = UtilMath.normaliseValue(filteredValues.Max(), 0, 1f, -0.505f, 0.505f);
             if(newMaxNormaliser - newMinNormaliser < 0.005f)
                 newMaxNormaliser = newMinNormaliser + 0.005f;
-            Debug.Log("min VAL value was: " + minVal);
-            Debug.Log("max VAL normaliser value was: " + maxVal);
-            Debug.Log("filtered.min: " + filteredValues.Min());
-            Debug.Log("filtered.max: " + filteredValues.Max());
-            Debug.Log("newmin norm: " + newMinNormaliser);
-            Debug.Log("newmax norm: " + newMaxNormaliser);
-            Debug.Log("Prev min normaliser value was: " + axis.MinNormaliser);
-            Debug.Log("Prev max normaliser value was: " + axis.MaxNormaliser);
+            // Debug.Log("min VAL value was: " + minVal);
+            // Debug.Log("max VAL normaliser value was: " + maxVal);
+            // Debug.Log("filtered.min: " + filteredValues.Min());
+            // Debug.Log("filtered.max: " + filteredValues.Max());
+            // Debug.Log("newmin norm: " + newMinNormaliser);
+            // Debug.Log("newmax norm: " + newMaxNormaliser);
+            // Debug.Log("Prev min normaliser value was: " + axis.MinNormaliser);
+            // Debug.Log("Prev max normaliser value was: " + axis.MaxNormaliser);
             axis.SetMinNormalizer(newMinNormaliser);
             axis.SetMaxNormalizer(newMaxNormaliser);
-            Debug.Log("NEW min normaliser value was: " + axis.MinNormaliser);
-            Debug.Log("NEW MAX normaliser value was: " + axis.MaxNormaliser);
+            // Debug.Log("NEW min normaliser value was: " + axis.MinNormaliser);
+            // Debug.Log("NEW MAX normaliser value was: " + axis.MaxNormaliser);
         }
     }
 

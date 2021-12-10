@@ -86,13 +86,14 @@ public class FilterBubbleScript : MonoBehaviour
         {
             GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
+            sliderPrefab.SetActive(false);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
             float minLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
             float maxLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
 
-            Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
-            Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
-            Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
+            // Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
+            // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
+            // Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
             
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(minLimit, maxLimit);
@@ -149,15 +150,15 @@ public class FilterBubbleScript : MonoBehaviour
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[0], 0, 1f, -0.5f, 0.5f);
         float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[1], 0, 1f, -0.5f, 0.5f);
-        Debug.Log(axisAsFilter.name + "'s min percentage is " + slider.GetPercentageValues()[0]);
-        Debug.Log(axisAsFilter.name + "'s max percentage is: " + slider.GetPercentageValues()[1]);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's min is now: " + slider.minValue);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's max is now: " + slider.maxValue);
-        Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised min value is: " + normalisedMinValue);
-        Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised max value is: " + normalisedMaxValue);
-        Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR min value is: " + axisAsFilter.MinNormaliser);
-        Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR max value is: " + axisAsFilter.MaxNormaliser);
+        // Debug.Log(axisAsFilter.name + "'s min percentage is " + slider.GetPercentageValues()[0]);
+        // Debug.Log(axisAsFilter.name + "'s max percentage is: " + slider.GetPercentageValues()[1]);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's min is now: " + slider.minValue);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's max is now: " + slider.maxValue);
+        // Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised min value is: " + normalisedMinValue);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised max value is: " + normalisedMaxValue);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR min value is: " + axisAsFilter.MinNormaliser);
+        // Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR max value is: " + axisAsFilter.MaxNormaliser);
 
         // We should remember that each view object has the Visualization as its direct parent
         // This could be the way for us to access the properies of its parent
