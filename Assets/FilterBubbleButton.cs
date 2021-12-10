@@ -91,7 +91,6 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             involvedAxes = other.GetComponent<Visualization>().axes;
             if(involvedAxes.Any(axis => axis.isPrototype))
                 return;
-
             
             // Here we're making sure that both the axes and the visualization will hide after hitting one another
             Sequence seq = DOTween.Sequence();
@@ -101,12 +100,15 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
               seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
             }
             seq.AppendCallback(() => {
-                other.gameObject.SetActive(false);
 
                 foreach (var axis in involvedAxes)
                 {
                     axis.gameObject.SetActive(false);
+                    if(!filterBubbleGameobject.GetComponent<FilterBubbleScript>().filterAxes.Any(item => item.axis.axisId == axis.axisId)) {
+                        filterBubbleGameobject.GetComponent<FilterBubbleScript>().filterAxes.Add(new FilterBubbleScript.AxisAndVizes(axis, axis.correspondingVisualizations ().ToArray()));
+                    }
                 }
+                other.gameObject.SetActive(false);
                 filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
                
                 changeCompactFilterText();

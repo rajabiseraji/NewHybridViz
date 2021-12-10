@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using DG.Tweening;
 
 public class FilterBubbleScript : MonoBehaviour
 {
@@ -29,10 +30,23 @@ public class FilterBubbleScript : MonoBehaviour
 
     public Button MaxGradientColourButton;
 
-    public List<Axis> filterAxes = new List<Axis>();
+    // We can use this to later recreate the axis upon filter removal
+    public struct AxisAndVizes {
+        public Axis axis;
+        public Visualization[] vizes;
+
+        public AxisAndVizes(Axis axis, Visualization[] vizes) {
+            this.axis = axis;
+            this.vizes = vizes;
+        }
+
+    };
+    public List<AxisAndVizes> filterAxes = new List<AxisAndVizes>();
     
 
     public bool isGlobalFilterBubble = false;
+
+    public FilterBubbleButton FilterBubblebuttonGameobject = null;
 
     // public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
@@ -40,14 +54,9 @@ public class FilterBubbleScript : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        // foreach (var dropdown in AttributeDropdowns)
-        // {
-        //     dropdown.AddOptions(SceneManager.Instance.dataObject.Identifiers.ToList());
-        // }
+        Debug.Assert(FilterBubblebuttonGameobject != null, "Filter bubble button object is not assigned");
 
-        // Make it transparent at the beginning
-        // if(!isGlobalFilterBubble)
-            GetComponentInChildren<CanvasGroup>().alpha = 0f;
+        GetComponentInChildren<CanvasGroup>().alpha = 0f;
         
         if(!isGlobalFilterBubble)
             labelGameobject.GetComponent<Text>().text = parentVisualization.name;
@@ -108,7 +117,7 @@ public class FilterBubbleScript : MonoBehaviour
 
             clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = axis.axisId;
 
-            filterAxes.Add(axis);
+            
             // Debug.Log("Added one! : " + axis.name);
 
             // TODO: figure out what to do about duplicate axes
@@ -134,8 +143,57 @@ public class FilterBubbleScript : MonoBehaviour
         }
     }
 
-    public void removeFilter(int axisId) {
+    public void removeFilter(int axisId, GameObject sliderToRemove) {
         Debug.Log("I'm called to remove the filter! hurray! :D ");
+
+        // destory the slider component
+        var rebornAxisIndex = filterAxes.FindIndex(axisAndViz => axisAndViz.axis.axisId == axisId);
+        Axis rebornAxis = filterAxes[rebornAxisIndex].axis;
+        var correspondingVises = filterAxes[rebornAxisIndex].vizes;
+        filterAxes.RemoveAt(rebornAxisIndex);
+
+        rebornAxis.transform.position = sliderToRemove.transform.position;
+        Vector3 finalAxisPosition = rebornAxis.transform.position + (sliderToRemove.transform.forward * -0.2f);
+        
+        GameObject.Destroy(sliderToRemove);
+        if(isGlobalFilterBubble) {
+            var filterToRemove = SceneManager.Instance.globalFilters.SingleOrDefault(attrFilter => attrFilter.idx == axisId);
+
+
+            if(filterToRemove != null) {
+                SceneManager.Instance.globalFilters.Remove(filterToRemove);
+            }
+
+            EventManager.TriggerEvent(ApplicationConfiguration.OnFilterSliderChanged, axisId);
+        } else {
+            // Also create an Attribute filter and add it to the list of Attribute Filter that we already have
+            var filterToRemove = parentVisualization.AttributeFilters.SingleOrDefault(attrFilter => attrFilter.idx == axisId);
+
+
+            if(filterToRemove != null) {
+                parentVisualization.AttributeFilters.Remove(filterToRemove);
+            }
+
+            EventManager.TriggerEvent(ApplicationConfiguration.OnLocalFilterSliderChanged, parentVisualization.GetInstanceID());
+        }
+
+        FilterBubblebuttonGameobject.changeCompactFilterText();
+
+        // Call axis init and init origin when we're done with axis removal
+
+        rebornAxis.gameObject.SetActive(true);
+        foreach(var viz in correspondingVises) {
+            Debug.Log("I'm activating viz " + viz.name);
+            viz.gameObject.SetActive(true);
+        }
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(rebornAxis.transform.DOMove(finalAxisPosition, 0.5f).SetEase(Ease.OutElastic));
+        seq.Join(rebornAxis.transform.DOScale(new Vector3(0.02059407f, 0.2660912f, 0.02059407f), 0.5f).SetEase(Ease.OutElastic));
+        foreach (var visualisation in correspondingVises)
+        {
+            seq.Join(visualisation.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutElastic));
+        }
     }
 
     public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)

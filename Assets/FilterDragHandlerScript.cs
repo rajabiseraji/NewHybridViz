@@ -10,6 +10,7 @@ public class FilterDragHandlerScript : MonoBehaviour
     FilterBubbleScript parentFilterBubble;
     public int filterAxisId = -1;
     public GameObject highlightGameobject = null;
+    public GameObject parentSlider = null;
     bool isCollidingWithController = false;
     
     void Start()
@@ -17,6 +18,7 @@ public class FilterDragHandlerScript : MonoBehaviour
         parentFilterBubble = GetComponentInParent<FilterBubbleScript>();
         Debug.Assert(parentFilterBubble != null, "Parent filter bubble shouldn't be null!");
         Debug.Assert(highlightGameobject != null, "Highlight game object shouldn't be null!");
+        Debug.Assert(parentSlider != null, "Parent slider game object shouldn't be null!");
     }
 
     // Update is called once per frame
@@ -34,7 +36,7 @@ public class FilterDragHandlerScript : MonoBehaviour
                 Debug.Log("distance is " + distance);
                 Debug.Log("controller gripping is " + controller.gripping);
                 Debug.Assert(filterAxisId != -1, "Filter Axis Id is not set");
-                parentFilterBubble.removeFilter(filterAxisId);
+                parentFilterBubble.removeFilter(filterAxisId, parentSlider);
                 controller = null;
                 controllerTransform = null;
                 isCollidingWithController = false;
@@ -50,11 +52,6 @@ public class FilterDragHandlerScript : MonoBehaviour
         // if the collided was controller do this
         var tempController = other.GetComponent<WandController>();
         Debug.Log("controller collided and it's " + tempController.gripping + " gripping");
-        // if(!tempController.gripping)  {
-        //     controller = null;
-        //     controllerTransform = null;
-        //     return; 
-        // }
         
         controller = tempController;
         controllerTransform = other.transform;

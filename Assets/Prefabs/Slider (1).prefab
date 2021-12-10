@@ -616,6 +616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   filterAxisId: -1
   highlightGameobject: {fileID: 5253642719320746745}
+  parentSlider: {fileID: 3159051865817095017}
 --- !u!1 &5253642719320746745
 GameObject:
   m_ObjectHideFlags: 0
