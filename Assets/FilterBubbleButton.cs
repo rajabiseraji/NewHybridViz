@@ -126,7 +126,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             else 
                 changeCompactFilterText(SceneManager.Instance.globalFilters);
             Sequence seq = DOTween.Sequence();
-            seq.Append(filterBubbleMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.OutSine));
+            seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
         }
     }
