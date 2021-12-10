@@ -9,11 +9,14 @@ public class FilterDragHandlerScript : MonoBehaviour
     // Start is called before the first frame update
     FilterBubbleScript parentFilterBubble;
     public int filterAxisId = -1;
+    public GameObject highlightGameobject = null;
     bool isCollidingWithController = false;
+    
     void Start()
     {
         parentFilterBubble = GetComponentInParent<FilterBubbleScript>();
         Debug.Assert(parentFilterBubble != null, "Parent filter bubble shouldn't be null!");
+        Debug.Assert(highlightGameobject != null, "Highlight game object shouldn't be null!");
     }
 
     // Update is called once per frame
@@ -24,14 +27,19 @@ public class FilterDragHandlerScript : MonoBehaviour
 
         // Vector3 distanceVector = controllerTransform.position - transform.position;
         float distance = Vector3.Distance(controllerTransform.position, transform.position);
-        if(controller.gripping && distance > 0.25f) {
-            Debug.Log("distance is " + distance);
-            Debug.Log("controller gripping is " + controller.gripping);
-            Debug.Assert(filterAxisId != -1, "Filter Axis Id is not set");
-            parentFilterBubble.removeFilter(filterAxisId);
-            controller = null;
-            controllerTransform = null;
-            isCollidingWithController = false;
+        if(controller.gripping) {
+            if(!highlightGameobject.activeSelf)
+                highlightGameobject.SetActive(true);
+            if(distance > 0.25f) {
+                Debug.Log("distance is " + distance);
+                Debug.Log("controller gripping is " + controller.gripping);
+                Debug.Assert(filterAxisId != -1, "Filter Axis Id is not set");
+                parentFilterBubble.removeFilter(filterAxisId);
+                controller = null;
+                controllerTransform = null;
+                isCollidingWithController = false;
+                highlightGameobject.SetActive(false);
+            }
         }
     }
 
@@ -63,6 +71,7 @@ public class FilterDragHandlerScript : MonoBehaviour
             if(!tempController.gripping)  {
                 controller = null;
                 controllerTransform = null;
+                highlightGameobject.SetActive(false);
             }
         }
         isCollidingWithController = false;
