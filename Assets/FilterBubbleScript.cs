@@ -106,6 +106,8 @@ public class FilterBubbleScript : MonoBehaviour
             // The min max slider has a minValue and maxValue as the slider parts
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axis);});
 
+            clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = axis.axisId;
+
             filterAxes.Add(axis);
             // Debug.Log("Added one! : " + axis.name);
 
@@ -130,6 +132,10 @@ public class FilterBubbleScript : MonoBehaviour
             }
 
         }
+    }
+
+    public void removeFilter(int axisId) {
+        Debug.Log("I'm called to remove the filter! hurray! :D ");
     }
 
     public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)
