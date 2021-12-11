@@ -111,37 +111,49 @@ public class FilterBubbleScript : MonoBehaviour
     public void AddNewFilter(List<Axis> axes) {
         foreach (var axis in axes)
         {
+            int axisId = axis.axisId;
+            string axisName = SceneManager.Instance.dataObject.Identifiers[axisId];
+            float axisAttributeRangeMin = axis.AttributeRange.x;
+            float axisAttributeRangeMax = axis.AttributeRange.y;
+            
+            
+            // destory the axis and its visualization just in case!
+            GameObject.Destroy(axis);
+
+
              // Check if it's global or local
             if(isGlobalFilterBubble) {
-                bool globalExists = SceneManager.Instance.globalFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+                bool globalExists = SceneManager.Instance.globalFilters.Any(attrFilter => attrFilter.idx == axisId);
 
                 if(globalExists) 
                     continue;
 
-                SceneManager.Instance.globalFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f, true));
+                SceneManager.Instance.globalFilters.Add(new AttributeFilter(axisId, axisName, -0.5f, 0.5f, 0f, 1f, true));
                 
             } else {
                 // Also create an Attribute filter and add it to the list of Attribute Filter that we already have
-                bool exists = parentVisualization.AttributeFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+                bool exists = parentVisualization.AttributeFilters.Any(attrFilter => attrFilter.idx == axisId);
                 // for now if it already exists we're not going to add it, but later we can just replace it with the new one or add it on top and give it another ID or something ... basically having two filters of the same sort (shouldn't be any problem)
 
                 if(exists) 
                     continue;
 
-                parentVisualization.AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f));
+                parentVisualization.AttributeFilters.Add(new AttributeFilter(axisId, axisName, -0.5f, 0.5f, 0f, 1f));
             }
 
-            // if(!filterAxes.Any(item => item.axis.axisId == axis.axisId)) {
-            filterAxes.Add(new AxisAndVizes(axis, axis.correspondingVisualizations().ToArray()));
+
+            // if(!filterAxes.Any(item => item.axisId == axisId)) {
+            filterAxes.Add(new AxisAndVizes(axisId, transform));
             // }
+            
 
             sliderPrefab.SetActive(false);
             GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
             clonedSlider.SetActive(true);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
-            float minLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MinNormaliser + 0.5f);
-            float maxLimit = Mathf.Lerp(axis.AttributeRange.x, axis.AttributeRange.y, axis.MaxNormaliser + 0.5f);
+            float minLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axis.MinNormaliser + 0.5f);
+            float maxLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axis.MaxNormaliser + 0.5f);
 
             // Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
             // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
@@ -152,14 +164,13 @@ public class FilterBubbleScript : MonoBehaviour
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
 
-            clonedSlider.GetComponentInChildren<Text>().text = SceneManager.Instance.dataObject.Identifiers[axis.axisId];
+            clonedSlider.GetComponentInChildren<Text>().text = SceneManager.Instance.dataObject.Identifiers[axisId];
 
             // The min max slider has a minValue and maxValue as the slider parts
-            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axis.axisId);});
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axisId);});
 
-            clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = axis.axisId;
+            clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = axisId;
 
-            
             // Debug.Log("Added one! : " + axis.name);
 
             // TODO: figure out what to do about duplicate axes
@@ -209,8 +220,11 @@ public class FilterBubbleScript : MonoBehaviour
             // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
             // Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
             
+            var minFilterValue = UtilMath.normaliseValue(filter.minFilter, -0.5f, 0.5f, minLimit, maxLimit);
+            var maxFilterValue = UtilMath.normaliseValue(filter.maxFilter, -0.5f, 0.5f, minLimit, maxLimit);
+
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
-            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(filter.minFilter, filter.maxFilter);
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(minFilterValue, maxFilterValue);
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
 
