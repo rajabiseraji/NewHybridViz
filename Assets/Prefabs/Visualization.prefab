@@ -1052,7 +1052,6 @@ MonoBehaviour:
   colorPickerMenu: {fileID: 0}
   MinGradientColourButton: {fileID: 0}
   MaxGradientColourButton: {fileID: 0}
-  filterAxes: []
   isGlobalFilterBubble: 0
   FilterBubblebuttonGameobject: {fileID: 5361860278839895032}
 --- !u!1 &4175472290104942245

@@ -39,6 +39,24 @@ public class FilterBubbleScript : MonoBehaviour
             this.axis = axis;
             this.vizes = vizes;
         }
+        public AxisAndVizes(int axisId, Transform originTransform) {
+            GameObject obj = (GameObject)Instantiate(SceneManager.Instance.axisPrefab, originTransform.position, originTransform.rotation);
+            obj.transform.localScale = Vector3.zero;
+            // obj.transform.position = v;
+            Axis axis = obj.GetComponent<Axis>();
+            axis.Init(SceneManager.Instance.dataObject, axisId, false);
+            axis.InitOrigin(originTransform.position, originTransform.rotation);
+            axis.tag = "Axis";
+            
+            foreach (var vis in axis.correspondingVisualizations())
+            {
+                vis.gameObject.SetActive(false);
+            }
+            obj.SetActive(false);
+
+            this.axis = axis;
+            this.vizes = axis.correspondingVisualizations().ToArray();
+        }
 
     };
     public List<AxisAndVizes> filterAxes = new List<AxisAndVizes>();
@@ -93,6 +111,30 @@ public class FilterBubbleScript : MonoBehaviour
     public void AddNewFilter(List<Axis> axes) {
         foreach (var axis in axes)
         {
+             // Check if it's global or local
+            if(isGlobalFilterBubble) {
+                bool globalExists = SceneManager.Instance.globalFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+
+                if(globalExists) 
+                    continue;
+
+                SceneManager.Instance.globalFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f, true));
+                
+            } else {
+                // Also create an Attribute filter and add it to the list of Attribute Filter that we already have
+                bool exists = parentVisualization.AttributeFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+                // for now if it already exists we're not going to add it, but later we can just replace it with the new one or add it on top and give it another ID or something ... basically having two filters of the same sort (shouldn't be any problem)
+
+                if(exists) 
+                    continue;
+
+                parentVisualization.AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f));
+            }
+
+            // if(!filterAxes.Any(item => item.axis.axisId == axis.axisId)) {
+            filterAxes.Add(new AxisAndVizes(axis, axis.correspondingVisualizations().ToArray()));
+            // }
+
             sliderPrefab.SetActive(false);
             GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
@@ -110,10 +152,10 @@ public class FilterBubbleScript : MonoBehaviour
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
 
-            clonedSlider.GetComponentInChildren<Text>().text = axis.name;
+            clonedSlider.GetComponentInChildren<Text>().text = SceneManager.Instance.dataObject.Identifiers[axis.axisId];
 
             // The min max slider has a minValue and maxValue as the slider parts
-            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axis);});
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axis.axisId);});
 
             clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = axis.axisId;
 
@@ -122,23 +164,67 @@ public class FilterBubbleScript : MonoBehaviour
 
             // TODO: figure out what to do about duplicate axes
 
+        }
+    }
+
+    public void AddNewFilter(List<AttributeFilter> newFilters) {
+        foreach (var filter in newFilters)
+        {
+            var dobj = SceneManager.Instance.dataObject;
             // Check if it's global or local
             if(isGlobalFilterBubble) {
-                bool globalExists = SceneManager.Instance.globalFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+                bool globalExists = SceneManager.Instance.globalFilters.Any(attrFilter => attrFilter.idx == filter.idx);
 
+                if(globalExists)
+                    continue; 
 
-                if(!globalExists) {
-                    SceneManager.Instance.globalFilters.Add(new AttributeFilter(axis.axisId, axis.name, 0f, 1f, 0f, 1f, true));
-                }
+                SceneManager.Instance.globalFilters.Add(new AttributeFilter(filter.idx, dobj.Identifiers[filter.idx], -0.5f, 0.5f, 0f, 1f, true));
+                
             } else {
                 // Also create an Attribute filter and add it to the list of Attribute Filter that we already have
-                bool exists = parentVisualization.AttributeFilters.Any(attrFilter => attrFilter.idx == axis.axisId);
+                bool exists = parentVisualization.AttributeFilters.Any(attrFilter => attrFilter.idx == filter.idx);
                 // for now if it already exists we're not going to add it, but later we can just replace it with the new one or add it on top and give it another ID or something ... basically having two filters of the same sort (shouldn't be any problem)
 
-                if(!exists) {
-                    parentVisualization.AttributeFilters.Add(new AttributeFilter(axis.axisId, axis.name, -0.5f, 0.5f, 0f, 1f));
-                }
+                if(exists) 
+                    continue;
+
+                parentVisualization.AttributeFilters.Add(new AttributeFilter(filter.idx, dobj.Identifiers[filter.idx], -0.5f, 0.5f, 0f, 1f));
+                
             }
+
+            // if(!filterAxes.Any(item => item.axis.axisId == axis.axisId)) {
+                filterAxes.Add(new AxisAndVizes(filter.idx, transform));
+            // }
+
+            sliderPrefab.SetActive(false);
+            GameObject clonedSpacer = Instantiate(spacerprefab, spacerprefab.transform.position, spacerprefab.transform.rotation, controlGameobject);
+            GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
+            clonedSlider.SetActive(true);
+            // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
+            
+            float minLimit = Mathf.Lerp(dobj.DimensionsRange[filter.idx].x, dobj.DimensionsRange[filter.idx].y, 0f);
+            float maxLimit = Mathf.Lerp(dobj.DimensionsRange[filter.idx].x, dobj.DimensionsRange[filter.idx].y, 1f);
+
+            // Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
+            // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
+            // Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
+            
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(filter.minFilter, filter.maxFilter);
+            // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
+            // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
+
+            clonedSlider.GetComponentInChildren<Text>().text = dobj.Identifiers[filter.idx];
+
+            // The min max slider has a minValue and maxValue as the slider parts
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), filter.idx);});
+
+            clonedSlider.GetComponentInChildren<FilterDragHandlerScript>().filterAxisId = filter.idx;
+
+            
+            // Debug.Log("Added one! : " + axis.name);
+
+            // TODO: figure out what to do about duplicate axes
 
         }
     }
@@ -190,13 +276,17 @@ public class FilterBubbleScript : MonoBehaviour
         Sequence seq = DOTween.Sequence();
         seq.Append(rebornAxis.transform.DOMove(finalAxisPosition, 0.5f).SetEase(Ease.OutElastic));
         seq.Join(rebornAxis.transform.DOScale(new Vector3(0.02059407f, 0.2660912f, 0.02059407f), 0.5f).SetEase(Ease.OutElastic));
+        seq.AppendCallback(() => {
+            if(!SceneManager.Instance.sceneAxes.Contains(rebornAxis))
+                SceneManager.Instance.AddAxis(rebornAxis);
+        });
         foreach (var visualisation in correspondingVises)
         {
             seq.Join(visualisation.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutElastic));
         }
     }
 
-    public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, Axis axisAsFilter)
+    public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, int axisAsFilterId)
     {
         /* VERY IMPORTANT */
         /* VERY IMPORTANT */
@@ -233,7 +323,7 @@ public class FilterBubbleScript : MonoBehaviour
 
         // --------------- GLOBAL FILTERING (not really any more!) --------------- //
         if(isGlobalFilterBubble) {
-            int foundGlobalIndex = SceneManager.Instance.globalFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
+            int foundGlobalIndex = SceneManager.Instance.globalFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilterId);
             if(foundGlobalIndex != -1) {
                 // For now I'm just changing the minFilter value, later we're gonna go more into details
                 SceneManager.Instance.globalFilters[foundGlobalIndex].minFilter = normalisedMinValue;
@@ -241,10 +331,10 @@ public class FilterBubbleScript : MonoBehaviour
             }
 
             // This triggers it for all of the visualizations
-            EventManager.TriggerEvent(ApplicationConfiguration.OnFilterSliderChanged, axisAsFilter.axisId);
+            EventManager.TriggerEvent(ApplicationConfiguration.OnFilterSliderChanged, axisAsFilterId);
         } else {
             // if it's local
-            int foundIndex = parentVisualization.AttributeFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilter.axisId);
+            int foundIndex = parentVisualization.AttributeFilters.FindIndex(attrFilter => attrFilter.idx == axisAsFilterId);
             if(foundIndex != -1) {
                 // For now I'm just changing the minFilter value, later we're gonna go more into details
                 parentVisualization.AttributeFilters[foundIndex].minFilter = normalisedMinValue;

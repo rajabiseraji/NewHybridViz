@@ -355,6 +355,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
         if (axis != null)
         {
+            // We want to update the filters of the visualizations based on what filters each axis has!
+            AddNewFilterToFilterBubbles(axis.AttributeFilters);
             UpdateViewType();
             UpdateVisualizations();
         }
@@ -1429,6 +1431,18 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         UpdateVisualizations();
     }
 
+    // This one will be called from the filterBubble button to make the intractivity from that side
+    public void AddNewFilterToFilterBubbles(List<Axis> axes) {
+        filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(axes);
+        updateAxesAttributeFilters();
+    }
+
+    // This one will be called from the Axes and the visualization
+    public void AddNewFilterToFilterBubbles(List<AttributeFilter> filters) {
+        filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(filters);
+        updateAxesAttributeFilters();
+    }
+
     private void OnGlobalFilterChanged(float filterAxisId) {
         Debug.Log("On global filter changed + " + AttributeFilters.Count);
         Debug.Log("On global filter changed + " + filterAxisId);
@@ -1451,6 +1465,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         else {
             DoFilter(AddandSortRange(AttributeFilters, GlobalFiltersInstance));
         }
+        updateAxesAttributeFilters();
     }
     private void OnLocalFilterChanged(float visualizationId)
     {  
@@ -1459,11 +1474,21 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             return;
         Debug.Log("OnlocalfilterChaned + " + AttributeFilters.Count);
         filterAndNormalise(axes);
+        
         if(axes.Count == 1) {
             // UpdateVisualizations();
         }
         else {
             DoFilter(AttributeFilters);
+        }
+        updateAxesAttributeFilters();
+    }
+
+    private void updateAxesAttributeFilters(){
+        foreach (var axis in axes)
+        {
+            axis.UpdateAttributeFilters();
+            // TODO: this is going to be problematic if our axis is part of more than one visualization!
         }
     }
 

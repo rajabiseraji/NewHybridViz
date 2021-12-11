@@ -104,12 +104,9 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
                 foreach (var axis in involvedAxes)
                 {
                     axis.gameObject.SetActive(false);
-                    if(!filterBubbleGameobject.GetComponent<FilterBubbleScript>().filterAxes.Any(item => item.axis.axisId == axis.axisId)) {
-                        filterBubbleGameobject.GetComponent<FilterBubbleScript>().filterAxes.Add(new FilterBubbleScript.AxisAndVizes(axis, axis.correspondingVisualizations ().ToArray()));
-                    }
                 }
                 other.gameObject.SetActive(false);
-                filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
+                visReference.AddNewFilterToFilterBubbles(involvedAxes);
                
                 changeCompactFilterText();
             });
@@ -184,7 +181,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             localFilters = SceneManager.Instance.globalFilters;
         else
             localFilters = visReference.AttributeFilters;
-            
+
         string filterText = ""; 
 
         

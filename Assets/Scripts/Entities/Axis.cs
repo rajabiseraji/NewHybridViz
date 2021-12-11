@@ -112,6 +112,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
     WandController grabbingController = null;
 
+    public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
+
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
     // TODO: Change the SceneManager scene to get to where I want it to be
@@ -802,6 +804,15 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         transform.DORotateQuaternion(rot, 0.4f).SetEase(Ease.OutBack);
         transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);        
+    }
+
+    public void UpdateAttributeFilters() {
+        List<AttributeFilter> temp = new List<AttributeFilter>();
+        foreach (var vis in correspondingVisualizations())
+        {
+            temp.AddRange(vis.AttributeFilters);
+        }
+        AttributeFilters = temp;
     }
 
 }

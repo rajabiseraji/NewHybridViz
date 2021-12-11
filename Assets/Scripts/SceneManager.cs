@@ -18,7 +18,7 @@ public class SceneManager : MonoBehaviour
     public OnAxisRemovedEvent OnAxisRemoved = new OnAxisRemovedEvent();
 
     [SerializeField]
-    GameObject axisPrefab;
+    public GameObject axisPrefab;
 
     [Header("Data Source")]
 
