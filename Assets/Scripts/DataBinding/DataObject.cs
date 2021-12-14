@@ -748,7 +748,6 @@ namespace DataBinding
 
         public float[] getFilteredCol(List<List<float>> matrix, int colIndex, List<AttributeFilter> filters) {
             // Matrix.Count in this case would be the number of data items in that column
-            float[] values = new float[matrix.Count];
             int rowLength = matrix[0].Count;
             // each matrix[i] would be one row of data 
             // Steps: First remove the rows that break the filter condition
@@ -764,6 +763,23 @@ namespace DataBinding
             return GetCol(filteredMatrix, colIndex);
 
              
+        }
+
+        public float[] getFilteredDimensionForIndexSearch(int colIndex, List<AttributeFilter> filters) {
+            List<float> filteredMatrix = GetCol(dataArray, colIndex).ToList();
+            // this list thingy might be very memory consuming
+            foreach (var filter in filters)
+            {
+                filteredMatrix = filteredMatrix.Select(item => {
+                    if(item > filter.minFilter + 0.5f && item <= filter.maxFilter + 0.5f)
+                        return item;
+                    else
+                        return 900f;
+                    }).ToList();
+            }
+
+            // At this point the filteredMatrix houses the whole filtered data that we need to show! 
+            return filteredMatrix.ToArray();
         }
     }
 }

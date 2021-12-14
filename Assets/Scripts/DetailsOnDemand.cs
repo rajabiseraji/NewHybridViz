@@ -96,6 +96,7 @@ public class DetailsOnDemand : MonoBehaviour
 
     private void Awake()
     {
+        // Q: why this local scale??
         tempTransformObject = new GameObject("Brush Transform");
         tempTransformObject.transform.parent = transform;
         tempTransformObject.transform.localPosition = Vector3.zero;
@@ -117,7 +118,7 @@ public class DetailsOnDemand : MonoBehaviour
         m.EnableKeyword("_ALPHABLEND_ON");
         m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
         m.renderQueue = 3000;
-        m.color = new Color(1.0f, 1.0f, 1.0f, 0.3f);
+        m.color = new Color(1.0f, 1.0f, 1.0f, 0.7f);
         m.name = "MyCustomMaterial";
 
         labelDetails.GetComponent<MeshRenderer>().material = m;
@@ -184,18 +185,30 @@ public class DetailsOnDemand : MonoBehaviour
             {
                 textMesh.transform.position = (pointerPosition);
 
-
+                // This is because they've set the local scale to 0.26..f
                 float x = localPointerPosition.x / 0.2660912f;
                 float y = localPointerPosition.y / 0.2660912f;
                 float z = localPointerPosition.z / 0.2660912f;
 
+                float xMinNormaliser = visualizationReference.ReferenceAxis1.horizontal.MinNormaliser;
+                float xMaxNormaliser = visualizationReference.ReferenceAxis1.horizontal.MaxNormaliser;
+                float yMinNormaliser = visualizationReference.ReferenceAxis1.vertical.MinNormaliser;
+                float yMaxNormaliser = visualizationReference.ReferenceAxis1.vertical.MaxNormaliser;
+
+                float XnewScale = 1/ (xMaxNormaliser - xMinNormaliser); 
+                float YnewScale = 1 / (yMaxNormaliser - yMinNormaliser);
+
                 //find the closest point in the list
+                // this value is always between 0 and 1
                 Vector2 pointerPosition2D = new Vector2(x + 0.5f, y + 0.5f);
                 List<float> distances = new List<float>();
 
-                for (int i = 0; i < SceneManager.Instance.dataObject.getDimension(0).Length; i++)
+                float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
+                float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+
+                for (int i = 0; i < filteredXcol.Length; i++)
                 {
-                    distances.Add(Vector2.Distance(pointerPosition2D, new Vector2(SceneManager.Instance.dataObject.getDimension(xDimension)[i], SceneManager.Instance.dataObject.getDimension(yDimension)[i])));
+                    distances.Add(Vector2.Distance(pointerPosition2D, new Vector2(filteredXcol[i] * XnewScale, filteredYcol[i] * YnewScale)));
                 }
                 int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
 
@@ -211,10 +224,26 @@ public class DetailsOnDemand : MonoBehaviour
                     yDimension,
                     yvalstr);
 
+               
+
+                var normalisedX = filteredXcol[index] * XnewScale;
+                var normalisedY = filteredYcol[index] * YnewScale;
+                
+
+                var test = String.Format("Normalised x is: {0} \n Before X was: {1} Normalised x is: {2} \n Before Y was: {3}", normalisedX, SceneManager.Instance.dataObject.getDimension(xDimension)[index]-0.5f, normalisedY, SceneManager.Instance.dataObject.getDimension(yDimension)[index] - 0.5f);
+
+                Debug.Log(test);
+                Debug.Log(xMinNormaliser);
+                Debug.Log(xMaxNormaliser);
+                Debug.Log(XnewScale);
+                Debug.Log(yMinNormaliser);
+
+                
+
                 leaderInformation.SetPosition(0, pointerPosition);
                     leaderInformation.SetPosition(1,
-                      (transform.TransformPoint((SceneManager.Instance.dataObject.getDimension(xDimension)[index] - 0.5f) * 0.2660912f,
-                       (SceneManager.Instance.dataObject.getDimension(yDimension)[index] - 0.5f) * 0.2660912f, 0f)));
+                      (transform.TransformPoint((normalisedX-0.5f) * 0.2660912f,
+                       (normalisedY-0.5f) * 0.2660912f, 0f)));
                     leaderInformation.widthCurve = AnimationCurve.Linear(0, 0.0015f, 1, 0.0015f);
 
             }

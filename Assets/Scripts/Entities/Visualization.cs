@@ -1541,6 +1541,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return newList;
     }
 
+    public float[] getFilteredDimensionForIndexSearch(int dimIndex) {
+        return SceneManager.Instance.dataObject.getFilteredDimensionForIndexSearch(dimIndex, AddandSortRange(AttributeFilters, GlobalFiltersInstance));
+    }
+
     // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 
     // TODO: make it work!
     public void OnBrush(WandController controller, Vector3 hitPoint, bool is3D)
