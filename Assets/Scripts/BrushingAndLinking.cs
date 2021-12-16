@@ -83,8 +83,13 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
                         else
                         {
+                            Vector3[] meshNormals = m.normals;
+                            for (int p = 0; p < meshNormals.Length; p++)
+                            {
+                               meshNormals[p] = new Vector3(brushedIndexes[p].x ,m.normals[p].y, m.normals[p].z); 
+                            }
                             //we are brushing and linking same visualisation types
-                            m.normals = brushedIndexes;
+                            // m.normals = brushedIndexes;
                         }
                     }
 
@@ -198,9 +203,11 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
               _btl,
               _btr,
               _bbl,
-              _bbr), point) < distance)
-                    //brushedIndexes.Add(i); 
+              _bbr), point) < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
+                    Debug.Log("the brushed is " + i);
+              }
+                    //brushedIndexes.Add(i); 
                 else
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
             }

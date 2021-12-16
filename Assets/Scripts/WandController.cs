@@ -197,8 +197,12 @@ public class WandController : MonoBehaviour
                             if (currentDetailView.GetComponent<Visualization>() != null)
                             {
                                 // Q: what does the world to local point translation does here? 
-                                currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
-                                    brushingPoint.transform.position, 
+                                // TODO: Change back!
+                                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
+                                //     brushingPoint.transform.position, 
+                                //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
+                                //     true);
+                                currentDetailView.GetComponent<Visualization>().OnBrush(this, 
                                     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
                                     true);
                             }
@@ -224,11 +228,16 @@ public class WandController : MonoBehaviour
                             brushingPoint.transform.rotation = currentDetailView.transform.rotation;
                             brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
                             
+                            // TODO: Turn this back into normal 
                             currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
                                 this, 
                                 hit.point, 
                                 currentDetailView.transform.InverseTransformPoint(hit.point),
                                 false);
+                            // currentDetailView.GetComponent<Visualization>().OnBrush(
+                            //     this, 
+                            //     currentDetailView.transform.InverseTransformPoint(hit.point),
+                            //     false);
                         }
 
                     }
@@ -245,6 +254,11 @@ public class WandController : MonoBehaviour
                     currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
                     currentDetailView = null;
                     brushingPoint.gameObject.SetActive(false);
+                    // currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
+
+                    // currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    // currentDetailView = null;
+                    // brushingPoint.gameObject.SetActive(false);
 
                 }
             }
