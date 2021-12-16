@@ -100,7 +100,7 @@ public class DetailsOnDemand : MonoBehaviour
         tempTransformObject = new GameObject("Brush Transform");
         tempTransformObject.transform.parent = transform;
         tempTransformObject.transform.localPosition = Vector3.zero;
-        tempTransformObject.transform.localScale = new Vector3(0.2660912f, 0.2660912f, 0.2660912f) / 2;
+        tempTransformObject.transform.localScale = new Vector3(Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH) / 2;
     }
 
     void Start()
@@ -170,10 +170,15 @@ public class DetailsOnDemand : MonoBehaviour
         return xvalstr;
     }
 
+    GameObject cube;
+
     public void OnDetailOnDemand2D()
     {
         textMesh.SetActive(true);
         labelDetails.SetActive(true);
+
+        // Dimensions range is the range of the data in original data values! 
+        // 
 
         Vector2 rangeX = SceneManager.Instance.dataObject.DimensionsRange[SceneManager.Instance.dataObject.dimensionToIndex(xDimension)];
         Vector2 rangeY = SceneManager.Instance.dataObject.DimensionsRange[SceneManager.Instance.dataObject.dimensionToIndex(yDimension)];
@@ -186,9 +191,15 @@ public class DetailsOnDemand : MonoBehaviour
                 textMesh.transform.position = (pointerPosition);
 
                 // This is because they've set the local scale to 0.26..f
-                float x = localPointerPosition.x / 0.2660912f;
-                float y = localPointerPosition.y / 0.2660912f;
-                float z = localPointerPosition.z / 0.2660912f;
+                // these valuse will be between -0.5 and 0.5
+                // local pointer position is somewhere between -0.11 and 0.11
+
+
+                // IMPORANT POINT
+                // The points that are drawin in the vertex shaders are from -0.45 to 0.45
+                float x = localPointerPosition.x / Axis.AXIS_ROD_LENGTH;
+                float y = localPointerPosition.y / Axis.AXIS_ROD_LENGTH;
+                float z = localPointerPosition.z / Axis.AXIS_ROD_LENGTH;
 
                 float xMinNormaliser = visualizationReference.ReferenceAxis1.horizontal.MinNormaliser;
                 float xMaxNormaliser = visualizationReference.ReferenceAxis1.horizontal.MaxNormaliser;
@@ -200,11 +211,19 @@ public class DetailsOnDemand : MonoBehaviour
 
                 //find the closest point in the list
                 // this value is always between 0 and 1
-                Vector2 pointerPosition2D = new Vector2(x + 0.5f, y + 0.5f);
+                Vector2 pointerPosition2D = new Vector2(x + 0.45f, y + 0.45f);
                 List<float> distances = new List<float>();
 
+                // We need to map the min of FilteredColX to min of localPosition (which is about 0.11f) and the do the same of the max of it too.
+                // The same for Y too
+
+                // All the filtered values are between 0 and 1 too
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+                float minFilteredX = filteredXcol.Min();
+                float maxFilteredX = filteredXcol.Max();
+                float minFilteredY = filteredYcol.Min();
+                float maxFilteredY = filteredYcol.Max();
 
                 for (int i = 0; i < filteredXcol.Length; i++)
                 {
@@ -226,24 +245,33 @@ public class DetailsOnDemand : MonoBehaviour
 
                
 
-                var normalisedX = filteredXcol[index] * XnewScale;
-                var normalisedY = filteredYcol[index] * YnewScale;
+                var normalisedX = UtilMath.normaliseValue(filteredXcol[index], xMinNormaliser, xMaxNormaliser, -0.5f, 0.5f);
+                
+                // filteredXcol[index] * XnewScale;
+                var normalisedY = UtilMath.normaliseValue(filteredYcol[index], yMinNormaliser, yMaxNormaliser, -0.5f, 0.5f);
                 
 
                 var test = String.Format("Normalised x is: {0} \n Before X was: {1} Normalised x is: {2} \n Before Y was: {3}", normalisedX, SceneManager.Instance.dataObject.getDimension(xDimension)[index]-0.5f, normalisedY, SceneManager.Instance.dataObject.getDimension(yDimension)[index] - 0.5f);
 
-                Debug.Log(test);
-                Debug.Log(xMinNormaliser);
-                Debug.Log(xMaxNormaliser);
-                Debug.Log(XnewScale);
-                Debug.Log(yMinNormaliser);
+                // Debug.Log(test);
+                // Debug.Log(xMinNormaliser);
+                // Debug.Log(xMaxNormaliser);
+                // Debug.Log(XnewScale);
+                // Debug.Log(yMinNormaliser);
+                // Debug.Log(localPointerPosition.x);
+                // Debug.Log(localPointerPosition.y);
 
-                
+                Vector3 worldSpacePoint = transform.TransformPoint(localPointerPosition.x,localPointerPosition.y, 0f);
+
+                if(cube == null) {
+                    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.transform.localScale = Vector3.one * 0.005f;
+                    cube.GetComponent<Renderer>().material.color = Color.red;
+                }
+                cube.transform.position = worldSpacePoint;
 
                 leaderInformation.SetPosition(0, pointerPosition);
-                    leaderInformation.SetPosition(1,
-                      (transform.TransformPoint((normalisedX-0.5f) * 0.2660912f,
-                       (normalisedY-0.5f) * 0.2660912f, 0f)));
+                    leaderInformation.SetPosition(1,worldSpacePoint);
                     leaderInformation.widthCurve = AnimationCurve.Linear(0, 0.0015f, 1, 0.0015f);
 
             }

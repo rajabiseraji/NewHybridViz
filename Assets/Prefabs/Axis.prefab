@@ -2916,6 +2916,7 @@ MonoBehaviour:
   isInSplom: 0
   SourceIndex: -1
   AttributeRange: {x: 0, y: 0}
+  AttributeFilters: []
 --- !u!54 &54227409716071068
 Rigidbody:
   m_ObjectHideFlags: 0

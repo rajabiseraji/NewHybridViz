@@ -37,7 +37,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
     void Update()
     {
-        //if (isBrushing)
+        if (isBrushing)
         {
             GameObject[] views = GameObject.FindGameObjectsWithTag("View");
 
@@ -57,8 +57,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                             for (int k = 0; k < brushedIndexes.Length; k += 2)
                                 brushScatter.Add(brushedIndexes[k]);
 
+                            Vector3[] meshNormals = m.normals;
+                            for (int p = 0; p < meshNormals.Length; p++)
+                            {
+                                Debug.Log("Brushing first condition " + p);
+                               meshNormals[p] = new Vector3(brushScatter[p].x ,m.normals[p].y, m.normals[p].z); 
+                            }
                             //Array.Resize(ref brushedIndexes, m.vertexCount);
-                            m.normals = brushScatter.ToArray();
+                            m.normals = meshNormals;
 
                         }
                         else if (m.vertexCount > brushedIndexes.Length)
@@ -86,6 +92,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                             Vector3[] meshNormals = m.normals;
                             for (int p = 0; p < meshNormals.Length; p++)
                             {
+                                Debug.Log("Hey I just brushed " + p);
                                meshNormals[p] = new Vector3(brushedIndexes[p].x ,m.normals[p].y, m.normals[p].z); 
                             }
                             //we are brushing and linking same visualisation types
@@ -194,8 +201,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
             }
             else
-            {
-                if (Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
+            {   
+                var d = Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
               _ftl,
               _ftr,
               _fbl,
@@ -203,13 +210,16 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
               _btl,
               _btr,
               _bbl,
-              _bbr), point) < distance) {
+              _bbr), point);
+                if (d < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
                     Debug.Log("the brushed is " + i);
               }
                     //brushedIndexes.Add(i); 
-                else
+                else {
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
+                    Debug.Log("in else the brushed is " + i + " data is "+ data[i] + " d os "+ d);
+                }
             }
         }
         return brushedIndices;

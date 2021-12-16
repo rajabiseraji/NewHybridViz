@@ -203,7 +203,7 @@ public class WandController : MonoBehaviour
                                 //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
                                 //     true);
                                 currentDetailView.GetComponent<Visualization>().OnBrush(this, 
-                                    currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
+                                    brushingPoint.transform.position,
                                     true);
                             }
                             else
@@ -229,15 +229,15 @@ public class WandController : MonoBehaviour
                             brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
                             
                             // TODO: Turn this back into normal 
-                            currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
-                                this, 
-                                hit.point, 
-                                currentDetailView.transform.InverseTransformPoint(hit.point),
-                                false);
-                            // currentDetailView.GetComponent<Visualization>().OnBrush(
+                            // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
                             //     this, 
+                            //     hit.point, 
                             //     currentDetailView.transform.InverseTransformPoint(hit.point),
                             //     false);
+                            currentDetailView.GetComponent<Visualization>().OnBrush(
+                                this, 
+                                hit.point,
+                                false);
                         }
 
                     }
@@ -249,16 +249,16 @@ public class WandController : MonoBehaviour
             {
                 if (currentDetailView != null)
                 {
-                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
+                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
 
-                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
-                    currentDetailView = null;
-                    brushingPoint.gameObject.SetActive(false);
-                    // currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
-
-                    // currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
                     // currentDetailView = null;
                     // brushingPoint.gameObject.SetActive(false);
+                    currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
+
+                    currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    currentDetailView = null;
+                    brushingPoint.gameObject.SetActive(false);
 
                 }
             }
