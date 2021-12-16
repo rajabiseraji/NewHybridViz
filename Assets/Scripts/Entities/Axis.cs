@@ -11,6 +11,9 @@ using System.IO;
 
 public class Axis : MonoBehaviour, Grabbable {
 
+    public static float AXIS_ROD_LENGTH = 0.2660912f;
+    public static float AXIS_ROD_WIDTH = 0.02059407f;
+
     [SerializeField] TextMeshPro label;
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
     [SerializeField] TextMeshPro maximumValueDimensionLabel;
