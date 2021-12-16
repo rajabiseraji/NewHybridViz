@@ -209,7 +209,10 @@ Shader "Custom/Outline Dots"
 					float2 indexUV = float2((v.normal.x % _DataWidth) / _DataWidth, 1.0 - ((v.normal.x / _DataWidth) / _DataHeight));
 					float4 brushValue = tex2Dlod(_MainTex, float4(indexUV, 0.0, 0.0));
 
-					output.isBrushed = brushValue.r;
+					// TODO: uncomment this
+					// output.isBrushed = brushValue.r;
+					
+					output.isBrushed = v.normal.x;
 
 					//TODO LATER: THIS REMAPS THE RANGE OF VALUES
 					float3 normalisedPosition = float3(
