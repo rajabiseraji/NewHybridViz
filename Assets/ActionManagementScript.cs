@@ -283,11 +283,13 @@ public class ActionManagementScript : MonoBehaviour
 
     public void OnLeftPadClicked() {
         // Debug.Log("Left was clicked!");
-        UndoAction();
+        /* TEMP until I fix the DoD */
+        // UndoAction();
     }
     public void OnRightPadClicked() {
         // Debug.Log("Right was clicked!");
-        RedoAction();
+        /* TEMP until I fix the DoD */
+        // RedoAction();
     }
 
     void OnDestroy() {
