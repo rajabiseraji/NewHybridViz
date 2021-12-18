@@ -112,6 +112,8 @@ public class WandController : MonoBehaviour
         }
     }
 
+    GameObject cube = null;
+
     void Update()
     {
         gripDown = isOculusRift?

@@ -1547,14 +1547,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     // this seems to be an incomplete event handler for the brushing thing!  we should get to use it! 
     // TODO: make it work!
-    public void OnBrush(WandController controller, Vector3 hitPoint, bool is3D)
+    public void OnBrush(WandController controller, Vector3 WorldhitPoint, bool is3D)
     {
         // Debug.Log("I'm brushing this thing :" + hitPoint + "is 3d is" + is3D);
         isBrushing = true;
         // swapToBrushing();
         BrushingAndLinking.isBrushing = isBrushing;
 
-        BrushingAndLinking.brushPosition = hitPoint;
+        // Hit point is in the local space of the parent transform of that view
+        BrushingAndLinking.brushPosition = WorldhitPoint;
     }
 
     public void OnBrushRelease(WandController controller)

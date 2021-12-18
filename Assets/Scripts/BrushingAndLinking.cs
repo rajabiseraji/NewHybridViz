@@ -15,6 +15,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     public static bool isBrushing = false;
     Color linkingColor = Color.red;
     public static float brushSize = 0.1f;
+    // This the brush position in the world coords
     public static Vector3 brushPosition = Vector3.zero;
 
 
@@ -40,7 +41,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         if (isBrushing)
         {
             GameObject[] views = GameObject.FindGameObjectsWithTag("View");
-
+            Debug.Log("in the update and I'm brushing!");
             //link the brush to all other visualisations
             for (int i = 0; i < views.Length; i++)// (var item in activeViews)
             {
@@ -60,7 +61,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                             Vector3[] meshNormals = m.normals;
                             for (int p = 0; p < meshNormals.Length; p++)
                             {
-                                Debug.Log("Brushing first condition " + p);
+                                // Debug.Log("Brushing first condition " + p);
                                meshNormals[p] = new Vector3(brushScatter[p].x ,m.normals[p].y, m.normals[p].z); 
                             }
                             //Array.Resize(ref brushedIndexes, m.vertexCount);
@@ -92,11 +93,11 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                             Vector3[] meshNormals = m.normals;
                             for (int p = 0; p < meshNormals.Length; p++)
                             {
-                                Debug.Log("Hey I just brushed " + p);
                                meshNormals[p] = new Vector3(brushedIndexes[p].x ,m.normals[p].y, m.normals[p].z); 
                             }
+                            Debug.Log("Hey I just brushed ");
                             //we are brushing and linking same visualisation types
-                            // m.normals = brushedIndexes;
+                            m.normals = meshNormals;
                         }
                     }
 
@@ -154,7 +155,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // ==============================================================================================
     // ==============================================================================================
     // ==============================================================================================
-
+    static GameObject cube = null;
+    static GameObject cubeYellow = null;
 
     /// <summary>
     /// returns a list of brushed indexes for the data points within distance
@@ -165,7 +167,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     /// <returns></returns>
     public static Vector3[] BrushIndicesPointScatterplot(
         Vector3[] data,
-        Vector3 point,
+        Vector3 worldCoordsPoint,
         float distance,
         Vector4 _ftl,
         Vector4 _ftr,
@@ -178,7 +180,6 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         Transform parentTransform, bool is3D)
     {
         Vector3[] brushedIndices = new Vector3[data.Length];
-
         for (int i = 0; i < data.Length; i++)
         {
             //if (Vector3.Distance(transformPointToVisualisation(data[i], bl, br, tl), point) < distance)
@@ -194,7 +195,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                _btl,
                _btr,
                _bbl,
-               _bbr), point) < distance)
+               _bbr), worldCoordsPoint) < distance)
                     //brushedIndexes.Add(i); 
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
                 else
@@ -202,23 +203,53 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             }
             else
             {   
-                var d = Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
-              _ftl,
-              _ftr,
-              _fbl,
-              _fbr,
-              _btl,
-              _btr,
-              _bbl,
-              _bbr), point);
+                // Before doing the inverse transform, make sure the scales are right!
+                var origParentLocalScale = parentTransform.localScale;
+                parentTransform.localScale = Vector3.one;
+                var localPoint = parentTransform.InverseTransformPoint(worldCoordsPoint);
+                parentTransform.localScale = origParentLocalScale;
+
+                Vector2 hitpoint2D = new Vector2(localPoint.x / _scale.x, localPoint.y / _scale.x);
+                // normally the data[i] members should be between -0.5 and 0.5 (local position)
+                // We chose 2 as the multiplying factor cuz it's gonna map -0.5 to -1
+                Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
+                var d = Vector2.Distance(dataModifiedPoint, hitpoint2D);
+            //     var d = Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
+            //   _ftl,
+            //   _ftr,
+            //   _fbl,
+            //   _fbr,
+            //   _btl,
+            //   _btr,
+            //   _bbl,
+            //   _bbr), point);
                 if (d < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
-                    Debug.Log("the brushed is " + i);
+                    // if(cube == null) {
+                    //     cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        
+                    //     cube.GetComponent<Renderer>().material.color = Color.red;
+                    //     // cube.transform.parent = parentTransform;
+                    // }
+                    // if(cubeYellow == null) {
+                    //     cubeYellow = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    //     cubeYellow.GetComponent<Renderer>().material.color = Color.yellow;
+                    //     // cube.transform.parent = parentTransform;
+                    // }
+                    // // cube.transform.position = parentTransform.TransformPoint(point);
+                    // var vertexPositionInTheWorld = parentTransform.TransformPoint(new Vector3(data[i].x * 2f, data[i].y * 2f, 0));
+                    
+                    // cube.transform.position = vertexPositionInTheWorld;
+                    // cubeYellow.transform.localScale = Vector3.one * 0.005f;
+                    
+                    // cubeYellow.transform.position = new Vector3(worldCoordsPoint.x, worldCoordsPoint.y, parentTransform.position.z);
+                    // cube.transform.localScale = Vector3.one * 0.005f;
+                    // Debug.Log("the brushed is " + i);
               }
                     //brushedIndexes.Add(i); 
                 else {
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
-                    Debug.Log("in else the brushed is " + i + " data is "+ data[i] + " d os "+ d);
+                    // Debug.Log("in else the brushed is " + i + " data is "+ data[i] + " d os "+ d);
                 }
             }
         }
