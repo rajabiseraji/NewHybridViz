@@ -900,7 +900,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                         scatterplot2DObject.transform.InverseTransformVector(btr),
                         scatterplot2DObject.transform.InverseTransformVector(bbl),
                         scatterplot2DObject.transform.InverseTransformVector(bbr),
-                        scatterplot2DObject.transform, false),
+                        scatterplot2DObject.transform,
+                        this,
+                        false),
                         false);
 
                     break;
@@ -918,7 +920,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                         scatterplot3DObject.transform.InverseTransformVector(btr),
                         scatterplot3DObject.transform.InverseTransformVector(bbl),
                         scatterplot3DObject.transform.InverseTransformVector(bbr),
-                        scatterplot3DObject.transform, true), false);
+                        scatterplot3DObject.transform, this, true), false);
                     break;
                 default:
                     break;

@@ -177,8 +177,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         Vector4 _btr,
         Vector4 _bbl,
         Vector4 _bbr,
-        Transform parentTransform, bool is3D)
+        Transform parentTransform, Visualization parentVis, bool is3D)
     {
+        // Visualization parentVis = parentTransform.GetComponentInParent<Visualization>();
+        Debug.Assert(parentVis != null, "Parent visualization cannot be null!");
+
+        
         Vector3[] brushedIndices = new Vector3[data.Length];
         for (int i = 0; i < data.Length; i++)
         {
@@ -195,25 +199,56 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                _btl,
                _btr,
                _bbl,
-               _bbr), worldCoordsPoint) < distance)
-                    //brushedIndexes.Add(i); 
+               _bbr), worldCoordsPoint) < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
+                    float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
+                    float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
+                    float yMinNormaliser = parentVis.ReferenceAxis1.vertical.MinNormaliser;
+                    float yMaxNormaliser = parentVis.ReferenceAxis1.vertical.MaxNormaliser;
+                    float zMinNormaliser = parentVis.ReferenceAxis1.depth.MinNormaliser;
+                    float zMaxNormaliser = parentVis.ReferenceAxis1.depth.MaxNormaliser;
+
+                    // Do the 3D stuff here 
+                    // TODO
+                    Debug.Log("Haven'nt written the code yet!");
+               }
+                    //brushedIndexes.Add(i); 
                 else
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
             }
             else
             {   
                 // Before doing the inverse transform, make sure the scales are right!
+
+                float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
+                float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
+                float yMinNormaliser = parentVis.ReferenceAxis1.vertical.MinNormaliser;
+                float yMaxNormaliser = parentVis.ReferenceAxis1.vertical.MaxNormaliser;
+
+                // New zero is the shift value
+                float XnewScale = (xMaxNormaliser - xMinNormaliser); 
+                float Xdispalcement = Math.Abs(xMinNormaliser + (XnewScale/2f));
+                float YnewScale = (yMaxNormaliser - yMinNormaliser);
+                float Ydispalcement = Math.Abs(yMinNormaliser + (YnewScale/2f));
+                
                 var origParentLocalScale = parentTransform.localScale;
                 parentTransform.localScale = Vector3.one;
                 var localPoint = parentTransform.InverseTransformPoint(worldCoordsPoint);
                 parentTransform.localScale = origParentLocalScale;
 
-                Vector2 hitpoint2D = new Vector2(localPoint.x / _scale.x, localPoint.y / _scale.x);
+                Vector2 hitpoint2D = new Vector2(
+                    localPoint.x / _scale.x, 
+                    localPoint.y / _scale.y);
                 // normally the data[i] members should be between -0.5 and 0.5 (local position)
                 // We chose 2 as the multiplying factor cuz it's gonna map -0.5 to -1
+                Vector2 ScaledDataPoint = new Vector2(
+                    (data[i].x+Xdispalcement)*(1/XnewScale),
+                    (data[i].y+Ydispalcement)*(1/YnewScale)
+                );
+                const float PREV_MIN_NORM = -0.5f;  
+                const float PREV_MAX_NORM = 0.5f;  
                 Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
-                var d = Vector2.Distance(dataModifiedPoint, hitpoint2D);
+                var d = Vector2.Distance(ScaledDataPoint, hitpoint2D);
             //     var d = Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
             //   _ftl,
             //   _ftr,
