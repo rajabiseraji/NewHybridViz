@@ -226,7 +226,11 @@ Shader "Custom/Outline Dots"
 					//the normal buffer carries the index of each vertex
 					output.tex0 = float2(0, 0);
 
-					output.color = v.color;
+					if(v.normal.x == 1.0) {
+						output.color = float4(1.0,0.0,0.0,1.0);
+					} else {
+						output.color = v.color;
+					}
 					// output.isBrushed= 0.0;
 			
 					//filtering
