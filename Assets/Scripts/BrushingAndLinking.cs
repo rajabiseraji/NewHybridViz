@@ -54,6 +54,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                         if (m.vertexCount < brushedIndexes.Length)
                         {
                             //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
+                            Debug.Log("Brushing first condition ");
                             List<Vector3> brushScatter = new List<Vector3>();
                             for (int k = 0; k < brushedIndexes.Length; k += 2)
                                 brushScatter.Add(brushedIndexes[k]);
@@ -61,7 +62,6 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                             Vector3[] meshNormals = m.normals;
                             for (int p = 0; p < meshNormals.Length; p++)
                             {
-                                // Debug.Log("Brushing first condition " + p);
                                meshNormals[p] = new Vector3(brushScatter[p].x ,m.normals[p].y, m.normals[p].z); 
                             }
                             //Array.Resize(ref brushedIndexes, m.vertexCount);
@@ -157,6 +157,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // ==============================================================================================
     static GameObject cube = null;
     static GameObject cubeYellow = null;
+    
+
 
     /// <summary>
     /// returns a list of brushed indexes for the data points within distance
@@ -182,6 +184,13 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // Visualization parentVis = parentTransform.GetComponentInParent<Visualization>();
         Debug.Assert(parentVis != null, "Parent visualization cannot be null!");
 
+        GameObject tempTransformObject = null;
+
+        // Q: why this local scale??
+        tempTransformObject = new GameObject("Brush Transform");
+        tempTransformObject.transform.parent = parentTransform;
+        tempTransformObject.transform.localPosition = Vector3.zero;
+        tempTransformObject.transform.localScale = new Vector3(Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH) / 2;
         
         Vector3[] brushedIndices = new Vector3[data.Length];
         for (int i = 0; i < data.Length; i++)
@@ -191,22 +200,68 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
             if (is3D)
             {
-                if (Vector3.Distance(ObjectToWorldDistort3d(data[i], parentTransform,
-               _ftl,
-               _ftr,
-               _fbl,
-               _fbr,
-               _btl,
-               _btr,
-               _bbl,
-               _bbr), worldCoordsPoint) < distance) {
+                float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
+                float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
+                float yMinNormaliser = parentVis.ReferenceAxis1.vertical.MinNormaliser;
+                float yMaxNormaliser = parentVis.ReferenceAxis1.vertical.MaxNormaliser;
+                float zMinNormaliser = parentVis.ReferenceAxis1.depth.MinNormaliser;
+                float zMaxNormaliser = parentVis.ReferenceAxis1.depth.MaxNormaliser;
+
+                // create a transform for the visualisation space
+                var vup = parentVis.fbl - parentVis.ftl;
+                var right = parentVis.fbr - parentVis.fbl;
+
+                right.Normalize();
+                vup.Normalize();
+                vup = -vup;
+
+                var cp = Vector3.Cross(right, vup);
+
+                var forward = parentVis.fbl - parentVis.bbl;
+
+                bool isFlipped = false;
+
+                if (Vector3.Dot(cp, forward) > 0)
+                {
+                    isFlipped = true;
+                    forward = forward.normalized;
+                }
+                else
+                {
+                    forward = -forward.normalized;
+                }
+
+                Transform vt = tempTransformObject.transform;
+                vt.rotation = Quaternion.LookRotation(forward, vup);
+
+                Vector3 positionInLocal3DSP = vt.InverseTransformPoint(worldCoordsPoint);
+
+                float x = (positionInLocal3DSP.x + 1) / 2;
+                float y = (positionInLocal3DSP.y + 1) / 2;
+                float z = (positionInLocal3DSP.z + 1) / 2;
+
+                if (isFlipped)
+                {
+                    z = 1 - z;
+                }
+
+                //find the closest point in the list
+                Vector3 pointerPosition3D = new Vector3(x, y, z);
+                float localDistance = Vector3.SqrMagnitude(pointerPosition3D - data[i]);
+            //     float localDistance = Vector3.Distance(ObjectToWorldDistort3d(data[i], parentTransform,
+            //    _ftl,
+            //    _ftr,
+            //    _fbl,
+            //    _fbr,
+            //    _btl,
+            //    _btr,
+            //    _bbl,
+            //    _bbr), worldCoordsPoint);
+
+                // Debug.Log("I'm in brush 3d and the local distance is " + localDistance);
+                if (localDistance < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
-                    float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
-                    float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
-                    float yMinNormaliser = parentVis.ReferenceAxis1.vertical.MinNormaliser;
-                    float yMaxNormaliser = parentVis.ReferenceAxis1.vertical.MaxNormaliser;
-                    float zMinNormaliser = parentVis.ReferenceAxis1.depth.MinNormaliser;
-                    float zMaxNormaliser = parentVis.ReferenceAxis1.depth.MaxNormaliser;
+                    
 
                     // Do the 3D stuff here 
                     // TODO
@@ -249,38 +304,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 const float PREV_MAX_NORM = 0.5f;  
                 Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
                 var d = Vector2.Distance(ScaledDataPoint, hitpoint2D);
-            //     var d = Vector3.Distance(ObjectToWorldDistort(data[i], parentTransform,
-            //   _ftl,
-            //   _ftr,
-            //   _fbl,
-            //   _fbr,
-            //   _btl,
-            //   _btr,
-            //   _bbl,
-            //   _bbr), point);
+                
                 if (d < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
-                    // if(cube == null) {
-                    //     cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        
-                    //     cube.GetComponent<Renderer>().material.color = Color.red;
-                    //     // cube.transform.parent = parentTransform;
-                    // }
-                    // if(cubeYellow == null) {
-                    //     cubeYellow = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    //     cubeYellow.GetComponent<Renderer>().material.color = Color.yellow;
-                    //     // cube.transform.parent = parentTransform;
-                    // }
-                    // // cube.transform.position = parentTransform.TransformPoint(point);
-                    // var vertexPositionInTheWorld = parentTransform.TransformPoint(new Vector3(data[i].x * 2f, data[i].y * 2f, 0));
-                    
-                    // cube.transform.position = vertexPositionInTheWorld;
-                    // cubeYellow.transform.localScale = Vector3.one * 0.005f;
-                    
-                    // cubeYellow.transform.position = new Vector3(worldCoordsPoint.x, worldCoordsPoint.y, parentTransform.position.z);
-                    // cube.transform.localScale = Vector3.one * 0.005f;
-                    // Debug.Log("the brushed is " + i);
-              }
+                }
                     //brushedIndexes.Add(i); 
                 else {
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
