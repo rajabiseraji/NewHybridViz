@@ -63,6 +63,8 @@ public class WandController : MonoBehaviour
     public bool gripDown = false;
     public bool gripUp = false;
     public bool gripping = false;
+    public bool padPressDown = false;
+    public bool padPressUp = false;
 
 
     Collider intersectingCollider;
@@ -104,8 +106,10 @@ public class WandController : MonoBehaviour
         // this is the part that creates the brushing point 
         triggerGrabAction.AddOnStateDownListener(handleGripDown, handType);
         triggerGrabAction.AddOnStateUpListener(handleGripUp, handType);
-        touchpadDownAction.AddOnStateDownListener(handleTouchpadDown, handType);
-        touchpadUpAction.AddOnStateDownListener(handleTouchpadUp, handType);
+        touchpadDownAction.AddOnStateDownListener(handleTouchpadDownDirectionDown, handType);
+        touchpadDownAction.AddOnStateUpListener(handleTouchpadDownDirectionUp, handType);
+        touchpadUpAction.AddOnStateDownListener(handleTouchpadUpDirectionDown, handType);
+        touchpadUpAction.AddOnStateUpListener(handleTouchpadUpDirectionUp, handType);
         touchpadLeftAction.AddOnStateDownListener(handleTouchpadLeft, handType);
         touchpadRightAction.AddOnStateDownListener(handleTouchpadRight, handType);
 
@@ -180,19 +184,38 @@ public class WandController : MonoBehaviour
     {
         Debug.Log("Touchpad right is pressed");
     }
-    public void handleTouchpadUp(
+    public void handleTouchpadUpDirectionDown(
         SteamVR_Action_Boolean fromAction,
         SteamVR_Input_Sources fromSource
     )
     {
         Debug.Log("Touchpad Up is pressed");
+        padPressUp = true;
     }
-    public void handleTouchpadDown(
+    public void handleTouchpadUpDirectionUp(
         SteamVR_Action_Boolean fromAction,
         SteamVR_Input_Sources fromSource
     )
     {
-        Debug.Log("Touchpad down is pressed");
+        Debug.Log("Touchpad Up is released!");
+        padPressUp = true;
+    }
+
+    public void handleTouchpadDownDirectionDown(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad down is down pressed");
+        padPressDown = true;
+    }
+    public void handleTouchpadDownDirectionUp(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad down is released!");
+        padPressDown = false;
     }
 
 
@@ -230,90 +253,91 @@ public class WandController : MonoBehaviour
         // TODO: change the way it's visualized, including its colors and all!
         if (VisualisationAttributes.detailsOnDemand)
         {
-            ////if (padPressDown)
-            //{
-            //    bool detail3Dscatterplots = false;
-            //    GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
-            //    for (int i = 0; i < listCandidatesBrush3D.Length; i++)
-            //    {
-            //        {
-            //            if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
-            //            {
-            //                detail3Dscatterplots = true;
-            //                brushingPoint.gameObject.SetActive(true);
+            if (padPressDown)
+            {
+                bool detail3Dscatterplots = false;
+                GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
+                for (int i = 0; i < listCandidatesBrush3D.Length; i++)
+                {
+                    {
+                        if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
+                        {
+                            detail3Dscatterplots = true;
+                            brushingPoint.gameObject.SetActive(true);
 
-            //                currentDetailView = listCandidatesBrush3D[i];
-            //                // The brushing point will be 10cm in front of the controller poisition
-            //                brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
-            //                brushingPoint.transform.localScale = new Vector3(0.06f, 0.6f, 0.06f);
-            //                if (currentDetailView.GetComponent<Visualization>() != null)
-            //                {
-            //                    // Q: what does the world to local point translation does here? 
-            //                    // TODO: Change back!
-            //                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
-            //                    //     brushingPoint.transform.position, 
-            //                    //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
-            //                    //     true);
-            //                    currentDetailView.GetComponent<Visualization>().OnBrush(this, 
-            //                        brushingPoint.transform.position,
-            //                        true);
-            //                }
-            //                else
-            //                {
-            //                    Debug.Log("the object is null/...");
-            //                }
-            //            }
-            //        }
-            //    }
-            //    // This is for when the scatterplot is not close to the controller and being controlled by the raycast
-            //    if (!detail3Dscatterplots)
-            //    {
-            //        RaycastHit hit;
-            //        Ray downRay = new Ray(transform.position, transform.forward);
-            //        if (Physics.Raycast(downRay, out hit))
-            //        {
-            //            if (hit.transform.gameObject.GetComponent<Brushable>() != null)
-            //            {
-            //                brushingPoint.gameObject.SetActive(true);
-            //                currentDetailView = hit.transform.gameObject;
-            //                brushingPoint.transform.position = hit.point;
-            //                brushingPoint.transform.rotation = currentDetailView.transform.rotation;
-            //                brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
-                            
-            //                // TODO: Turn this back into normal 
-            //                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
-            //                //     this, 
-            //                //     hit.point, 
-            //                //     currentDetailView.transform.InverseTransformPoint(hit.point),
-            //                //     false);
-            //                currentDetailView.GetComponent<Visualization>().OnBrush(
-            //                    this, 
-            //                    hit.point,
-            //                    false);
-            //            }
+                            currentDetailView = listCandidatesBrush3D[i];
+                            // The brushing point will be 10cm in front of the controller poisition
+                            brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
+                            brushingPoint.transform.localScale = new Vector3(0.06f, 0.6f, 0.06f);
+                            if (currentDetailView.GetComponent<Visualization>() != null)
+                            {
+                                // Q: what does the world to local point translation does here? 
+                                // TODO: Change back!
+                                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
+                                //     brushingPoint.transform.position, 
+                                //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
+                                //     true);
+                                currentDetailView.GetComponent<Visualization>().OnBrush(this,
+                                    brushingPoint.transform.position,
+                                    true);
+                            }
+                            else
+                            {
+                                Debug.Log("the object is null/...");
+                            }
+                        }
+                    }
+                }
+                // This is for when the scatterplot is not close to the controller and being controlled by the raycast
+                if (!detail3Dscatterplots)
+                {
+                    RaycastHit hit;
+                    Ray downRay = new Ray(transform.position, transform.forward);
+                    if (Physics.Raycast(downRay, out hit))
+                    {
+                        if (hit.transform.gameObject.GetComponent<Brushable>() != null)
+                        {
+                            brushingPoint.gameObject.SetActive(true);
+                            currentDetailView = hit.transform.gameObject;
+                            brushingPoint.transform.position = hit.point;
+                            brushingPoint.transform.rotation = currentDetailView.transform.rotation;
+                            brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
 
-            //        }
-            //    }
-            //}
-            //// Checks to see if we're done with pressing the touchbar
-            // TODO: fix the naming of this from Up to release or sth
-            //if (padPressUp)
-            //{
-            //    if (currentDetailView != null)
-            //    {
-            //        // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
+                            // TODO: Turn this back into normal 
+                            // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
+                            //     this, 
+                            //     hit.point, 
+                            //     currentDetailView.transform.InverseTransformPoint(hit.point),
+                            //     false);
+                            currentDetailView.GetComponent<Visualization>().OnBrush(
+                                this,
+                                hit.point,
+                                false);
+                        }
 
-            //        // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
-            //        // currentDetailView = null;
-            //        // brushingPoint.gameObject.SetActive(false);
-            //        currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
+                    }
+                }
+            }
+            // Checks to see if we're done with pressing the touchbar
+            //TODO: fix the naming of this from Up to release or sth
+            if (padPressUp)
+            {
+                if (currentDetailView != null)
+                {
+                    Debug.Log("i'm in the press up in update thingy!");
+                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
 
-            //        currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
-            //        currentDetailView = null;
-            //        brushingPoint.gameObject.SetActive(false);
+                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+                    // currentDetailView = null;
+                    // brushingPoint.gameObject.SetActive(false);
+                    //currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
 
-            //    }
-            //}
+                    //currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    //currentDetailView = null;
+                    //brushingPoint.gameObject.SetActive(false);
+
+                }
+            }
         }
 #endregion
         
