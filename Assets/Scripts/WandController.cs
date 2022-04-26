@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using DG.Tweening;
 using System.Linq;
-
+using Valve.VR;
 
 public interface Grabbable
 {
@@ -32,15 +32,24 @@ public interface Brushable
 
 public class WandController : MonoBehaviour
 {
-    public OVRInput.Controller OculusController;
+    //public OVRInput.Controller OculusController;
 
     public bool isOculusRift = false;
     //Debug test
     // This is the game object that will be shown when brushing the data
     GameObject brushingPoint;
 
-    Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
-    Valve.VR.EVRButtonId padButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad;
+    //Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
+    //Valve.VR.EVRButtonId padButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad;
+
+    /*
+      This is for handling the new Steam VR input
+     */
+    public SteamVR_Action_Boolean triggerGrabAction;
+
+    // tells us which hand it is
+    public SteamVR_Input_Sources handType;
+
 
     bool isTouchDown;
 
@@ -48,8 +57,8 @@ public class WandController : MonoBehaviour
     public bool gripUp = false;
     public bool gripping = false;
 
-    SteamVR_TrackedObject trackedObject;
-    SteamVR_Controller.Device controller;
+    //SteamVR_TrackedObject trackedObject;
+    //SteamVR_Controller.Device controller;
     
     Collider intersectingCollider;
     List<Collider> intersectingGrabbables = new List<Collider>();
@@ -85,7 +94,7 @@ public class WandController : MonoBehaviour
 
     void Start()
     {
-        if (!isOculusRift) controller = SteamVR_Controller.Input((int)trackedObject.index); 
+        //if (!isOculusRift) controller = SteamVR_Controller.Input((int)trackedObject.index); 
 
         // this is the part that creates the brushing point 
 
@@ -100,7 +109,7 @@ public class WandController : MonoBehaviour
     void Awake()
     {
 
-        trackedObject = GetComponent<SteamVR_TrackedObject>();
+        //trackedObject = GetComponent<SteamVR_TrackedObject>();
         tracking.AddRange(Enumerable.Repeat<Vector3>(Vector3.zero, 10));
     }
 
@@ -116,17 +125,17 @@ public class WandController : MonoBehaviour
 
     void Update()
     {
-        gripDown = isOculusRift?
-            OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-            : controller.GetPressDown(gripButton);
+        //gripDown = isOculusRift?
+        //    OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger, OculusController)
+        //    : controller.GetPressDown(gripButton);
 
-        gripUp = isOculusRift ?
-            OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-            : controller.GetPressUp(gripButton);
+        //gripUp = isOculusRift ?
+        //    OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
+        //    : controller.GetPressUp(gripButton);
 
-        gripping = isOculusRift ?
-            OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-            : controller.GetPress(gripButton);
+        //gripping = isOculusRift ?
+        //    OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
+        //    : controller.GetPress(gripButton);
 
         //bool upButtonDown = isOculusRift?
         //    OVRInput.GetDown(OVRInput.Button.PrimaryThumbstickDown, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickDown, OculusController)
@@ -152,27 +161,27 @@ public class WandController : MonoBehaviour
         
         if (draggingObjects.Count > 0)
         {
-            if(!isOculusRift)
-            controller.TriggerHapticPulse(100);
+            //if(!isOculusRift)
+            //controller.TriggerHapticPulse(100);
         }
 
         //brush actions : SteamVR_Controller.ButtonMask.Grip
 
-        bool padPressDown = isOculusRift ? OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick, OculusController)
-           : controller.GetPress(padButton);
+        //bool padPressDown = isOculusRift ? OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick, OculusController)
+        //   : controller.GetPress(padButton);
 
-        bool padPressUp = isOculusRift ? OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick, OculusController)
-          : controller.GetPressUp(padButton);
+        //bool padPressUp = isOculusRift ? OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick, OculusController)
+        //  : controller.GetPressUp(padButton);
 
-        // detect press left 
-        if(padPressUp) {
-            if(controller.GetAxis().x != 0 && controller.GetAxis().y != 0) {
-                if(controller.GetAxis().x < 0)
-                    OnLeftPadPressed.Invoke();
-                else if(controller.GetAxis().x >= 0)
-                    OnRightPadPressed.Invoke();  
-            }
-        }
+        //// detect press left 
+        //if(padPressUp) {
+        //    if(controller.GetAxis().x != 0 && controller.GetAxis().y != 0) {
+        //        if(controller.GetAxis().x < 0)
+        //            OnLeftPadPressed.Invoke();
+        //        else if(controller.GetAxis().x >= 0)
+        //            OnRightPadPressed.Invoke();  
+        //    }
+        //}
         
         #region details on demand
         //detail on demand actions
@@ -180,90 +189,90 @@ public class WandController : MonoBehaviour
         // TODO: change the way it's visualized, including its colors and all!
         if (VisualisationAttributes.detailsOnDemand)
         {
-            if (padPressDown)
-            {
-                bool detail3Dscatterplots = false;
-                GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
-                for (int i = 0; i < listCandidatesBrush3D.Length; i++)
-                {
-                    {
-                        if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
-                        {
-                            detail3Dscatterplots = true;
-                            brushingPoint.gameObject.SetActive(true);
+            ////if (padPressDown)
+            //{
+            //    bool detail3Dscatterplots = false;
+            //    GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
+            //    for (int i = 0; i < listCandidatesBrush3D.Length; i++)
+            //    {
+            //        {
+            //            if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
+            //            {
+            //                detail3Dscatterplots = true;
+            //                brushingPoint.gameObject.SetActive(true);
 
-                            currentDetailView = listCandidatesBrush3D[i];
-                            // The brushing point will be 10cm in front of the controller poisition
-                            brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
-                            brushingPoint.transform.localScale = new Vector3(0.06f, 0.6f, 0.06f);
-                            if (currentDetailView.GetComponent<Visualization>() != null)
-                            {
-                                // Q: what does the world to local point translation does here? 
-                                // TODO: Change back!
-                                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
-                                //     brushingPoint.transform.position, 
-                                //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
-                                //     true);
-                                currentDetailView.GetComponent<Visualization>().OnBrush(this, 
-                                    brushingPoint.transform.position,
-                                    true);
-                            }
-                            else
-                            {
-                                Debug.Log("the object is null/...");
-                            }
-                        }
-                    }
-                }
-                // This is for when the scatterplot is not close to the controller and being controlled by the raycast
-                if (!detail3Dscatterplots)
-                {
-                    RaycastHit hit;
-                    Ray downRay = new Ray(transform.position, transform.forward);
-                    if (Physics.Raycast(downRay, out hit))
-                    {
-                        if (hit.transform.gameObject.GetComponent<Brushable>() != null)
-                        {
-                            brushingPoint.gameObject.SetActive(true);
-                            currentDetailView = hit.transform.gameObject;
-                            brushingPoint.transform.position = hit.point;
-                            brushingPoint.transform.rotation = currentDetailView.transform.rotation;
-                            brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
+            //                currentDetailView = listCandidatesBrush3D[i];
+            //                // The brushing point will be 10cm in front of the controller poisition
+            //                brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
+            //                brushingPoint.transform.localScale = new Vector3(0.06f, 0.6f, 0.06f);
+            //                if (currentDetailView.GetComponent<Visualization>() != null)
+            //                {
+            //                    // Q: what does the world to local point translation does here? 
+            //                    // TODO: Change back!
+            //                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
+            //                    //     brushingPoint.transform.position, 
+            //                    //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
+            //                    //     true);
+            //                    currentDetailView.GetComponent<Visualization>().OnBrush(this, 
+            //                        brushingPoint.transform.position,
+            //                        true);
+            //                }
+            //                else
+            //                {
+            //                    Debug.Log("the object is null/...");
+            //                }
+            //            }
+            //        }
+            //    }
+            //    // This is for when the scatterplot is not close to the controller and being controlled by the raycast
+            //    if (!detail3Dscatterplots)
+            //    {
+            //        RaycastHit hit;
+            //        Ray downRay = new Ray(transform.position, transform.forward);
+            //        if (Physics.Raycast(downRay, out hit))
+            //        {
+            //            if (hit.transform.gameObject.GetComponent<Brushable>() != null)
+            //            {
+            //                brushingPoint.gameObject.SetActive(true);
+            //                currentDetailView = hit.transform.gameObject;
+            //                brushingPoint.transform.position = hit.point;
+            //                brushingPoint.transform.rotation = currentDetailView.transform.rotation;
+            //                brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
                             
-                            // TODO: Turn this back into normal 
-                            // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
-                            //     this, 
-                            //     hit.point, 
-                            //     currentDetailView.transform.InverseTransformPoint(hit.point),
-                            //     false);
-                            currentDetailView.GetComponent<Visualization>().OnBrush(
-                                this, 
-                                hit.point,
-                                false);
-                        }
+            //                // TODO: Turn this back into normal 
+            //                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
+            //                //     this, 
+            //                //     hit.point, 
+            //                //     currentDetailView.transform.InverseTransformPoint(hit.point),
+            //                //     false);
+            //                currentDetailView.GetComponent<Visualization>().OnBrush(
+            //                    this, 
+            //                    hit.point,
+            //                    false);
+            //            }
 
-                    }
-                }
-            }
-            // Checks to see if we're done with pressing the touchbar
+            //        }
+            //    }
+            //}
+            //// Checks to see if we're done with pressing the touchbar
             // TODO: fix the naming of this from Up to release or sth
-            if (padPressUp)
-            {
-                if (currentDetailView != null)
-                {
-                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
+            //if (padPressUp)
+            //{
+            //    if (currentDetailView != null)
+            //    {
+            //        // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
 
-                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
-                    // currentDetailView = null;
-                    // brushingPoint.gameObject.SetActive(false);
-                    currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
+            //        // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+            //        // currentDetailView = null;
+            //        // brushingPoint.gameObject.SetActive(false);
+            //        currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero,false);
 
-                    currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
-                    currentDetailView = null;
-                    brushingPoint.gameObject.SetActive(false);
+            //        currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+            //        currentDetailView = null;
+            //        brushingPoint.gameObject.SetActive(false);
 
-                }
-            }
+            //    }
+            //}
         }
 #endregion
         
@@ -350,7 +359,7 @@ public class WandController : MonoBehaviour
     {
         for (int i = 0; i < 15; ++i)
         {
-            controller.TriggerHapticPulse((ushort)(3900 * (15 - i) / 15.0f));
+            //controller.TriggerHapticPulse((ushort)(3900 * (15 - i) / 15.0f));
             yield return new WaitForEndOfFrame();
         }
     }
@@ -362,7 +371,7 @@ public class WandController : MonoBehaviour
         {
             for (float i = 0; i < length; i += Time.deltaTime)
             {
-                controller.TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
+                //controller.TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
                 yield return new WaitForEndOfFrame();
             }
         }

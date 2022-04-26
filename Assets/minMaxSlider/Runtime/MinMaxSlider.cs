@@ -82,7 +82,7 @@ namespace Min_Max_Slider
 			if (!sliderBounds)
 				sliderBounds = transform as RectTransform;
 
-			Camera uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+			Camera uiCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 			
 			parentCanvas = GetComponentInParent<Canvas>();
 			isOverlayCanvas = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay;

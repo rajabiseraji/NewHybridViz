@@ -97,7 +97,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     //ticker and file path (etc) for logging activity
    
-    SteamVR_TrackedObject trackedObject;
+    //SteamVR_TrackedObject trackedObject;
     List<Vector3> tracking = new List<Vector3>();
     
     // This comes from the DimensionRange in DataObject

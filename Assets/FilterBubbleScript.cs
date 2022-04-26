@@ -81,7 +81,7 @@ public class FilterBubbleScript : MonoBehaviour
 
         if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
             // SteamVR_TrackedController activeController = GameObject.FindGameObjectsWithTag("Controller").FirstOrDefault().GetComponent<SteamVR_TrackedController>();
-            GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+            //GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
         } else {
             Debug.LogWarning("There's no controller!");
         }
@@ -89,15 +89,15 @@ public class FilterBubbleScript : MonoBehaviour
     }
 
     void Update() {
-        if(GetComponent<ViveMenu>().Controller == null) {
-            if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
-                GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
-            }
-        } 
+        //if(GetComponent<ViveMenu>().Controller == null) {
+        //    if(GameObject.FindGameObjectsWithTag("Controller").Length != 0) {
+        //        GetComponent<ViveMenu>().Controller = GameObject.FindGameObjectsWithTag("Controller")[0].GetComponent<SteamVR_TrackedController>();
+        //    }
+        //} 
 
-        if(GetComponent<ViveMenu>().Camera == null) {
-            GetComponent<ViveMenu>().Camera = Camera.main.gameObject;
-        }
+        //if(GetComponent<ViveMenu>().Camera == null) {
+        //    GetComponent<ViveMenu>().Camera = Camera.main.gameObject;
+        //}
     }
 
     public void SetAsGlobalFitlerBubble() { 

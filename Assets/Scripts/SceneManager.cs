@@ -19,6 +19,9 @@ public class SceneManager : MonoBehaviour
 
     [SerializeField]
     public GameObject axisPrefab;
+    
+    [SerializeField]
+    public GameObject mainCamera;
 
     [Header("Data Source")]
 
@@ -49,15 +52,15 @@ public class SceneManager : MonoBehaviour
     {
         Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
         // find the DataShelf panel and set it in a way that it's in front of the camera
-        dataShelfPanel.rotation = Camera.main.transform.rotation;
-        dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.forward * 1f);
-        dataShelfPanel.position = Camera.main.transform.position + (Camera.main.transform.up * -0.8f);
+        dataShelfPanel.rotation = mainCamera.transform.rotation;
+        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 1f);
+        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.up * -0.8f);
 
         // this is the code to get something in front of a camera
         // top left = width:  2.10 - height: 0.5 
-        TwoDPanel.transform.rotation = Camera.main.transform.rotation;
-        TwoDPanel.transform.position = Camera.main.transform.position;
-        TwoDPanel.transform.position += (Camera.main.transform.forward * 1f) + (Camera.main.transform.up * -0.1f) + (Camera.main.transform.right * 0.4f);
+        TwoDPanel.transform.rotation = mainCamera.transform.rotation;
+        TwoDPanel.transform.position = mainCamera.transform.position;
+        TwoDPanel.transform.position += (mainCamera.transform.forward * 1f) + (mainCamera.transform.up * -0.1f) + (mainCamera.transform.right * 0.4f);
         TwoDPanel.transform.parent = dataShelfPanel;
         TwoDPanel.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
 
