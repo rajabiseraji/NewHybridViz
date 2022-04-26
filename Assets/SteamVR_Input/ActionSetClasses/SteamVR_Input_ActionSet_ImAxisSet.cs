@@ -57,6 +57,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Vector2 TouchpadPostition
+        {
+            get
+            {
+                return SteamVR_Actions.imAxisSet_TouchpadPostition;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration haptics
         {
             get

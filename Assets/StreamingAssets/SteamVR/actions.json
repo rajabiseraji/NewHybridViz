@@ -107,6 +107,10 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/ImAxisSet/in/TouchpadPostition",
+      "type": "vector2"
+    },
+    {
       "name": "/actions/ImAxisSet/out/haptics",
       "type": "vibration"
     }

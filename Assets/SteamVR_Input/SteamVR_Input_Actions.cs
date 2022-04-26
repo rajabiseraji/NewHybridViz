@@ -67,6 +67,8 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_imAxisSet_brush;
         
+        private static SteamVR_Action_Vector2 p_imAxisSet_TouchpadPostition;
+        
         private static SteamVR_Action_Vibration p_imAxisSet_haptics;
         
         public static SteamVR_Action_Boolean default_InteractUI
@@ -269,6 +271,14 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Vector2 imAxisSet_TouchpadPostition
+        {
+            get
+            {
+                return SteamVR_Actions.p_imAxisSet_TouchpadPostition.GetCopy<SteamVR_Action_Vector2>();
+            }
+        }
+        
         public static SteamVR_Action_Vibration imAxisSet_haptics
         {
             get
@@ -305,6 +315,7 @@ namespace Valve.VR
                     SteamVR_Actions.imAxisSet_undo,
                     SteamVR_Actions.imAxisSet_redo,
                     SteamVR_Actions.imAxisSet_brush,
+                    SteamVR_Actions.imAxisSet_TouchpadPostition,
                     SteamVR_Actions.imAxisSet_haptics};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.default_InteractUI,
@@ -330,7 +341,8 @@ namespace Valve.VR
                     SteamVR_Actions.imAxisSet_detailsOnDemand,
                     SteamVR_Actions.imAxisSet_undo,
                     SteamVR_Actions.imAxisSet_redo,
-                    SteamVR_Actions.imAxisSet_brush};
+                    SteamVR_Actions.imAxisSet_brush,
+                    SteamVR_Actions.imAxisSet_TouchpadPostition};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
                     SteamVR_Actions.default_Haptic,
                     SteamVR_Actions.imAxisSet_haptics};
@@ -362,7 +374,8 @@ namespace Valve.VR
                     SteamVR_Actions.buggy_Throttle};
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[] {
                     SteamVR_Actions.platformer_Move,
-                    SteamVR_Actions.buggy_Steering};
+                    SteamVR_Actions.buggy_Steering,
+                    SteamVR_Actions.imAxisSet_TouchpadPostition};
             Valve.VR.SteamVR_Input.actionsVector3 = new Valve.VR.SteamVR_Action_Vector3[0];
             Valve.VR.SteamVR_Input.actionsSkeleton = new Valve.VR.SteamVR_Action_Skeleton[] {
                     SteamVR_Actions.default_SkeletonLeftHand,
@@ -387,7 +400,8 @@ namespace Valve.VR
                     SteamVR_Actions.imAxisSet_detailsOnDemand,
                     SteamVR_Actions.imAxisSet_undo,
                     SteamVR_Actions.imAxisSet_redo,
-                    SteamVR_Actions.imAxisSet_brush};
+                    SteamVR_Actions.imAxisSet_brush,
+                    SteamVR_Actions.imAxisSet_TouchpadPostition};
         }
         
         private static void PreInitActions()
@@ -417,6 +431,7 @@ namespace Valve.VR
             SteamVR_Actions.p_imAxisSet_undo = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/ImAxisSet/in/undo")));
             SteamVR_Actions.p_imAxisSet_redo = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/ImAxisSet/in/redo")));
             SteamVR_Actions.p_imAxisSet_brush = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/ImAxisSet/in/brush")));
+            SteamVR_Actions.p_imAxisSet_TouchpadPostition = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/ImAxisSet/in/TouchpadPostition")));
             SteamVR_Actions.p_imAxisSet_haptics = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/ImAxisSet/out/haptics")));
         }
     }

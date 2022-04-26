@@ -46,10 +46,17 @@ public class WandController : MonoBehaviour
       This is for handling the new Steam VR input
      */
     public SteamVR_Action_Boolean triggerGrabAction;
+    public SteamVR_Action_Boolean gripGrabAction;
+    public SteamVR_Action_Boolean touchpadLeftAction;
+    public SteamVR_Action_Boolean touchpadRightAction;
+    public SteamVR_Action_Boolean touchpadUpAction;
+    public SteamVR_Action_Boolean touchpadDownAction;
 
     // tells us which hand it is
     public SteamVR_Input_Sources handType;
 
+    // this is for the haptic action 
+    public SteamVR_Action_Vibration hapticAction;
 
     bool isTouchDown;
 
@@ -57,12 +64,10 @@ public class WandController : MonoBehaviour
     public bool gripUp = false;
     public bool gripping = false;
 
-    //SteamVR_TrackedObject trackedObject;
-    //SteamVR_Controller.Device controller;
-    
+
     Collider intersectingCollider;
     List<Collider> intersectingGrabbables = new List<Collider>();
-    
+
     List<GameObject> draggingObjects = new List<GameObject>();
 
     Collider brushableCollider;
@@ -97,6 +102,12 @@ public class WandController : MonoBehaviour
         //if (!isOculusRift) controller = SteamVR_Controller.Input((int)trackedObject.index); 
 
         // this is the part that creates the brushing point 
+        triggerGrabAction.AddOnStateDownListener(handleGripDown, handType);
+        triggerGrabAction.AddOnStateUpListener(handleGripUp, handType);
+        touchpadDownAction.AddOnStateDownListener(handleTouchpadDown, handType);
+        touchpadUpAction.AddOnStateDownListener(handleTouchpadUp, handType);
+        touchpadLeftAction.AddOnStateDownListener(handleTouchpadLeft, handType);
+        touchpadRightAction.AddOnStateDownListener(handleTouchpadRight, handType);
 
         brushingPoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
@@ -113,6 +124,80 @@ public class WandController : MonoBehaviour
         tracking.AddRange(Enumerable.Repeat<Vector3>(Vector3.zero, 10));
     }
 
+    public void handleGripDown(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Trigger is down pressed");
+        gripping = true;
+        if (intersectingGrabbables.Any(x => x != null) && draggingObjects.Count == 0)
+        {
+            var potentialDrags = intersectingGrabbables.Where(x => x != null).ToList();
+            potentialDrags.Sort((x, y) => y.GetComponent<Grabbable>().GetPriority() - x.GetComponent<Grabbable>().GetPriority());
+            if (potentialDrags.Count() > 0)
+            {
+                PropergateOnGrab(potentialDrags.First().gameObject);
+            }
+        }
+    }
+    
+    public void handleGripUp(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Trigger is up pressed");
+        if (draggingObjects.Count > 0)
+        {
+            draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnRelease(this));
+            draggingObjects.Clear();
+        }
+        gripping = false;
+    }
+    
+    public void handleTouchpadLeft(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad left is pressed");
+
+        // Do this: 
+        // OnLeftPadPressed.Invoke();
+
+        //    if(controller.GetAxis().x != 0 && controller.GetAxis().y != 0) {
+        //        if(controller.GetAxis().x < 0)
+        //            OnLeftPadPressed.Invoke();
+        //        else if(controller.GetAxis().x >= 0)
+        //            OnRightPadPressed.Invoke();  
+        //    }
+    }
+    public void handleTouchpadRight(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad right is pressed");
+    }
+    public void handleTouchpadUp(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad Up is pressed");
+    }
+    public void handleTouchpadDown(
+        SteamVR_Action_Boolean fromAction,
+        SteamVR_Input_Sources fromSource
+    )
+    {
+        Debug.Log("Touchpad down is pressed");
+    }
+
+
+
+
     public void PropergateOnGrab(GameObject g)
     {
         if (g.GetComponent<Grabbable>() != null && g.GetComponent<Grabbable>().OnGrab(this))
@@ -125,63 +210,19 @@ public class WandController : MonoBehaviour
 
     void Update()
     {
-        //gripDown = isOculusRift?
-        //    OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-        //    : controller.GetPressDown(gripButton);
-
-        //gripUp = isOculusRift ?
-        //    OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-        //    : controller.GetPressUp(gripButton);
-
-        //gripping = isOculusRift ?
-        //    OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryIndexTrigger, OculusController)
-        //    : controller.GetPress(gripButton);
-
-        //bool upButtonDown = isOculusRift?
-        //    OVRInput.GetDown(OVRInput.Button.PrimaryThumbstickDown, OculusController) || OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickDown, OculusController)
-        //    : 
-        if (gripDown && intersectingGrabbables.Any(x => x!= null) && draggingObjects.Count == 0)
+        
+        if (gripping && draggingObjects.Count > 0)
         {
-            var potentialDrags = intersectingGrabbables.Where(x => x != null).ToList();
-            potentialDrags.Sort((x, y) => y.GetComponent<Grabbable>().GetPriority() - x.GetComponent<Grabbable>().GetPriority());
-            if (potentialDrags.Count() > 0)
-            {
-                PropergateOnGrab(potentialDrags.First().gameObject);
-            }            
-        }
-        else if (gripUp && draggingObjects.Count > 0)
-        {
-            draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnRelease(this));
-            draggingObjects.Clear();
-        }
-        else if (gripping && draggingObjects.Count > 0)
-        {
-            draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnDrag(this));            
+            draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnDrag(this));           
         }
         
-        if (draggingObjects.Count > 0)
-        {
-            //if(!isOculusRift)
-            //controller.TriggerHapticPulse(100);
-        }
+        //if (draggingObjects.Count > 0)
+        //{
+        //    //if(!isOculusRift)
+        //    //controller.TriggerHapticPulse(100);
+        //}
 
         //brush actions : SteamVR_Controller.ButtonMask.Grip
-
-        //bool padPressDown = isOculusRift ? OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.Get(OVRInput.Button.SecondaryThumbstick, OculusController)
-        //   : controller.GetPress(padButton);
-
-        //bool padPressUp = isOculusRift ? OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OculusController) || OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick, OculusController)
-        //  : controller.GetPressUp(padButton);
-
-        //// detect press left 
-        //if(padPressUp) {
-        //    if(controller.GetAxis().x != 0 && controller.GetAxis().y != 0) {
-        //        if(controller.GetAxis().x < 0)
-        //            OnLeftPadPressed.Invoke();
-        //        else if(controller.GetAxis().x >= 0)
-        //            OnRightPadPressed.Invoke();  
-        //    }
-        //}
         
         #region details on demand
         //detail on demand actions
@@ -355,6 +396,13 @@ public class WandController : MonoBehaviour
         return draggingObjects.Count > 0;
     }
 
+    public void shake(float duration, float frequency, float amplitude, SteamVR_Input_Sources source)
+    {
+        hapticAction.Execute(0, duration, frequency, amplitude, source);
+
+        print("shake " + source.ToString());
+    }
+
     IEnumerator ShakeCoroutine()
     {
         for (int i = 0; i < 15; ++i)
@@ -379,8 +427,9 @@ public class WandController : MonoBehaviour
 
     public void Shake()
     {
-        if (!isOculusRift)
-        StartCoroutine(ShakeCoroutine());
+        //if (!isOculusRift)
+        //StartCoroutine(ShakeCoroutine());
+        shake(1, 150, 75, handType);
     }
 
     public void OnApplicationQuit()
