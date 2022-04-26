@@ -20,7 +20,6 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     public GameObject axisPrefab;
     
-    [SerializeField]
     public GameObject mainCamera;
 
     [Header("Data Source")]
@@ -51,26 +50,10 @@ public class SceneManager : MonoBehaviour
     void Start()
     {
         Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
+
         // find the DataShelf panel and set it in a way that it's in front of the camera
-        dataShelfPanel.rotation = mainCamera.transform.rotation;
-        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 1f);
-        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.up * -0.8f);
+        putThingsInFrontofCamera();
 
-        // this is the code to get something in front of a camera
-        // top left = width:  2.10 - height: 0.5 
-        TwoDPanel.transform.rotation = mainCamera.transform.rotation;
-        TwoDPanel.transform.position = mainCamera.transform.position;
-        TwoDPanel.transform.position += (mainCamera.transform.forward * 1f) + (mainCamera.transform.up * -0.1f) + (mainCamera.transform.right * 0.4f);
-        TwoDPanel.transform.parent = dataShelfPanel;
-        TwoDPanel.transform.localScale = new Vector3(2.7f , 1.1f, 0.0001f);
-
-        // Get the global filters in front of the camera too
-        GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
-        Transform mainCam = GameObject.FindGameObjectWithTag("MainCamera").transform;
-        GlobalFilterPanel.transform.rotation = mainCam.rotation;
-        // GlobalFilterPanel.transform.position = mainCam.position;
-        GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
-        
 
         // Vector3 dataShelfZDirection = 
 
@@ -118,8 +101,36 @@ public class SceneManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CreateSPLOMSWithU();
+            putThingsInFrontofCamera();
         }
+    }
+
+    public void putThingsInFrontofCamera()
+    {
+
+        Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
+
+
+        dataShelfPanel.rotation = mainCamera.transform.rotation;
+        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 1f);
+        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.up * -0.8f);
+
+        // this is the code to get something in front of a camera
+        // top left = width:  2.10 - height: 0.5 
+        TwoDPanel.transform.rotation = mainCamera.transform.rotation;
+        TwoDPanel.transform.position = mainCamera.transform.position;
+        TwoDPanel.transform.position += (mainCamera.transform.forward * 1f) + (mainCamera.transform.up * -0.1f) + (mainCamera.transform.right * 0.4f);
+        TwoDPanel.transform.parent = dataShelfPanel;
+        TwoDPanel.transform.localScale = new Vector3(2.7f, 1.1f, 0.0001f);
+
+        // Get the global filters in front of the camera too
+        GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
+        Transform mainCam = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        GlobalFilterPanel.transform.rotation = mainCam.rotation;
+        // GlobalFilterPanel.transform.position = mainCam.position;
+        GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
+
+
     }
 
     public void AddAxis(Axis axis)
