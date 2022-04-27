@@ -183,6 +183,7 @@ namespace Min_Max_Slider
 
 		public void OnBeginDrag(PointerEventData eventData)
 		{
+			Debug.Log("I'm in the dragging thing");
 			Vector3 hitPosition3D = new Vector3(eventData.position.x, eventData.position.y, eventData.pointerCurrentRaycast.gameObject.transform.position.z);
 			var clickPosition = isOverlayCanvas
 				? (Vector3) eventData.position
