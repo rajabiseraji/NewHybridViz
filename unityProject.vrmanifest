@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.imaxes.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "W:\\Projects\\ImAxes2020\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\root579\\Downloads\\ImAxis2020VarjoExport\\ImAxes2020\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "ImAxes [Testing]"

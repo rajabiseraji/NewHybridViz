@@ -17,7 +17,7 @@ MonoBehaviour:
   FoveatedRendering: 1
   ContextScalingFactor: 1
   FocusScalingFactor: 1
-  Opaque: 1
+  Opaque: 0
   FaceLocked: 0
   FlipY: 0
   OcclusionMesh: 1

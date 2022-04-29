@@ -8,6 +8,10 @@ using DG.Tweening;
 using System.Linq;
 using Valve.VR;
 
+// This is the necessry thing for using the leapmotion (ultraleap) interactions
+using Leap;
+using Leap.Unity;
+
 public interface Grabbable
 {
     int GetPriority();
@@ -34,7 +38,9 @@ public class WandController : MonoBehaviour
 {
     //public OVRInput.Controller OculusController;
 
-    public bool isOculusRift = false;
+    //public bool isOculusRift = false;
+    public bool isHandTracking = false;
+    public Transform handSphereCollier; 
     //Debug test
     // This is the game object that will be shown when brushing the data
     GameObject brushingPoint;
@@ -145,7 +151,25 @@ public class WandController : MonoBehaviour
             }
         }
     }
-    
+
+    public void handlePinchDown(Hand _hand)
+    {
+        //Debug.Log("hand is in pinching down mode : " + (_hand.IsRight ? "Right hand" : "Left hand"));
+        //handSphereCollier.transform.position = _hand.GetPinchPosition();
+
+
+        gripping = true;
+        if (intersectingGrabbables.Any(x => x != null) && draggingObjects.Count == 0)
+        {
+            var potentialDrags = intersectingGrabbables.Where(x => x != null).ToList();
+            potentialDrags.Sort((x, y) => y.GetComponent<Grabbable>().GetPriority() - x.GetComponent<Grabbable>().GetPriority());
+            if (potentialDrags.Count() > 0)
+            {
+                PropergateOnGrab(potentialDrags.First().gameObject);
+            }
+        }
+    }
+
     public void handleGripUp(
         SteamVR_Action_Boolean fromAction,
         SteamVR_Input_Sources fromSource
@@ -159,7 +183,21 @@ public class WandController : MonoBehaviour
         }
         gripping = false;
     }
-    
+
+    public void handlePinchUp()
+    {
+        if (!gripping)
+            return;
+
+        //Debug.Log("Pinch up is being performed");
+        if (draggingObjects.Count > 0)
+        {
+            draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnRelease(this));
+            draggingObjects.Clear();
+        }
+        gripping = false;
+    }
+
     public void handleTouchpadLeft(
         SteamVR_Action_Boolean fromAction,
         SteamVR_Input_Sources fromSource
@@ -233,7 +271,34 @@ public class WandController : MonoBehaviour
 
     void Update()
     {
-        
+        /*
+         Necessary functions to handle leap motion stuff
+         */
+        if(isHandTracking)
+        {
+            
+            if (Hands.Right != null)
+            {
+                Hand rightHand = Hands.Right;
+                transform.position = rightHand.GetPalmPose().position;
+                transform.rotation = rightHand.GetPalmPose().rotation;
+//                if(rightHand.GrabStrength > 0.95f) 
+  //                      print("grab strength is right now: " + rightHand.GrabStrength + " and grab angle is " + rightHand.GrabAngle);
+
+
+                if (rightHand.GrabStrength > 0.95f)
+                {
+                    handlePinchDown(rightHand);
+                } else
+                {
+                    handlePinchUp();
+                }
+
+            }
+
+        }
+
+
         if (gripping && draggingObjects.Count > 0)
         {
             draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnDrag(this));           
@@ -439,21 +504,21 @@ public class WandController : MonoBehaviour
     //length is how long the vibration should go for
     //strength is vibration strength from 0-1
     IEnumerator TriggerHaptics(float length, float strength) {
-        if (!isOculusRift)
+        
+        for (float i = 0; i < length; i += Time.deltaTime)
         {
-            for (float i = 0; i < length; i += Time.deltaTime)
-            {
-                //controller.TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
-                yield return new WaitForEndOfFrame();
-            }
+            //controller.TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
+            yield return new WaitForEndOfFrame();
         }
+        
     }
 
     public void Shake()
     {
         //if (!isOculusRift)
         //StartCoroutine(ShakeCoroutine());
-        shake(1, 150, 75, handType);
+        if(!isHandTracking)
+            shake(1, 150, 75, handType);
     }
 
     public void OnApplicationQuit()
