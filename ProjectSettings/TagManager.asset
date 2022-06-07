@@ -25,6 +25,7 @@ TagManager:
   - SceneManager
   - GlobalFilterBubble
   - UICamera
+  - MultiMonitor
   layers:
   - Default
   - TransparentFX

@@ -103,6 +103,10 @@ public class SceneManager : MonoBehaviour
         {
             putThingsInFrontofCamera();
         }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            placeDesktopMonitors();
+        }
     }
 
     public void putThingsInFrontofCamera()
@@ -129,6 +133,26 @@ public class SceneManager : MonoBehaviour
         GlobalFilterPanel.transform.rotation = mainCam.rotation;
         // GlobalFilterPanel.transform.position = mainCam.position;
         GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
+
+
+    }
+
+    public void placeDesktopMonitors()
+    {
+        Transform multiMonitorSet = GameObject.FindGameObjectWithTag("MultiMonitor").transform;
+
+        Vector3 cameraAngles = mainCamera.transform.eulerAngles;
+        multiMonitorSet.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
+        //multiMonitorSet.Rotate(mainCamera.transform.up, cameraAngles.z);
+
+
+        if (Vector3.Dot(mainCamera.transform.forward, multiMonitorSet.transform.forward) < 0)
+        {
+            multiMonitorSet.Rotate(multiMonitorSet.up, 180f);
+        }
+
+
+        multiMonitorSet.position = mainCamera.transform.position + (mainCamera.transform.forward * 0.7f);
 
 
     }
