@@ -29,20 +29,20 @@ public class RaycastExample : MonoBehaviour
         foreach (var uddTexture in GameObject.FindObjectsOfType<uDesktopDuplication.Texture>()) {
             var result = uddTexture.RayCast(from.position, to.position - from.position);
             if (result.hit) {
-                Debug.DrawLine(result.position, result.position + result.normal, Color.yellow);
+                //Debug.DrawLine(result.position, result.position + result.normal, Color.yellow);
                 //Debug.Log("COORD: " + result.coords + ", DESKTOP: " + result.desktopCoord);
                 //var isResultPositionInvalid = float.IsNaN(result.position.x) || float.IsNaN(result.position.y) || float.IsNaN(result.position.z);
                 
                 //if (isResultPositionInvalid)
                 //    return;
-                if(!float.IsNaN(result.position.x))
-                    cube.transform.position = result.position;
+                //if(!float.IsNaN(result.position.x))
+                //    cube.transform.position = result.position;
 
-                if(!setMousePosDirty)
-                {
-                    SetCursorPos((int)result.desktopCoord.x, (int)result.desktopCoord.y);
-                    //setMousePosDirty = true;
-                }
+                //if(!setMousePosDirty)
+                //{
+                //    SetCursorPos((int)result.desktopCoord.x, (int)result.desktopCoord.y);
+                //    //setMousePosDirty = true;
+                //}
 
             }
         }

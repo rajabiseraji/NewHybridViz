@@ -26,6 +26,8 @@ TagManager:
   - GlobalFilterBubble
   - UICamera
   - MultiMonitor
+  - MonitorBoard
+  - WebSocketManager
   layers:
   - Default
   - TransparentFX

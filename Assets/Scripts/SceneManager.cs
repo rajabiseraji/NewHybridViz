@@ -35,6 +35,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     GameObject GlobalFilterPanel;
 
+    private List<GameObject> monitorBoards;
+
     [SerializeField]
     public List<AttributeFilter> globalFilters;
 
@@ -49,6 +51,10 @@ public class SceneManager : MonoBehaviour
 
     void Start()
     {
+        // Init the monitorboards list 
+         //GameObject.FindGameObjectsWithTag("MonitorBoard");
+
+
         Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
 
         // find the DataShelf panel and set it in a way that it's in front of the camera
