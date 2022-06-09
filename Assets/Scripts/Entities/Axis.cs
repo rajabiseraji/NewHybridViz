@@ -245,6 +245,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void OnDestroy()
     {
+        print("on destroy is called on " + axisId);
         SceneManager.Instance.sceneAxes.Remove(this);
         if (ghostSourceAxis != null)
         {
@@ -547,8 +548,13 @@ public class Axis : MonoBehaviour, Grabbable {
                 body.useGravity = true;
                 body.AddForce(controller.Velocity * -1000);
                 gameObject.layer = LayerMask.NameToLayer("TransparentFX");
-
-                transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack);
+                
+                Sequence seq = DOTween.Sequence();
+                seq.Append(transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack));
+                seq.AppendCallback(() =>
+                {
+                    Destroy(this);
+                });
 
                 // Make sure the thing is done and destroyed! 
                 // foreach (var vis in correspondingVisualizations())
