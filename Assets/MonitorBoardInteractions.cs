@@ -87,20 +87,34 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
             Sequence seq = DOTween.Sequence();
             seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-
+            // test
             foreach (var axis in axisList)
             {
                 seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
             }
             seq.AppendCallback(() => {
 
-                foreach (var axis in axisList)
+                // The visualization destroyer thingy will take care of the axes too
+               
+                int axesNewCount = axisList.Count;
+                for (int i = 0; i < axesNewCount; i++)
                 {
-                    axis.gameObject.SetActive(false);
-                    Destroy(axis);
+                    SceneManager.Instance.sceneAxes.Remove(axisList[i]);
+                    axisList.Remove(axisList[i]);
+                    DestroyImmediate(axisList[i].gameObject);
                 }
+                axisList.Clear();
                 other.gameObject.SetActive(false);
-                Destroy(other);
+                DestroyImmediate(other.gameObject);
+
+                //foreach (var axis in axisList)
+                //{
+                //    axis.gameObject.SetActive(false);
+                //    SceneManager.Instance.sceneAxes.Remove(axis);
+                //    Destroy(axis.gameObject);
+                //}
+                //other.gameObject.SetActive(false);
+                //Destroy(other.gameObject);
             });
             // Rotation and position change stuff
 

@@ -659,11 +659,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         // Check to see if the visualization is falling down! 
         // If they are, then just get rid of them and destroy the whole thing
         if(transform.position.y < -30f) {
-            foreach (var axis in axes)
-            {
-                Destroy(axis);
-            }
-            Destroy(gameObject);
+            DestroyVisualization();
         }
 
         UpdateViewType();
@@ -948,6 +944,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             filterBubbleGameobject.SetActive(true);
             filterBubbleCompactGameobject.SetActive(true);
         }
+    }
+
+    public void DestroyVisualization()
+    {
+        var axesNewCount = axes.Count;
+        print(axes.Count);
+        for (int i = 0; i < axesNewCount; i++)
+        {
+            SceneManager.Instance.sceneAxes.Remove(axes[i]);
+            axes.Remove(axes[i]);
+            DestroyImmediate(axes[i].gameObject);
+        }
+        axes.Clear();
+        DestroyImmediate(gameObject);
     }
 
     public GameObject GetVisualizationObject(ViewType viewtype)

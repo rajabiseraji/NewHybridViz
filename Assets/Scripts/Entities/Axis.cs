@@ -551,10 +551,11 @@ public class Axis : MonoBehaviour, Grabbable {
                 
                 Sequence seq = DOTween.Sequence();
                 seq.Append(transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack));
-                seq.AppendCallback(() =>
-                {
-                    Destroy(this);
-                });
+                //seq.AppendCallback(() =>
+                //{
+                //    SceneManager.Instance.sceneAxes.Remove(this);
+                //    Destroy(gameObject);
+                //});
 
                 // Make sure the thing is done and destroyed! 
                 // foreach (var vis in correspondingVisualizations())
