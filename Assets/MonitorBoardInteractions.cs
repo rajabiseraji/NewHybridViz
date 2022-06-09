@@ -5,6 +5,8 @@ using DG.Tweening;
 
 public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 {
+
+    public Visualization collidedAxis;
     public int GetPriority()
     {
         return 200;
@@ -55,59 +57,53 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
         // in order to user the uddTexture.Raycast function
         // we need a to (Transform) and a from (Transform) to make a raycast
-        
+
         // TODO: make this later
         // for now I'm just gonna detect a collision and that's it! 
 
-
-
         // if(!DOTween.IsTweening(this.transform)) {
-        if (other.GetComponent<Axis>())
+        if (other.GetComponent<Visualization>())
         {
-            Axis a = other.GetComponent<Axis>();
-
-            // Find the point of entrance
-            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
-
-            // Handling rotation mappings
-            Quaternion aBeforeRotation = a.transform.rotation;
-            bool isParallelWithPanel = Vector3.Dot(a.transform.forward, transform.forward) > 0;
-
-            float rotationAroundXAngleOffset = Vector3.Dot(a.transform.up, transform.up) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
-            float rotationAroundYAngleOffset = Vector3.Dot(a.transform.right, transform.right) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
-
-            aBeforeRotation.eulerAngles = new Vector3(rotationAroundXAngleOffset + transform.eulerAngles.x, rotationAroundYAngleOffset + transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
-            // We want the axis to be released from the controller before it begins the sequence
-            foreach (var obj in GameObject.FindObjectsOfType<WandController>())
+            Visualization a = other.GetComponent<Visualization>();
+            List<Axis> axisList = a.axes;
+            if (!collidedAxis)
             {
-                // It means shaking the controller not the visualization itself
-                if (obj.IsDragging(a))
-                {
-                    a.OnRelease(obj);
-                }
+                collidedAxis = a;
+            } else if (collidedAxis.GetInstanceID() == a.GetInstanceID())
+            {
+                Debug.Log("they are equal");
+                Debug.Log("collided Axis instance ID is " + collidedAxis.GetInstanceID());
+                Debug.Log("axis instance ID is " + a.GetInstanceID());
+                return;
             }
 
-            Vector3 dirForRaycast = projectedDistanceOnPlane + (transform.forward * 0.05f);
+            Debug.Log("they are NOOOOOOT equal");
+            // Find the point of entrance
+            //Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((collision.contacts[0].point - transform.position), transform.forward);
+            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
 
-            // Rotation and position change stuff
-            Sequence seq = DOTween.Sequence();
-            // a.transform.
-            seq.Append(a.transform.DORotate(aBeforeRotation.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
-
-            seq.Append(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
-
-            seq.Join(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
-
-            seq.AppendCallback(() => {
-                a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
-                // TODO: fix this later in a way that the item is moved with the panel,
-                // right now it won't be moved with the parent
-                // a.transform.SetParent(transform.parent.parent);
-                //a.isOn2DPanel = true;
-            });
-
+            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - a.transform.position;
             var result = GetComponent<uDesktopDuplication.Texture>().RayCast(a.transform.position, dirForRaycast);
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+
+            foreach (var axis in axisList)
+            {
+                seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+            }
+            seq.AppendCallback(() => {
+
+                foreach (var axis in axisList)
+                {
+                    axis.gameObject.SetActive(false);
+                    Destroy(axis);
+                }
+                other.gameObject.SetActive(false);
+                Destroy(other);
+            });
+            // Rotation and position change stuff
+
             if (result.hit)
             {
                 print("I've hit somethig");
