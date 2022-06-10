@@ -95,17 +95,18 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             seq.AppendCallback(() => {
 
                 // The visualization destroyer thingy will take care of the axes too
-               
-                int axesNewCount = axisList.Count;
-                for (int i = 0; i < axesNewCount; i++)
-                {
-                    SceneManager.Instance.sceneAxes.Remove(axisList[i]);
-                    axisList.Remove(axisList[i]);
-                    DestroyImmediate(axisList[i].gameObject);
-                }
-                axisList.Clear();
-                other.gameObject.SetActive(false);
-                DestroyImmediate(other.gameObject);
+                other.GetComponent<Visualization>().DestroyVisualization();
+                //int axesNewCount = axisList.Count;
+                //for (int i = 0; i < axesNewCount; i++)
+                //{
+                //    SceneManager.Instance.sceneAxes.Remove(axisList[i]);
+                //    axisList.Remove(axisList[i]);
+                                                                
+                //    //DestroyImmediate(axisList[i].gameObject);
+                //}
+                //axisList.Clear();
+                //other.gameObject.SetActive(false);
+                //DestroyImmediate(other.gameObject);
 
                 //foreach (var axis in axisList)
                 //{

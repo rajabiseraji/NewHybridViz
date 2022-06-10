@@ -169,12 +169,18 @@ public class ImAxesRecognizer : MonoBehaviour
         GUI.Label(new Rect(610, 10, 200, 2000), "nb of SPs:" + SP.Count.ToString());
         GUI.Label(new Rect(810, 10, 200, 2000), "nb of SPs:" + linkedVisualisations);
     }
+    private int prevcount = 0;
 
     // This runs at every frame update to parse the scene!
     void ParseScene_V2()
     {
         // get all the current axes
         A = SceneManager.Instance.sceneAxes;
+        if(A.Count != prevcount)
+        {
+            print(A.Count);
+            prevcount = A.Count;
+        }
         // ==============================================================================
         // ======================== PASS0: PARSING SPs ==================================
         // ==============================================================================

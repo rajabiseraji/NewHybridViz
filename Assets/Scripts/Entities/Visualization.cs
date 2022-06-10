@@ -949,15 +949,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void DestroyVisualization()
     {
         var axesNewCount = axes.Count;
-        print(axes.Count);
+        print("im destroying " + axesNewCount);
         for (int i = 0; i < axesNewCount; i++)
         {
+            axes[i].gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(axes[i].transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack));
+            Destroy(axes[i].gameObject);
             SceneManager.Instance.sceneAxes.Remove(axes[i]);
-            axes.Remove(axes[i]);
-            DestroyImmediate(axes[i].gameObject);
         }
-        axes.Clear();
-        DestroyImmediate(gameObject);
+        //axes.Clear();
+        gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+        transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack);
+        Destroy(gameObject);
     }
 
     public GameObject GetVisualizationObject(ViewType viewtype)
