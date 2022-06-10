@@ -73,13 +73,28 @@ public class WebSocketMsg
     public int id;
     public int x;
     public int y;
+    int numberOfAxes = 0;
+    public string xAxisName;
+    public string yAxisName;
+    public string zAxisName;
     public string text;
 
-    public WebSocketMsg(int id, Vector2 desktopPosition, string text)
+    public WebSocketMsg(int id, 
+        Vector2 desktopPosition, 
+        int numberOfAxes, 
+        Axis xAxis, 
+        Axis yAxis, 
+        Axis zAxis, 
+        string text
+        )
     {
         this.id = id;
         this.x = (int)desktopPosition.x;
         this.y = (int)desktopPosition.y;
         this.text = text;
+        this.numberOfAxes = numberOfAxes;
+        this.xAxisName = xAxis != null ? SceneManager.Instance.dataObject.Identifiers[xAxis.axisId] : "";
+        this.yAxisName = yAxis != null ? SceneManager.Instance.dataObject.Identifiers[yAxis.axisId] : "";
+        this.zAxisName = zAxis != null ? SceneManager.Instance.dataObject.Identifiers[zAxis.axisId] : "";
     }
 }

@@ -6,10 +6,11 @@ using DG.Tweening;
 public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 {
 
-    public Visualization collidedAxis;
+    public Visualization localCollidedVisualization;
     public int GetPriority()
     {
-        return 200;
+        // We want a low priority so that the controller doesn't grab this
+        return 1;
     }
 
     public void OnDrag(WandController controller)
@@ -64,26 +65,25 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         // if(!DOTween.IsTweening(this.transform)) {
         if (other.GetComponent<Visualization>())
         {
-            Visualization a = other.GetComponent<Visualization>();
-            List<Axis> axisList = a.axes;
-            if (!collidedAxis)
+            Visualization collidedVisualization = other.GetComponent<Visualization>();
+            List<Axis> axisList = collidedVisualization.axes;
+            if (!this.localCollidedVisualization)
             {
-                collidedAxis = a;
-            } else if (collidedAxis.GetInstanceID() == a.GetInstanceID())
+                this.localCollidedVisualization = collidedVisualization;
+            } else if (this.localCollidedVisualization.GetInstanceID() == collidedVisualization.GetInstanceID())
             {
-                Debug.Log("they are equal");
-                Debug.Log("collided Axis instance ID is " + collidedAxis.GetInstanceID());
-                Debug.Log("axis instance ID is " + a.GetInstanceID());
+                //Debug.Log("they are equal");
+                //Debug.Log("collided Axis instance ID is " + collidedAxis.GetInstanceID());
+                //Debug.Log("axis instance ID is " + a.GetInstanceID());
                 return;
             }
 
-            Debug.Log("they are NOOOOOOT equal");
+            //Debug.Log("they are NOOOOOOT equal");
             // Find the point of entrance
-            //Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((collision.contacts[0].point - transform.position), transform.forward);
-            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
+            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((collidedVisualization.transform.position - transform.position), transform.forward);
 
-            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - a.transform.position;
-            var result = GetComponent<uDesktopDuplication.Texture>().RayCast(a.transform.position, dirForRaycast);
+            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - collidedVisualization.transform.position;
+            var result = GetComponent<uDesktopDuplication.Texture>().RayCast(collidedVisualization.transform.position, dirForRaycast);
 
             Sequence seq = DOTween.Sequence();
             seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
@@ -96,35 +96,35 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
                 // The visualization destroyer thingy will take care of the axes too
                 other.GetComponent<Visualization>().DestroyVisualization();
-                //int axesNewCount = axisList.Count;
-                //for (int i = 0; i < axesNewCount; i++)
-                //{
-                //    SceneManager.Instance.sceneAxes.Remove(axisList[i]);
-                //    axisList.Remove(axisList[i]);
-                                                                
-                //    //DestroyImmediate(axisList[i].gameObject);
-                //}
-                //axisList.Clear();
-                //other.gameObject.SetActive(false);
-                //DestroyImmediate(other.gameObject);
-
-                //foreach (var axis in axisList)
-                //{
-                //    axis.gameObject.SetActive(false);
-                //    SceneManager.Instance.sceneAxes.Remove(axis);
-                //    Destroy(axis.gameObject);
-                //}
-                //other.gameObject.SetActive(false);
-                //Destroy(other.gameObject);
             });
-            // Rotation and position change stuff
 
             if (result.hit)
             {
                 print("I've hit somethig");
                 print(result.desktopCoord.x);
                 print(result.desktopCoord.y);
-                WebSocketMsg msg = new WebSocketMsg(1, result.desktopCoord, "some text");
+                WebSocketMsg msg;
+                if (collidedVisualization.axes.Count == 1)
+                {
+                    Axis XAxis = collidedVisualization.axes[0].IsHorizontal ? collidedVisualization.axes[0] : null;
+                    Axis YAxis = !collidedVisualization.axes[0].IsHorizontal ? collidedVisualization.axes[0] : null;
+                    msg = new WebSocketMsg(1, 
+                        result.desktopCoord, 
+                        collidedVisualization.axes.Count,
+                        XAxis,
+                        YAxis,
+                        null,
+                        collidedVisualization.name);
+                } else
+                {
+                    msg = new WebSocketMsg(1, 
+                        result.desktopCoord, 
+                        collidedVisualization.axes.Count,
+                        collidedVisualization.ReferenceAxis1.horizontal,
+                        collidedVisualization.ReferenceAxis1.vertical,
+                        collidedVisualization.ReferenceAxis1.depth,
+                        collidedVisualization.name);
+                }
                 GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendMsgToDesktop(msg);
             }
 
