@@ -537,6 +537,7 @@ public class Axis : MonoBehaviour, Grabbable {
             // TODO: Set the cloning knob of other axes to disable and this one to enable
         }
 
+        // Logic for destroying the Axis upon throwing 
         if (!isPrototype)
         {
             // destroy the axis
@@ -551,28 +552,17 @@ public class Axis : MonoBehaviour, Grabbable {
                 
                 Sequence seq = DOTween.Sequence();
                 seq.Append(transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack));
-                //seq.AppendCallback(() =>
-                //{
-                //    SceneManager.Instance.sceneAxes.Remove(this);
-                //    Destroy(gameObject);
-                //});
-
-                // Make sure the thing is done and destroyed! 
-                // foreach (var vis in correspondingVisualizations())
-                // {
-                //     vis.gameObject.SetActive(false);
-                // }
-                // gameObject.SetActive(false);
-
 
                 return;
             }
-        }
+        } // logic for sending the Axis that is cloned back to its original location
         else
         {
             // return the axis to its position
             ReturnToOrigin();
         }
+
+        #region Animating Axis to move for each Visualization
 
         List<Visualization> lv = correspondingVisualizations();
         // TODO: this part is importnat for handling the other vizes when one gets released
@@ -643,12 +633,15 @@ public class Axis : MonoBehaviour, Grabbable {
             splom.AlignAxisToSplom(this);
         }
 
+        #endregion
+
         GetComponent<Rigidbody>().isKinematic = false;
         ZeulerAnglesBefore2DRotation = transform.eulerAngles;
         isDirty = false;
 
         grabbingController = null;
         
+        // This part is there to handle the Undo and Redo and trigger the events that are necessary for that
         if(!isPrototype) {
             // Debug.Log("I'm being released: " + isDirty + " and pos is: " + transform.position);
             // Call the event that sets the whole thing up! 
@@ -660,6 +653,7 @@ public class Axis : MonoBehaviour, Grabbable {
             }
         }
 
+        // This part is the logic for the activation of the Cloning knob on the Axis
         if(!isPrototype && correspondingVisualizations().Any()) {
             /* Change the knob position in this case */
             foreach (var vis in correspondingVisualizations())
