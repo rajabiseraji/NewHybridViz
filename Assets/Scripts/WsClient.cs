@@ -16,7 +16,7 @@ public class WsClient : MonoBehaviour
         ws.OnMessage += (sender, e) =>
         {
             Debug.Log("Message Received from " + ((WebSocket)sender).Url + ", Data : " + e.Data);
-            //Debug.Log(JsonUtility.FromJson<MyClass>(e.Data).playerName);
+            Debug.Log(JsonUtility.FromJson<WebSocketMsg>(e.Data).x);
         };
 
 
@@ -40,6 +40,11 @@ public class WsClient : MonoBehaviour
         //    jsonString = JsonUtility.ToJson(myObject);
         //    ws.Send(jsonString);
         //}
+    }
+
+    private void OnDestroy()
+    {
+        ws.Close();
     }
 
     bool HasMouseMoved()
@@ -73,11 +78,12 @@ public class WebSocketMsg
     public int id;
     public int x;
     public int y;
-    int numberOfAxes = 0;
+    public int numberOfAxes = 0;
     public string xAxisName;
     public string yAxisName;
     public string zAxisName;
     public string text;
+    public string typeOfMessage;
 
     public WebSocketMsg(int id, 
         Vector2 desktopPosition, 
@@ -85,16 +91,34 @@ public class WebSocketMsg
         Axis xAxis, 
         Axis yAxis, 
         Axis zAxis, 
-        string text
+        string text,
+        string typeOfMessage
         )
     {
+
         this.id = id;
         this.x = (int)desktopPosition.x;
         this.y = (int)desktopPosition.y;
         this.text = text;
+        this.typeOfMessage = typeOfMessage;
         this.numberOfAxes = numberOfAxes;
         this.xAxisName = xAxis != null ? SceneManager.Instance.dataObject.Identifiers[xAxis.axisId] : "";
         this.yAxisName = yAxis != null ? SceneManager.Instance.dataObject.Identifiers[yAxis.axisId] : "";
         this.zAxisName = zAxis != null ? SceneManager.Instance.dataObject.Identifiers[zAxis.axisId] : "";
+    }
+
+    public WebSocketMsg
+        (
+            int id,
+            Vector2 desktopPosition,
+            string typeOfMessage,
+            string text
+        )
+    {
+        this.id = id;
+        this.typeOfMessage = typeOfMessage;
+        this.text = text;
+        this.x = (int)desktopPosition.x;
+        this.y = (int)desktopPosition.y;
     }
 }
