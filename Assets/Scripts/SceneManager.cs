@@ -258,4 +258,29 @@ public class SceneManager : MonoBehaviour
         GameObject a = GameObject.Find("axis mpg");
         a.transform.position = new Vector3(0.236f, 1.506231f, -1.486f);
     }
+
+
+    void Create2DScatterplot(string xAxisName, string yAxisName, Vector3 placementPosition)
+    {
+       
+    }
+
+    void CreateHistogram(string axisName, Vector3 placementPosition)
+    {
+
+        // I wanted to find the index of the string that is the Axis name from the identifiers in dataobject
+
+        // then create the Axis and add it to the Axis list
+
+        //dataObject.Identifiers.ToList<string>()
+        //GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
+        //// obj.transform.position = v;
+        //Axis axis = obj.GetComponent<Axis>();
+        //axis.Init(dataObject, i, true);
+        //axis.InitOrigin(v, obj.transform.rotation);
+        //axis.initOriginalParent(dataShelfPanel);
+        //axis.tag = "Axis";
+
+        //AddAxis(axis);
+    }
 }

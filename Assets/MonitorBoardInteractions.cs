@@ -63,7 +63,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             WebSocketMsg msg;
             msg = new WebSocketMsg(1,
                 result.desktopCoord,
-                "EXTRUSION",
+                "EXTRUDE",
                 null);
             GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendMsgToDesktop(msg);
         }
@@ -90,7 +90,14 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         dotCube.transform.position = controller.transform.position;
         positionToCreateExtrudedVis = controller.transform.position;
 
-        Debug.Log("Hey i have been released into the wild!" + Time.deltaTime);
+        // here's the point where the trigger gets released, the things we do here are: 
+        // 1- disable all sorts of collision interactions with the plane for 3, 4 seconds using a global flag
+        // 2- make sure that we have received the info from the previous extrusion call made in the OnGrab method
+        // 3- extract the name of the axes we have from the websocket msg 
+        // 4- make a call to make those axes 
+        // 5- optional, if you've showing some sort of a ghost when onGrab was called, make that ghost disappear
+
+        Debug.Log("Hey i have been released into the wild!" + Time.time);
         //throw new System.NotImplementedException();
     }
 

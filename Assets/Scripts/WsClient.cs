@@ -12,15 +12,30 @@ public class WsClient : MonoBehaviour
 
         ws = new WebSocket("ws://localhost:7071/ws?name=unity");
         ws.Connect();
-        Debug.Log("im doing some shit");
-        ws.OnMessage += (sender, e) =>
-        {
-            Debug.Log("Message Received from " + ((WebSocket)sender).Url + ", Data : " + e.Data);
-            Debug.Log(JsonUtility.FromJson<WebSocketMsg>(e.Data).x);
-        };
-
+        Debug.Log("I'm receiving msgs from websocket");
+        ws.OnMessage += WebSocketOnMessage;
 
     }
+
+    private void WebSocketOnMessage(object sender, WebSocketSharp.MessageEventArgs e)
+    {
+        Debug.Log("Message Received from " + ((WebSocket)sender).Url + ", Data : " + e.Data);
+        WebSocketMsg receivedMsg = JsonUtility.FromJson<WebSocketMsg>(e.Data);
+        Debug.Log(receivedMsg.sender);
+        if (receivedMsg.sender == "codap")
+        {
+            if(receivedMsg.typeOfMessage == "CODAPINFO")
+            {
+                // This is a message that is sent to tell XR about the axes that we want to be extruded
+                Debug.Log("we want something to be extruded!");
+                string xAxisName = receivedMsg.xAxisName;
+                string yAxisName = receivedMsg.yAxisName;
+                print("X axis here is " + xAxisName);
+                print("Y Axis here is " + yAxisName);
+            }
+        }
+    }
+
     private void Update()
     {
         if (ws == null)
@@ -84,6 +99,7 @@ public class WebSocketMsg
     public string zAxisName;
     public string text;
     public string typeOfMessage;
+    public string sender;
 
     public WebSocketMsg(int id, 
         Vector2 desktopPosition, 
@@ -92,7 +108,7 @@ public class WebSocketMsg
         Axis yAxis, 
         Axis zAxis, 
         string text,
-        string typeOfMessage
+        string typeOfMessage // CREATE or EXTRUDE 
         )
     {
 
