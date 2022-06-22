@@ -40,7 +40,11 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     public List<AttributeFilter> globalFilters;
 
-
+    public int toBeActivatedXAxisId = -1; 
+    public int toBeActivatedYAxisId = -1; 
+    public int toBeActivatedZAxisId = -1; 
+    public int toBeActivatedColorAxisId = -1; 
+    public int toBeActivatedSizeAxisId = -1; 
 
     static SceneManager _instance;
     public static SceneManager Instance
@@ -260,27 +264,90 @@ public class SceneManager : MonoBehaviour
     }
 
 
-    void Create2DScatterplot(string xAxisName, string yAxisName, Vector3 placementPosition)
+    public void Create2DScatterplot(
+        Vector3 XAxisplacementPosition, 
+        Quaternion XAxisplacementRotation, 
+        Vector3 XAxisForwardVector, 
+        Vector3 XAxisRightVector,
+        Vector3 xAxisUpVector)
     {
-       
+        if(toBeActivatedXAxisId != -1)
+        {
+            XAxisplacementRotation *= Quaternion.AngleAxis(-90f, XAxisForwardVector);
+            XAxisplacementRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
+            // This will create X Axis
+            CreateHistogram(toBeActivatedXAxisId ,XAxisplacementPosition, XAxisplacementRotation);
+            toBeActivatedXAxisId = -1;
+        }
+
+        if(toBeActivatedYAxisId != -1)
+        {
+            Quaternion yAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(90f, xAxisUpVector);
+            //yAxisRotation *= Quaternion.AngleAxis(-90f, XAxisForwardVector);
+
+            //Vector3 yAxisPosition = (Axis.AXIS_ROD_LENGTH * -1.5f * XAxisForwardVector) + XAxisplacementPosition; 
+
+            // This will create Y Axis
+            CreateHistogram(toBeActivatedYAxisId ,XAxisplacementPosition, yAxisRotation);
+            toBeActivatedYAxisId = -1;
+        }
+
+
     }
 
-    void CreateHistogram(string axisName, Vector3 placementPosition)
+    // This function is called when we START pulling from the screen 
+    public void SetYToBeCreatedAxis(string axisName)
     {
 
         // I wanted to find the index of the string that is the Axis name from the identifiers in dataobject
 
         // then create the Axis and add it to the Axis list
 
-        //dataObject.Identifiers.ToList<string>()
-        //GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
-        //// obj.transform.position = v;
-        //Axis axis = obj.GetComponent<Axis>();
-        //axis.Init(dataObject, i, true);
-        //axis.InitOrigin(v, obj.transform.rotation);
-        //axis.initOriginalParent(dataShelfPanel);
-        //axis.tag = "Axis";
+        int foundIndex = dataObject.dimensionToIndex(axisName);
+        if(foundIndex == -1)
+        {
+            Debug.Log("No such identifier found!");
+            return;
+        }
+        Debug.Log("The found index is " + foundIndex);
+        toBeActivatedYAxisId = foundIndex;
+    }
+    public void SetXToBeCreatedAxis(string axisName)
+    {
 
-        //AddAxis(axis);
+        // I wanted to find the index of the string that is the Axis name from the identifiers in dataobject
+
+        // then create the Axis and add it to the Axis list
+
+        int foundIndex = dataObject.dimensionToIndex(axisName);
+        if(foundIndex == -1)
+        {
+            Debug.Log("No such identifier found!");
+            return;
+        }
+        Debug.Log("The found index is " + foundIndex);
+        toBeActivatedXAxisId = foundIndex;
+    }
+
+    // This function is called when we are releasing the trigger after an extrusion event
+    public void CreateHistogram(int toBeActivatedAxisId, Vector3 placementPosition, Quaternion placementRotation)
+    {
+
+        if (toBeActivatedAxisId == -1)
+        {
+            Debug.Log("There's no active axis in the scenemanager's cache!");
+            return;
+        }
+
+        //dataObject.Identifiers.ToList<string>()
+        GameObject obj = (GameObject)Instantiate(axisPrefab, placementPosition, placementRotation);
+        // obj.transform.position = v;
+        Axis axis = obj.GetComponent<Axis>();
+        axis.Init(dataObject, toBeActivatedAxisId, false);
+        axis.InitOrigin(placementPosition, placementRotation);
+        //axis.initOriginalParent(dataShelfPanel);
+        axis.tag = "Axis";
+
+        AddAxis(axis);
     }
 }

@@ -10,6 +10,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     public WandController grabbingController;
     public GameObject dotSphere;
     public GameObject dotCube;
+    public GameObject VRCamera;
     public Vector3 positionToCreateExtrudedVis;
 
     public bool isBeingGrabbed = false;
@@ -70,13 +71,6 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
 
 
-
-
-
-
-
-
-
         // This should be false if we don't want the controller to be able to move the monitor 
         // itself
         return false;
@@ -89,6 +83,18 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
         dotCube.transform.position = controller.transform.position;
         positionToCreateExtrudedVis = controller.transform.position;
+
+        Vector3 cameraAngles = VRCamera.transform.eulerAngles;
+        dotCube.transform.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
+
+        //if (Vector3.Dot(VRCamera.transform.forward, dotCube.transform.forward) < 0)
+        //{
+        //    dotCube.transform.Rotate(dotCube.transform.up, 180f);
+        //}
+
+        print("telling the scene manager to create vis now");
+        // This function works in this way: if there are two active Axes under the dekstop cursor, it will create a scatterplot, else it will just make a simple histogram
+        SceneManager.Instance.Create2DScatterplot(controller.transform.position, dotCube.transform.rotation, dotCube.transform.forward, dotCube.transform.right, dotCube.transform.up);
 
         // here's the point where the trigger gets released, the things we do here are: 
         // 1- disable all sorts of collision interactions with the plane for 3, 4 seconds using a global flag
@@ -104,6 +110,10 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     // Start is called before the first frame update
     void Start()
     {
+        VRCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        
+        Debug.Assert((VRCamera != null), "In Monitor board: The VR Camera object cannot be null");
+
         dotSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         dotSphere.transform.localScale = Vector3.one * 0.01f;
         dotSphere.GetComponent<Renderer>().material.color = Color.red;

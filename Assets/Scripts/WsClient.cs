@@ -32,6 +32,10 @@ public class WsClient : MonoBehaviour
                 string yAxisName = receivedMsg.yAxisName;
                 print("X axis here is " + xAxisName);
                 print("Y Axis here is " + yAxisName);
+                if(yAxisName != "")
+                    SceneManager.Instance.SetYToBeCreatedAxis(yAxisName);
+                if(xAxisName != "")
+                    SceneManager.Instance.SetXToBeCreatedAxis(xAxisName);
             }
         }
     }
