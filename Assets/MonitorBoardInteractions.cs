@@ -94,7 +94,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
         print("telling the scene manager to create vis now");
         // This function works in this way: if there are two active Axes under the dekstop cursor, it will create a scatterplot, else it will just make a simple histogram
-        SceneManager.Instance.Create2DScatterplot(controller.transform.position, dotCube.transform.rotation, dotCube.transform.forward, dotCube.transform.right, dotCube.transform.up);
+        SceneManager.Instance.CreateChart(controller.transform.position, dotCube.transform.rotation, dotCube.transform.forward, dotCube.transform.right, dotCube.transform.up);
 
         // here's the point where the trigger gets released, the things we do here are: 
         // 1- disable all sorts of collision interactions with the plane for 3, 4 seconds using a global flag

@@ -263,8 +263,8 @@ public class SceneManager : MonoBehaviour
         a.transform.position = new Vector3(0.236f, 1.506231f, -1.486f);
     }
 
-
-    public void Create2DScatterplot(
+    // We will use this function to both create normal histograms, and also create two-d scatterplots
+    public void CreateChart(
         Vector3 XAxisplacementPosition, 
         Quaternion XAxisplacementRotation, 
         Vector3 XAxisForwardVector, 
@@ -273,24 +273,33 @@ public class SceneManager : MonoBehaviour
     {
         if(toBeActivatedXAxisId != -1)
         {
-            XAxisplacementRotation *= Quaternion.AngleAxis(-90f, XAxisForwardVector);
-            XAxisplacementRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
+            Quaternion xAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-90f, XAxisForwardVector);
+            xAxisRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
+            xAxisRotation *= Quaternion.AngleAxis(180f, XAxisRightVector);
+
+            // if the YAxis has also been called for activation, we need to move the X axis a little bit to the bottom so that it can make a 2D scatterplot
+            Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
             // This will create X Axis
-            CreateHistogram(toBeActivatedXAxisId ,XAxisplacementPosition, XAxisplacementRotation);
-            toBeActivatedXAxisId = -1;
+            CreateHistogram(toBeActivatedXAxisId ,xAxisPosition, xAxisRotation);
+            
         }
 
         if(toBeActivatedYAxisId != -1)
         {
-            Quaternion yAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(90f, xAxisUpVector);
-            //yAxisRotation *= Quaternion.AngleAxis(-90f, XAxisForwardVector);
+            Quaternion yAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-180f, xAxisUpVector);
+            //yAxisRotation *= Quaternion.AngleAxis(90f, XAxisForwardVector);
 
-            //Vector3 yAxisPosition = (Axis.AXIS_ROD_LENGTH * -1.5f * XAxisForwardVector) + XAxisplacementPosition; 
+            // If we had already created an XAxis, then make the YAxis a little bit to the right of where we release the controller
+            Vector3 yAxisPosition = toBeActivatedXAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * 0.5f * XAxisRightVector) + XAxisplacementPosition : XAxisplacementPosition;
 
             // This will create Y Axis
-            CreateHistogram(toBeActivatedYAxisId ,XAxisplacementPosition, yAxisRotation);
-            toBeActivatedYAxisId = -1;
+            CreateHistogram(toBeActivatedYAxisId ,yAxisPosition, yAxisRotation);
         }
+
+        // in the end again reset these vars so that we can create visualizations again ...>
+        // <... after this call
+        toBeActivatedYAxisId = -1;
+        toBeActivatedXAxisId = -1;
 
 
     }
