@@ -7,13 +7,17 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 {
 
     public Visualization localCollidedVisualization;
+    public Transform localCollidedVisualizationTransform;
     public WandController grabbingController;
+    public WandController visualizationGrabbingController;
     public GameObject dotSphere;
     public GameObject dotCube;
     public GameObject VRCamera;
     public Vector3 positionToCreateExtrudedVis;
 
     public bool isBeingGrabbed = false;
+    public bool isBeingDropped = false;
+    public bool isControllerInsideMonitor = false;
 
     public int GetPriority()
     {
@@ -81,6 +85,20 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         isBeingGrabbed = false;
         grabbingController = null;
 
+        Vector3 distanceVector = controller.transform.position - transform.position;
+        float distanceAlongNormal = -Vector3.Dot(transform.forward, distanceVector);
+        if (distanceAlongNormal < 0.3f)
+        {
+            print("NORMAL distance is " + distanceAlongNormal);
+            print("Controller should be outside the monitor for release to work!!");
+            return;
+        }
+        else
+        {
+            print("NORMAL distance is " + distanceAlongNormal);
+            isControllerInsideMonitor = false;
+        }
+
         dotCube.transform.position = controller.transform.position;
         positionToCreateExtrudedVis = controller.transform.position;
 
@@ -126,15 +144,35 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     // Update is called once per frame
     void Update()
     {
-
-        if(isBeingGrabbed && (grabbingController == null || !grabbingController.gripping))
+        // Here's when we call functions that are to be called when the controller is not releasing anymore
+        if(grabbingController == null || !grabbingController.gripping)
         {
-            OnRelease(grabbingController); 
+            // This part is to handle what happens when we're grabbing something from the monitor to the outside
+            if(isBeingGrabbed)
+            {
+                OnRelease(grabbingController);
+            } 
         }
+        
+        if(visualizationGrabbingController != null && !visualizationGrabbingController.gripping)
+        {
+            // This part is to handle what happens when we're grabbing something from the monitor to the outside
+            if(isBeingDropped)
+            {
+                DropVisInDesktop();
+            }
+            
+        }
+
+
     }
 
     void OnTriggerEnter(Collider other)
     {
+        if(other.GetComponent<WandController>())
+        {
+            isControllerInsideMonitor = true;
+        }
 
         // in order to user the uddTexture.Raycast function
         // we need a to (Transform) and a from (Transform) to make a raycast
@@ -146,10 +184,16 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         if (other.GetComponent<Visualization>())
         {
             Visualization collidedVisualization = other.GetComponent<Visualization>();
-            List<Axis> axisList = collidedVisualization.axes;
+            
             if (!this.localCollidedVisualization)
             {
                 this.localCollidedVisualization = collidedVisualization;
+                this.localCollidedVisualizationTransform = other.transform;
+                isBeingDropped = true;
+
+                // set the vis grabbing controller
+                visualizationGrabbingController = collidedVisualization.axes[0].grabbingController;
+
             } else if (this.localCollidedVisualization.GetInstanceID() == collidedVisualization.GetInstanceID())
             {
                 //Debug.Log("they are equal");
@@ -158,63 +202,90 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
                 return;
             }
 
-            //Debug.Log("they are NOOOOOOT equal");
-            // Find the point of entrance
-            Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((collidedVisualization.transform.position - transform.position), transform.forward);
-
-            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - collidedVisualization.transform.position;
-            var result = GetComponent<uDesktopDuplication.Texture>().RayCast(collidedVisualization.transform.position, dirForRaycast);
-
-            Sequence seq = DOTween.Sequence();
-            seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            // test
-            foreach (var axis in axisList)
-            {
-                seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            }
-            seq.AppendCallback(() => {
-
-                // The visualization destroyer thingy will take care of the axes too
-                other.GetComponent<Visualization>().DestroyVisualization();
-            });
-
-            if (result.hit)
-            {
-                print("I've hit somethig");
-                print(result.desktopCoord.x);
-                print(result.desktopCoord.y);
-                WebSocketMsg msg;
-                if (collidedVisualization.axes.Count == 1)
-                {
-                    Axis XAxis = collidedVisualization.axes[0].IsHorizontal ? collidedVisualization.axes[0] : null;
-                    Axis YAxis = !collidedVisualization.axes[0].IsHorizontal ? collidedVisualization.axes[0] : null;
-                    msg = new WebSocketMsg(1, 
-                        result.desktopCoord, 
-                        collidedVisualization.axes.Count,
-                        XAxis,
-                        YAxis,
-                        null,
-                        collidedVisualization.name,
-                        "CREATE");
-                } else
-                {
-                    msg = new WebSocketMsg(1, 
-                        result.desktopCoord, 
-                        collidedVisualization.axes.Count,
-                        collidedVisualization.ReferenceAxis1.horizontal,
-                        collidedVisualization.ReferenceAxis1.vertical,
-                        collidedVisualization.ReferenceAxis1.depth,
-                        collidedVisualization.name,
-                        "CREATE");
-                }
-                GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendMsgToDesktop(msg);
-            }
-
         }
-        //else if (other.GetComponent<WandController>())
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        //if (other.GetComponent<WandController>())
         //{
-        //    grabbingController = other.GetComponent<WandController>();
+        //    isControllerInsideMonitor = false;
         //}
+        // here we need to check if we're just passing the monitor, in that case we want to
+        // just set the isBeingDropped and isBeingDragged to false and nullify everything 
+        // to reset
+
+        // This part is to handle a visualization that is just passing through the monitor for whatever reason! 
+        if (other.GetComponent<Visualization>() && (this.localCollidedVisualization || isBeingDropped))
+        {
+            this.localCollidedVisualization = null;
+            visualizationGrabbingController = null;
+            isBeingDropped = false;
+        }
+        
+    }
+
+    void DropVisInDesktop()
+    {
+        // once we're done with dropping we can just set this to false
+        visualizationGrabbingController = null;
+        isBeingDropped = false;
+
+
+        //Debug.Log("they are NOOOOOOT equal");
+        // Find the point of entrance
+        List<Axis> axisList = this.localCollidedVisualization.axes;
+
+        Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((this.localCollidedVisualization.transform.position - transform.position), transform.forward);
+
+        Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - this.localCollidedVisualization.transform.position;
+        var result = GetComponent<uDesktopDuplication.Texture>().RayCast(this.localCollidedVisualization.transform.position, dirForRaycast);
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(localCollidedVisualizationTransform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        // test
+        foreach (var axis in axisList)
+        {
+            seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        }
+        seq.AppendCallback(() => {
+
+            // The visualization destroyer thingy will take care of the axes too
+            localCollidedVisualizationTransform.GetComponent<Visualization>().DestroyVisualization();
+        });
+
+        if (result.hit)
+        {
+            print("I've hit somethig");
+            print(result.desktopCoord.x);
+            print(result.desktopCoord.y);
+            WebSocketMsg msg;
+            if (this.localCollidedVisualization.axes.Count == 1)
+            {
+                Axis XAxis = this.localCollidedVisualization.axes[0].IsHorizontal ? this.localCollidedVisualization.axes[0] : null;
+                Axis YAxis = !this.localCollidedVisualization.axes[0].IsHorizontal ? this.localCollidedVisualization.axes[0] : null;
+                msg = new WebSocketMsg(1,
+                    result.desktopCoord,
+                    this.localCollidedVisualization.axes.Count,
+                    XAxis,
+                    YAxis,
+                    null,
+                    this.localCollidedVisualization.name,
+                    "CREATE");
+            }
+            else
+            {
+                msg = new WebSocketMsg(1,
+                    result.desktopCoord,
+                    localCollidedVisualization.axes.Count,
+                    localCollidedVisualization.ReferenceAxis1.horizontal,
+                    localCollidedVisualization.ReferenceAxis1.vertical,
+                    localCollidedVisualization.ReferenceAxis1.depth,
+                    localCollidedVisualization.name,
+                    "CREATE");
+            }
+            GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendMsgToDesktop(msg);
+        }
     }
 
 

@@ -113,7 +113,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     Transform originalParent = null;
 
-    WandController grabbingController = null;
+    public WandController grabbingController = null;
 
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
