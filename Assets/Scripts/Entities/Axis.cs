@@ -30,6 +30,9 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool isClonedByCloningWidget = false;
 
+    public bool isCollidingWithMonitor = false;
+    public GameObject collidingMonitor = null;
+
     // To detect if the dataShelf panel is moving
     public bool parentIsMoving = false;
     Vector3 parentPrevPosition = Vector3.zero;
@@ -525,6 +528,20 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnRelease(WandController controller)
     {
+
+        // here's the logic for releasing it inside the monitor (not the 2D plane but the desktop monitor)
+        if(isCollidingWithMonitor)
+        {
+            print("here's the colliding monitor name " + collidingMonitor.name);
+
+            // for the time being, I'll get all of visualizations that this axis is involved in and send them to the monitor board interactions to create a vis on dekstop
+            // TODO: later we want to detect if it's a 3D visualization, only send two of the axes that are closest to the monitor and then send the third on as color or size
+            isCollidingWithMonitor = false;
+            collidingMonitor.GetComponent<MonitorBoardInteractions>().DropVisInDesktop(correspondingVisualizations());
+            collidingMonitor = null;
+
+        }
+
         // First save the original parent transform somewhere
         originalParent = transform.parent;
 
@@ -673,10 +690,12 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void OnDrag(WandController controller)
     {
-        
-        if(isOn2DPanel && !DOTween.IsTweening(transform)) {
-            if (grabbingController == null || grabbingController != controller)
-                grabbingController = controller;
+        if (grabbingController == null || grabbingController != controller)
+            grabbingController = controller;
+
+        if (isOn2DPanel && !DOTween.IsTweening(transform)) { //This was previous version
+            //if (grabbingController == null || grabbingController != controller)
+            //    grabbingController = controller;
 
             Transform TwoPanel = GameObject.FindGameObjectWithTag("2DPanel").transform;
 
@@ -749,7 +768,26 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void OnCollisionEnter(Collision collision)
     {
-        print(collision.gameObject.name + "  " + collision.contacts[0].ToString());
+        //print(collision.gameObject.name + "  " + collision.contacts[0].ToString());
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {   
+        if(other.GetComponent<MonitorBoardInteractions>())
+        {
+            isCollidingWithMonitor = true;
+            collidingMonitor = other.gameObject;
+        }            
+        //print("in AXIS: " + other.gameObject.name);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if(isCollidingWithMonitor && collidingMonitor != null)
+        {
+            isCollidingWithMonitor = false;
+            collidingMonitor = null;
+        }
     }
 
     void OnCollisionExit(Collision collision)

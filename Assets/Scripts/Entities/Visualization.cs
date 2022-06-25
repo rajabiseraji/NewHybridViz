@@ -73,6 +73,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     bool isBrushing;
     bool isDetailOnDemand;
+    private bool _isGoingToBeSentToDesktop = false;
+
+    public bool isGoingToBeSentToDesktop
+    {
+        get => _isGoingToBeSentToDesktop;
+        set
+        {
+            _isGoingToBeSentToDesktop = value;
+        }
+    }
 
     bool isDirty;
 
@@ -950,18 +960,19 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         var axesNewCount = axes.Count;
         print("im destroying " + axesNewCount);
+        Sequence seq = DOTween.Sequence();
+        gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+        seq.Append(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
         for (int i = 0; i < axesNewCount; i++)
         {
             axes[i].gameObject.layer = LayerMask.NameToLayer("TransparentFX");
 
-            Sequence seq = DOTween.Sequence();
-            seq.Append(axes[i].transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack));
+            
+            seq.Join(axes[i].transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
             Destroy(axes[i].gameObject);
             SceneManager.Instance.sceneAxes.Remove(axes[i]);
         }
         //axes.Clear();
-        gameObject.layer = LayerMask.NameToLayer("TransparentFX");
-        transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack);
         Destroy(gameObject);
     }
 
@@ -1712,6 +1723,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // TODO: use this for the filtering and attribute assignment! 
     void OnTriggerEnter(Collider other)
     {
+
         Visualization vis = other.GetComponent<Visualization>();
         if (vis != null && !collidedVisualizations.Contains(vis))
         {

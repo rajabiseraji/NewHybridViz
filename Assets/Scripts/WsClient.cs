@@ -77,6 +77,8 @@ public class WsClient : MonoBehaviour
         if(ws != null)
         {
             jsonString = JsonUtility.ToJson(message);
+            print("in WSClient: " + jsonString);
+            // ws.send works in Sync, we can do it with SendAsync too. That one gets a "completed" arg that is a delegate to do sth when the thing is complete
             ws.Send(jsonString);
         }
     }
