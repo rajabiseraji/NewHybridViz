@@ -124,7 +124,19 @@ public class VisualisationFactory : MonoBehaviour
     }
 
 
-    public Tuple<GameObject, Vector3[]> CreateBarHistogramView(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer, List<AttributeFilter> filters)
+    public Tuple<GameObject, Vector3[]> CreateBarHistogramView(
+        DataObject dobjs,
+        int Dimension,
+        int binSize,
+        bool smooth,
+        float scale,
+        Material mat,
+        Transform holder,
+        float minFilter,
+        float maxFilter,
+        float minNormalizer,
+        float maxNormalizer, 
+        List<AttributeFilter> filters)
     {
         GameObject Snax = new GameObject();
 
@@ -134,6 +146,7 @@ public class VisualisationFactory : MonoBehaviour
         
         // float[] values = dobjs.GetCol(dobjs.DataArray, Dimension);
         // TODO: make a function in dobjs that does what GetCol does but with filters 
+        // The values of dobjs.DataArray are between 0 and 1 
         float[]  values = dobjs.getFilteredCol(dobjs.DataArray, Dimension, filters);
 
         values = values.Where(x => x >= minFilter + 0.5f && x <= maxFilter + 0.5f).ToArray();
@@ -180,7 +193,13 @@ public class VisualisationFactory : MonoBehaviour
             if (float.IsNaN(y))
                 y = 0;
             float x = UtilMath.normaliseValue(bins[i], minBin, maxBin, minNormalizer, maxNormalizer); // -0.5f, 0.5f);
+            
             Vector3 v = new Vector3(x, y, 0f);
+            
+            // TODO: for scaling, I can just multiply the mesh by the scale factor over here 
+            // I can also do that in the shader, too but I think doing it here will give me more controls
+            v = v * scale;
+
             l.Add(v);
         }
 
@@ -188,7 +207,11 @@ public class VisualisationFactory : MonoBehaviour
 
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+
         float step = 0.5f / bins.Length;
+        // TODO: scaling: I should also scale the steps too
+        step *= scale;
+
         for (int i = 0; i < bins.Length; ++i)
         {
             Vector3 v = l[i];
@@ -229,7 +252,20 @@ public class VisualisationFactory : MonoBehaviour
         return new Tuple<GameObject, Vector3[]>(Snax, l.ToArray());
     }
 
-    public static void UpdatetHistogramMesh(DataObject dobjs, int Dimension, int binSize, bool smooth, float scale, Material mat, Transform holder, float minFilter, float maxFilter, float minNormalizer, float maxNormalizer, ref Mesh mesh, List<AttributeFilter> filters)
+    public static void UpdatetHistogramMesh(
+        DataObject dobjs, 
+        int Dimension, 
+        int binSize, 
+        bool smooth, 
+        float scale, 
+        Material mat, 
+        Transform holder, 
+        float minFilter, 
+        float maxFilter, 
+        float minNormalizer, 
+        float maxNormalizer, 
+        ref Mesh mesh, 
+        List<AttributeFilter> filters)
     {
         mesh.Clear();
         //get the array of dimension
@@ -286,6 +322,9 @@ public class VisualisationFactory : MonoBehaviour
                     float x = UtilMath.normaliseValue(bins[i], minBin, maxBin, -0.5f, 0.5f);
 
                     Vector3 v = new Vector3(x, ynorm, 0f);
+
+                    v *= scale;
+
                     l.Add(v);
                 }
             }
@@ -297,6 +336,7 @@ public class VisualisationFactory : MonoBehaviour
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
         float step = 0.5f / bins.Length;
+        step *= scale;
 
         for (int i = 0; i < l.Count; ++i)
         {
@@ -390,7 +430,17 @@ public class VisualisationFactory : MonoBehaviour
     /// <param name="topology"></param>
     /// <param name="LinkIndex"> the linking field to create a graph; pass a negative value to ignore</param>
     /// <returns></returns>
-    public Tuple<GameObject, View> CreateSingle2DView(Visualization visReference, DataObject dobjs, int DimensionX, int DimensionY, int DimensionZ, int LinkIndex, MeshTopology topology, Material m, bool parallel = false)
+    public Tuple<GameObject, View> CreateSingle2DView(
+        Visualization visReference, 
+        DataObject dobjs, 
+        int DimensionX, 
+        int DimensionY, 
+        int DimensionZ, 
+        int LinkIndex, 
+        MeshTopology topology, 
+        Material m, 
+        bool parallel = false,
+        float scale = 1f)
     {
         // @todo remove the parallel bool for a better implementation
         string viewName = "";
@@ -421,15 +471,15 @@ public class VisualisationFactory : MonoBehaviour
             if (DimensionX >= 0)
             {
                 float[] xpts = dobjs.getDimension(DimensionX);
-                v.setDataDimension(xpts, View.VIEW_DIMENSION.X);
+                v.setDataDimension(xpts, View.VIEW_DIMENSION.X, scale);
             }
             if (DimensionY >= 0)
             {
-                v.setDataDimension(dobjs.getDimension(DimensionY), View.VIEW_DIMENSION.Y);
+                v.setDataDimension(dobjs.getDimension(DimensionY), View.VIEW_DIMENSION.Y, scale);
             }
             if (DimensionZ >= 0)
             {
-                v.setDataDimension(dobjs.getDimension(DimensionZ), View.VIEW_DIMENSION.Z);
+                v.setDataDimension(dobjs.getDimension(DimensionZ), View.VIEW_DIMENSION.Z, scale);
             }
         }
         else
@@ -452,8 +502,8 @@ public class VisualisationFactory : MonoBehaviour
                     range.Add(1);
                 }
 
-                v.setDataDimension(data.ToArray(), View.VIEW_DIMENSION.Y);
-                v.setDataDimension(range.ToArray(), View.VIEW_DIMENSION.X);
+                v.setDataDimension(data.ToArray(), View.VIEW_DIMENSION.Y, scale);
+                v.setDataDimension(range.ToArray(), View.VIEW_DIMENSION.X, scale);
             }
         }
         if (LinkIndex < 0)

@@ -71,7 +71,7 @@ public class View
     }
 
     
-    public void setDataDimension(float[] dat, VIEW_DIMENSION dimension)
+    public void setDataDimension(float[] dat, VIEW_DIMENSION dimension, float scale = 1)
     {
         float minValue = dat.Min();
         float maxValue = dat.Max();
@@ -92,7 +92,7 @@ public class View
                     p.z = UtilMath.normaliseValue(dat[i], minValue, maxValue, -0.5f, 0.5f);
                     break;
             }
-            positions[i] = p;
+            positions[i] = p * scale;
         }
 
     }

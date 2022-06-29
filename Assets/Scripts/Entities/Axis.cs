@@ -120,11 +120,16 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
+    public float axisScaleFactor = 1f;
+
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
     // TODO: Change the SceneManager scene to get to where I want it to be
-    public void Init(DataBinding.DataObject srcData, int idx, bool isPrototype = false)
+    public void Init(DataBinding.DataObject srcData, int idx, bool isPrototype = false, float scaleFactor = 1f)
     {
+        transform.localScale *= scaleFactor;
+        this.axisScaleFactor = scaleFactor;
+
         SourceIndex = idx;
         axisId = idx;
         name = "axis " + srcData.indexToDimension(idx);
@@ -855,6 +860,16 @@ public class Axis : MonoBehaviour, Grabbable {
             temp.AddRange(vis.AttributeFilters);
         }
         AttributeFilters = temp;
+    }
+
+    public void ScaleAxis(float scaleFactor)
+    {
+        this.axisScaleFactor = scaleFactor;
+        transform.localScale *= scaleFactor;
+        foreach(var v in correspondingVisualizations())
+        {
+            v.transform.localScale *= scaleFactor;
+        }
     }
 
 }

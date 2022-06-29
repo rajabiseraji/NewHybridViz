@@ -37,6 +37,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     ReferenceAxis referenceAxis;
 
+    public float scalingFactor = 0.5f;
+
     public ReferenceAxis ReferenceAxis1
     {
         get { return referenceAxis; }
@@ -136,6 +138,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     int HISTOGRAM_BIN_SIZE = 10;
 
     //int linkingField = 1;
+
+    public float scale = 1f;
 
     public enum ViewType
     {
@@ -250,7 +254,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             axes[0].axisId,
             (int)HISTOGRAM_BIN_SIZE,
             false,
-            1f,
+            scalingFactor, // TODO: change to dynamic value
             VisualisationFactory.Instance.histogramMaterial,
             histogramObject.transform,
             axes[0].MinFilter,
@@ -284,7 +288,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             axes[0].axisId,
             (int)HISTOGRAM_BIN_SIZE,
             false,
-            1f,
+            scalingFactor, // TODO: change to dynamic filter
             VisualisationFactory.Instance.histogramMaterial,
             histogramObject.transform,
             minFilter,
@@ -357,6 +361,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     /* The event is sent through the AXIS class and the listener for the fitlering system is in this class (aka the visualization class) */
     public void AddAxis(Axis axis)
     {
+        // this is just a hacky way to get the dynamic scaling to work here
+        //transform.localScale *= axis.axisScaleFactor;
+
         if (!axes.Contains(axis))
         {
             axes.Add(axis);
@@ -444,11 +451,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         if (axes.Count == 1)
         {
             // Visualization factory gets the specs for each of the histograms and then spits it out as a Tuple of the created histogram gameobject and the postions of that gameobject!
-            Staxes.Tuple<GameObject, Vector3[]> histT = VisualisationFactory.Instance.CreateBarHistogramView(usedDataObject,
+            Staxes.Tuple<GameObject, Vector3[]> histT = VisualisationFactory.Instance.CreateBarHistogramView(
+                usedDataObject,
                 axes[0].axisId,
                 (int)HISTOGRAM_BIN_SIZE,
                 false,
-                1f,
+                scalingFactor, // TODO: change it back to 1 later
                 VisualisationFactory.Instance.histogramMaterial,
                 histogramObject.transform,
                 axes[0].MinFilter,
@@ -471,8 +479,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             referenceAxis.horizontal = axisH;
             referenceAxis.vertical = axisV;
 
-            Staxes.Tuple<GameObject, View> parallelT = VisualisationFactory.Instance.CreateSingle2DView(this,usedDataObject, axes[0].axisId, axes[1].axisId, -1, VisualisationAttributes.Instance.LinkedAttribute,
-                MeshTopology.Lines, VisualisationFactory.Instance.linesGraphMaterial, true);
+            Staxes.Tuple<GameObject, View> parallelT = VisualisationFactory.Instance.CreateSingle2DView(this,usedDataObject,
+                axes[0].axisId,
+                axes[1].axisId,
+                -1,
+                VisualisationAttributes.Instance.LinkedAttribute,
+                MeshTopology.Lines,
+                VisualisationFactory.Instance.linesGraphMaterial,
+                true,
+                scale);
             GameObject parallel = parallelT.Item1;
             parallel.transform.SetParent(parallelCoordsObject.transform, false);
             instantiatedViews.Add(parallelT.Item2);
@@ -485,8 +500,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             DetailsOnDemandComponent.VisualizationReference = this;
             parallelT.Item1.GetComponentInChildren<DetailsOnDemand>().setTransformParent(transform);
 
-            Staxes.Tuple<GameObject, View> scatter2DT = VisualisationFactory.Instance.CreateSingle2DView(this, usedDataObject, axisH.axisId, axisV.axisId, -1, VisualisationAttributes.Instance.LinkedAttribute, MeshTopology.Points,
-                VisualisationAttributes.Instance.LinkedAttribute < 0 ? VisualisationFactory.Instance.pointCloudMaterial : VisualisationFactory.Instance.connectedPointLineMaterial);
+            Staxes.Tuple<GameObject, View> scatter2DT = VisualisationFactory.Instance.CreateSingle2DView(this, 
+                usedDataObject, 
+                axisH.axisId, 
+                axisV.axisId, 
+                -1, 
+                VisualisationAttributes.Instance.LinkedAttribute, 
+                MeshTopology.Points,
+                VisualisationAttributes.Instance.LinkedAttribute < 0 ? VisualisationFactory.Instance.pointCloudMaterial : VisualisationFactory.Instance.connectedPointLineMaterial,
+                false,
+                scale);
             GameObject scatter2 = scatter2DT.Item1;
 
             scatter2.transform.SetParent(scatterplot2DObject.transform, false);
