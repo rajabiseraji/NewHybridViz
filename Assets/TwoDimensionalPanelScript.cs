@@ -100,6 +100,11 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
         // }
     }
 
+    public void clearConnectedAxisList()
+    {
+        ConnectedAxes.Clear();
+    }
+
     private void toggleChildAxesClonig(bool onOff) {
         foreach (var axis in GameObject.FindGameObjectWithTag("DataShelfPanel").GetComponentsInChildren<Axis>())
         {

@@ -52,6 +52,8 @@ public class SceneManager : MonoBehaviour
         get { return _instance ?? (_instance = FindObjectOfType<SceneManager>()); }
     }
 
+    public List<int> selectedDataAttributesIds = new List<int>();
+    public Transform dataShelfPanel; 
 
     void Start()
     {
@@ -59,7 +61,7 @@ public class SceneManager : MonoBehaviour
          //GameObject.FindGameObjectsWithTag("MonitorBoard");
 
 
-        Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
+        dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
 
         // find the DataShelf panel and set it in a way that it's in front of the camera
         putThingsInFrontofCamera();
@@ -86,26 +88,13 @@ public class SceneManager : MonoBehaviour
 
         VisualisationAttributes.Instance.colors = Colors.mapColorPalette(SceneManager.Instance.dataObject.getDimension(VisualisationAttributes.Instance.ColoredAttribute), indexCategoryToColor);
 
-        // create the axis
 
-        for (int i = 0; i < dataObject.Identifiers.Length; ++i)
-        {
-            // Vector3 v = new Vector3(1.352134f - (i % 7) * 0.35f, 1.506231f - (i / 7) / 2f, 0f);// -0.4875801f);
-            Vector3 v = dataShelfPanel.position + ((1.352134f - (i % 7) * 0.35f) * dataShelfPanel.right) + ((1f - (i / 7) / 2f) * dataShelfPanel.up) + (dataShelfPanel.forward * 1);
-            GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
-            // obj.transform.position = v;
-            Axis axis = obj.GetComponent<Axis>();
-            axis.Init(dataObject, i, true);
-            axis.InitOrigin(v, obj.transform.rotation);
-            axis.initOriginalParent(dataShelfPanel);
-            axis.tag = "Axis";
 
-            AddAxis(axis);
-        }
-
-        // CreateSPLOMS();
-
+        // uncomment this when we want to create data panels that contain all of the data
+        //makeAllDataAttributeAxes();
+        
     }
+
 
     void Update()
     {
@@ -116,6 +105,87 @@ public class SceneManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             placeDesktopMonitors();
+        } 
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            ScaleThings();
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            makeAllDataAttributeAxes();
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            int[] list = { 6, 4, 5 };
+            print(list);
+            setSelectedDataAttributeIds(list.ToList<int>());
+        }
+
+    }
+
+    void makeAllDataAttributeAxes()
+    {
+        // create the axes
+
+        for (int i = 0; i < dataObject.Identifiers.Length; ++i)
+        {
+            // Vector3 v = new Vector3(1.352134f - (i % 7) * 0.35f, 1.506231f - (i / 7) / 2f, 0f);// -0.4875801f);
+            Vector3 v = dataShelfPanel.position + ((1.352134f - (i % 7) * 0.35f) * dataShelfPanel.right) + ((1f - (i / 7) / 2f) * dataShelfPanel.up) + (dataShelfPanel.forward * 1);
+            GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
+
+            Axis axis = obj.GetComponent<Axis>();
+            axis.Init(dataObject, i, true, 0.5f);
+            axis.InitOrigin(v, obj.transform.rotation);
+            axis.initOriginalParent(dataShelfPanel);
+            axis.tag = "Axis";
+
+            AddAxis(axis);
+        }
+    }
+
+    void setSelectedDataAttributeIds(List<int> newAttributeIdsList)
+    {
+        this.selectedDataAttributesIds = newAttributeIdsList;
+
+        // destroy all of the axes in the 2D panel thing
+        var prototypeAxes = sceneAxes.Where(a => a.isPrototype);
+        var protoVises = new List<Visualization>();
+        foreach(Axis a in prototypeAxes)
+        {
+            protoVises.AddRange(a.correspondingVisualizations());
+        }
+        for(int i = 0; i < protoVises.Count; ++i)
+        {
+            protoVises[i].DestroyVisualization();
+        }
+
+        TwoDimensionalPanelScript panel = (TwoDimensionalPanelScript)GameObject.FindObjectOfType(typeof(TwoDimensionalPanelScript));
+
+        panel.clearConnectedAxisList();
+
+        // make all of those attributes again
+        makeSelectedDataAttributeAxes();
+        putThingsInFrontofCamera();
+    }
+    
+    void makeSelectedDataAttributeAxes()
+    {
+        // create the axes
+        for (int i = 0; i < selectedDataAttributesIds.Count; ++i)
+        {
+
+            Vector3 v = dataShelfPanel.position + ((1.352134f - (i % 7) * 0.35f) * dataShelfPanel.right) + ((1f - (i / 7) / 2f) * dataShelfPanel.up) + (dataShelfPanel.forward * 1);
+
+            GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
+            //obj.transform.localScale = obj.transform.localScale * 0.5f;
+            // obj.transform.position = v;
+            Axis axis = obj.GetComponent<Axis>();
+            axis.Init(dataObject, selectedDataAttributesIds[i], true, 0.5f);
+            axis.InitOrigin(v, obj.transform.rotation);
+            axis.initOriginalParent(dataShelfPanel);
+            axis.tag = "Axis";
+
+            AddAxis(axis);
         }
     }
 
@@ -181,6 +251,14 @@ public class SceneManager : MonoBehaviour
     //
     // Debug functions
     //
+
+    void ScaleThings()
+    {
+        foreach(Axis a in sceneAxes)
+        {
+            a.ScaleAxis(0.5f);
+        }
+    }
 
     void CreateSPLOMS()
     {
