@@ -159,6 +159,8 @@ public class SceneManager : MonoBehaviour
             protoVises[i].DestroyVisualization();
         }
 
+        
+
         TwoDimensionalPanelScript panel = (TwoDimensionalPanelScript)GameObject.FindObjectOfType(typeof(TwoDimensionalPanelScript));
 
         panel.clearConnectedAxisList();

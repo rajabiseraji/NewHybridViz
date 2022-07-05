@@ -289,14 +289,21 @@ public class Axis : MonoBehaviour, Grabbable {
             // Keep the last position of the parent in this variable for comparison
             parentPrevPosition = transform.parent.position;
 
-            // update the origin position and rotation for when the axes move around
-            this.originPosition = transform.position;
-            this.originRotation = transform.rotation;
+            if(parentIsMoving)
+            {
+                // update the origin position and rotation for when the axes move around
+                this.originPosition = transform.position;
+                this.originRotation = transform.rotation;
+            }
         }
 
 
         // TODO: turn this cloning into its own method to use with the anchor cloning
-        if (isPrototype && !parentIsMoving)
+        // TODO: I should do something about when I want to clone a visualization and I don't care
+        // if the vis is on a moving parent or not, basically I must make sure that the visualization 
+        // cloning only happens when grabbing takes place (either for the cloning knob or for the axis 
+        // itself)
+        if (isPrototype /* && !parentIsMoving */ )
         {
             if (Vector3.Distance(originPosition, transform.position) > 0.25f)
             {
@@ -327,6 +334,11 @@ public class Axis : MonoBehaviour, Grabbable {
                     if (obj.IsDragging())
                         obj.Shake();
                 }
+
+                // in the end set the parent of that Axis to null
+                //originalParent = null;
+                transform.SetParent(null);
+
             }
         }
         
@@ -725,7 +737,7 @@ public class Axis : MonoBehaviour, Grabbable {
             }
             // We need the distance in the direction of the normal vector of the plane
             Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);
-
+            
             if(controllerOrthogonalDistance.magnitude > 0.25f) {
                 GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                 transform.SetParent(null);
