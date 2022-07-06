@@ -6,8 +6,13 @@ using UnityEngine.Events;
 
 public class SceneManager : MonoBehaviour
 {
+
+    const float AXIS_X_PADDING = 0.35f;
+    const float AXIS_Y_PADDING = -2f;
+    const int AXES_PER_ROW = 7;
+
     // TODO: We need to change this function in order to create our scene and its corresponding objects
-    
+
     public List<Axis> sceneAxes { get; internal set; }
 
     public DataBinding.DataObject dataObject;
@@ -53,13 +58,17 @@ public class SceneManager : MonoBehaviour
     }
 
     public List<int> selectedDataAttributesIds = new List<int>();
-    public Transform dataShelfPanel; 
+    public Transform dataShelfPanel;
+    public Transform AxisPlaceholderObject; 
 
     void Start()
     {
         // Init the monitorboards list 
-         //GameObject.FindGameObjectsWithTag("MonitorBoard");
+        //GameObject.FindGameObjectsWithTag("MonitorBoard");
 
+        Debug.Assert(AxisPlaceholderObject != null, "Axis Placeholder shouldnb't be null");
+
+        AxisPlaceholderObject.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 0);
 
         dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
 
@@ -125,12 +134,16 @@ public class SceneManager : MonoBehaviour
 
     void makeAllDataAttributeAxes()
     {
-        // create the axes
 
+        // create the axes
         for (int i = 0; i < dataObject.Identifiers.Length; ++i)
         {
             // Vector3 v = new Vector3(1.352134f - (i % 7) * 0.35f, 1.506231f - (i / 7) / 2f, 0f);// -0.4875801f);
-            Vector3 v = dataShelfPanel.position + ((1.352134f - (i % 7) * 0.35f) * dataShelfPanel.right) + ((1f - (i / 7) / 2f) * dataShelfPanel.up) + (dataShelfPanel.forward * 1);
+            Vector3 v = AxisPlaceholderObject.position;
+            v += ((i % AXES_PER_ROW) * AXIS_X_PADDING) * dataShelfPanel.right;   
+            v += (((i / AXES_PER_ROW) / AXIS_Y_PADDING)) * dataShelfPanel.up;
+            //v += dataShelfPanel.forward * -0.015f;
+
             GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
 
             Axis axis = obj.GetComponent<Axis>();
@@ -159,7 +172,7 @@ public class SceneManager : MonoBehaviour
             protoVises[i].DestroyVisualization();
         }
 
-        
+        // section to 
 
         TwoDimensionalPanelScript panel = (TwoDimensionalPanelScript)GameObject.FindObjectOfType(typeof(TwoDimensionalPanelScript));
 
@@ -176,7 +189,10 @@ public class SceneManager : MonoBehaviour
         for (int i = 0; i < selectedDataAttributesIds.Count; ++i)
         {
 
-            Vector3 v = dataShelfPanel.position + ((1.352134f - (i % 7) * 0.35f) * dataShelfPanel.right) + ((1f - (i / 7) / 2f) * dataShelfPanel.up) + (dataShelfPanel.forward * 1);
+            Vector3 v = AxisPlaceholderObject.position;
+            v += ((i % AXES_PER_ROW) * AXIS_X_PADDING) * dataShelfPanel.right;
+            v += (((i / AXES_PER_ROW) / AXIS_Y_PADDING)) * dataShelfPanel.up;
+            v += dataShelfPanel.forward * 0.1f;
 
             GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
             //obj.transform.localScale = obj.transform.localScale * 0.5f;
@@ -194,27 +210,24 @@ public class SceneManager : MonoBehaviour
     public void putThingsInFrontofCamera()
     {
 
-        Transform dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
+        Vector3 cameraAngles = mainCamera.transform.eulerAngles;
+        dataShelfPanel.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
+
+        if (Vector3.Dot(mainCamera.transform.forward, dataShelfPanel.transform.forward) < 0)
+        {
+            dataShelfPanel.Rotate(dataShelfPanel.up, 180f);
+        }
 
 
-        dataShelfPanel.rotation = mainCamera.transform.rotation;
-        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 1f);
-        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.up * -0.8f);
-
-        // this is the code to get something in front of a camera
-        // top left = width:  2.10 - height: 0.5 
-        TwoDPanel.transform.rotation = mainCamera.transform.rotation;
-        TwoDPanel.transform.position = mainCamera.transform.position;
-        TwoDPanel.transform.position += (mainCamera.transform.forward * 1f) + (mainCamera.transform.up * -0.1f) + (mainCamera.transform.right * 0.4f);
-        TwoDPanel.transform.parent = dataShelfPanel;
-        TwoDPanel.transform.localScale = new Vector3(2.7f, 1.1f, 0.0001f);
+        dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 0.5f);
+        dataShelfPanel.position += (mainCamera.transform.up * -0.5f);
 
         // Get the global filters in front of the camera too
-        GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
-        Transform mainCam = GameObject.FindGameObjectWithTag("MainCamera").transform;
-        GlobalFilterPanel.transform.rotation = mainCam.rotation;
-        // GlobalFilterPanel.transform.position = mainCam.position;
-        GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
+        //GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
+        //Transform mainCam = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        //GlobalFilterPanel.transform.rotation = mainCam.rotation;
+        //// GlobalFilterPanel.transform.position = mainCam.position;
+        //GlobalFilterPanel.transform.position = mainCam.position + (mainCam.right * -4.4f) + (mainCam.forward * -1.85f) + (mainCam.up * -1.2f);
 
 
     }
