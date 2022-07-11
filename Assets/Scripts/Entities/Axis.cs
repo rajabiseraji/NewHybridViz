@@ -273,8 +273,6 @@ public class Axis : MonoBehaviour, Grabbable {
 
         handleParentDataShelfMovement();
 
-        handleCloningAxis();
-           
     }
 
     public void LateUpdate()
@@ -699,52 +697,6 @@ public class Axis : MonoBehaviour, Grabbable {
         }
     }
 
-    private void handleCloningAxis()
-    {
-        if (isPrototype && !isOn2DPanel  && !parentIsMoving )
-        {
-
-            if (Vector3.Distance(originPosition, transform.position) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
-            {
-                print("distance for cloning is " + Vector3.Distance(originPosition, transform.position));
-                isPrototype = false;
-                GameObject clone = Clone();
-                clone.GetComponent<Axis>().OnExited.Invoke();
-                //df
-
-                // We want the clone to go back to the datashelf and set the datashelf as the parent of it
-                // if the axis that is being cloned is part of the dataShelf
-                if (originalParent.tag == "DataShelfPanel")
-                {
-                    clone.transform.SetParent(originalParent);
-                    clone.GetComponent<Axis>().initOriginalParent(originalParent);
-                }
-
-                // This is the part that we get to do the shaking sequence of the main object
-                clone.GetComponent<Axis>().ReturnToOrigin();
-
-                // Only activate the cloning knob when the axis is out of the dataShelf
-                // TODO: turn this knob to something else when we move this to a visualization
-                cloningWidgetGameObject.SetActive(true);
-
-
-                SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
-
-                foreach (var obj in GameObject.FindObjectsOfType<WandController>())
-                {
-                    // It means shaking the controller not the visualization itself
-                    if (obj.IsDragging())
-                        obj.Shake();
-                }
-
-                // in the end set the parent of that Axis to null
-                //originalParent = null;
-                //transform.SetParent(null);
-
-            }
-        }
-    }
-
     // This function is only called if the OnGrab function returns true 
     // and the WandController is dragging the object
     public void OnDrag(WandController controller)
@@ -825,7 +777,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
     }
 
-    // This function is responsible for the shaking animation that happens when we get the axis off of the data shelf
+    // deprecated
+    // used to return the axis back to the data shelf, we're not doing that anymore
     void ReturnToOrigin()
     {
         print("return to origin called at " + Time.realtimeSinceStartup);
@@ -842,11 +795,6 @@ public class Axis : MonoBehaviour, Grabbable {
         {
             c.ForceExit();
         }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        //print(collision.gameObject.name + "  " + collision.contacts[0].ToString());
     }
 
     private void OnTriggerEnter(Collider other)
@@ -866,11 +814,6 @@ public class Axis : MonoBehaviour, Grabbable {
             isCollidingWithMonitor = false;
             collidingMonitor = null;
         }
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-
     }
 
     // This finds all fo the visualizations that this axis is a part of ... and yes, an axis could be a part of multiple data visualziations
@@ -922,15 +865,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void AnimateTo(Vector3 pos, Quaternion rot)
     {
-        //if (!DOTween.IsTweening(transform))
-        //{
-        //    transform.DORotateQuaternion(rot, 0.4f).SetEase(Ease.OutBack);
-        //    transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);
-        //} else
-        //{
         print("animate to is called at " + Time.realtimeSinceStartup);
         StartCoroutine(AnimatorCoroutine(pos, rot));
-        //}d
     }
 
     private IEnumerator AnimatorCoroutine(Vector3 pos, Quaternion rot)
@@ -954,30 +890,6 @@ public class Axis : MonoBehaviour, Grabbable {
     
     public void MoveTo2DBoard(Transform TwoDBoard, Vector3 pos, Quaternion rot, Vector3 scale)
     {
-        //if (!DOTween.IsTweening(transform))
-        //{
-        //    print("I'm NOT tweening baby!");
-        //    Sequence seq = DOTween.Sequence();
-        //    // a.transform.
-        //    seq.Append(transform.DORotate(rot.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
-
-        //    seq.Append(transform.DOMove(TwoDBoard.transform.position + pos + (TwoDBoard.transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
-
-        //    seq.Join(transform.DOScale(new Vector3(transform.localScale.x, transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
-
-        //    seq.AppendCallback(() =>
-        //    {
-        //        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        //        // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
-        //        // TODO: fix this later in a way that the item is moved with the panel,
-        //        // right now it won't be moved with the parent
-        //        // a.transform.SetParent(transform.parent.parent);
-        //        isOn2DPanel = true;
-        //    });
-        //} else
-        //{
-        //print(" I am tweening it seems!");
-
 
         // We want the axis to be released from the controller before it begins the sequence
         foreach (var obj in GameObject.FindObjectsOfType<WandController>())
@@ -990,7 +902,6 @@ public class Axis : MonoBehaviour, Grabbable {
         }
 
         StartCoroutine(AnimateTo2DBoardCoroutine(TwoDBoard, pos, rot, scale));
-        //}
     }
 
     private IEnumerator AnimateTo2DBoardCoroutine(Transform TwoDBoard, Vector3 pos, Quaternion rot, Vector3 scale)
