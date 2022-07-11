@@ -29,6 +29,10 @@ TagManager:
   - MonitorBoard
   - WebSocketManager
   - PointerDot
+  - projectile
+  - FxTemporaire
+  - AxisPlaceHolder
+  - AxisGhost
   layers:
   - Default
   - TransparentFX

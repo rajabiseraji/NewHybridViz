@@ -14,7 +14,7 @@ public class Axis : MonoBehaviour, Grabbable {
     public static float AXIS_ROD_LENGTH = 0.2660912f;
     public static float AXIS_ROD_WIDTH = 0.02059407f;
 
-    [SerializeField] TextMeshPro label;
+    [SerializeField] public TextMeshPro label;
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
     [SerializeField] TextMeshPro maximumValueDimensionLabel;
 
@@ -23,7 +23,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     // Q: What is this for? 
     // This is active when the axis is on the data shelf and has not been dragged to the main scene
-    public bool isPrototype;
+    public bool isPrototype = false;
 
     // Determines if the axis is on a 2D plane or not
     public bool isOn2DPanel = false;
@@ -53,7 +53,7 @@ public class Axis : MonoBehaviour, Grabbable {
     
     [SerializeField] Transform minNormaliserObject;
     [SerializeField] Transform maxNormaliserObject;
-    [SerializeField] GameObject cloningWidgetGameObject;
+    [SerializeField] public GameObject cloningWidgetGameObject;
 
     [SerializeField] Renderer ticksRenderer;
 
@@ -113,6 +113,7 @@ public class Axis : MonoBehaviour, Grabbable {
     // ghost properties
     // Q: What does ghost property means? 
     Axis ghostSourceAxis = null;
+    public AxisGhost ghostCube = null;
 
     Transform originalParent = null;
 
@@ -240,7 +241,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void Start()
     {
-
+        Debug.Assert(ghostCube != null, "The ghost Axis game object cannot be null");
         //all colliders from this object should ignore raycast
         // TODO: Maybe remove the non-raycast collider thingy from this object! 
         Collider[] colliders = GetComponentsInChildren<Collider>();
@@ -268,80 +269,11 @@ public class Axis : MonoBehaviour, Grabbable {
         // it checks if the axes is part of the data shelf first
         // Then puts a clone in the original place of the data component
         // In the end adds the axis that is cloned to the list of present axes on the scene
-    
-        if(transform.parent != null && transform.parent.tag == "DataShelfPanel") {
-            
-            // While the data panel is moving, don't clone anything (aka keep the isProto to false)
-            if(parentPrevPosition != Vector3.zero && parentPrevPosition.Equals(transform.parent.position)) {
-                parentIsMoving = false;
-            } else {
-                parentIsMoving = true;
-            }
 
-            // Making sure that the parent of the axis and its corresponding visualizations are the same
-            foreach (var visu in correspondingVisualizations())
-            {
-                if(visu.transform.parent == null || visu.transform.parent.tag != "DataShelfPanel") {
-                    visu.transform.SetParent(transform.parent);
-                }
-            }
+        handleParentDataShelfMovement();
 
-            // Keep the last position of the parent in this variable for comparison
-            parentPrevPosition = transform.parent.position;
-
-            if(parentIsMoving)
-            {
-                // update the origin position and rotation for when the axes move around
-                this.originPosition = transform.position;
-                this.originRotation = transform.rotation;
-            }
-        }
-
-
-        // TODO: turn this cloning into its own method to use with the anchor cloning
-        // TODO: I should do something about when I want to clone a visualization and I don't care
-        // if the vis is on a moving parent or not, basically I must make sure that the visualization 
-        // cloning only happens when grabbing takes place (either for the cloning knob or for the axis 
-        // itself)
-        if (isPrototype /* && !parentIsMoving */ )
-        {
-            if (Vector3.Distance(originPosition, transform.position) > 0.25f)
-            {
-                isPrototype = false;
-                GameObject clone = Clone();
-                clone.GetComponent<Axis>().OnExited.Invoke();
-
-                // This is the part that we get to do the shaking sequence of the main object
-                clone.GetComponent<Axis>().ReturnToOrigin();
-
-                // We want the clone to go back to the datashelf and set the datashelf as the parent of it
-                // if the axis that is being cloned is part of the dataShelf
-                if(originalParent.tag == "DataShelfPanel" ) { 
-                    clone.transform.SetParent(originalParent);
-                    clone.GetComponent<Axis>().initOriginalParent(originalParent);
-                }
-
-                // Only activate the cloning knob when the axis is out of the dataShelf
-                // TODO: turn this knob to something else when we move this to a visualization
-                cloningWidgetGameObject.SetActive(true);
-
-
-                SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
-                
-                foreach (var obj in GameObject.FindObjectsOfType<WandController>())
-                {
-                    // It means shaking the controller not the visualization itself
-                    if (obj.IsDragging())
-                        obj.Shake();
-                }
-
-                // in the end set the parent of that Axis to null
-                //originalParent = null;
-                transform.SetParent(null);
-
-            }
-        }
-        
+        handleCloningAxis();
+           
     }
 
     public void LateUpdate()
@@ -389,6 +321,21 @@ public class Axis : MonoBehaviour, Grabbable {
         axis.InitOrigin(originPosition, originRotation);
         axis.isClonedByCloningWidget = isClonedByCloningWidget;
         axis.ticksRenderer.material = Instantiate(ticksRenderer.material) as Material;
+
+        return clone;
+    }
+    
+    public GameObject Clone(Vector3 position, Quaternion rotation)
+    {
+        GameObject clone = Instantiate(gameObject, position, rotation, null);
+        clone.name = gameObject.name;
+        Axis axis = clone.GetComponent<Axis>();
+        axis.InitOrigin(position, rotation);
+        axis.isClonedByCloningWidget = isClonedByCloningWidget;
+        axis.isPrototype = false;
+        axis.isOn2DPanel = false;
+        axis.ticksRenderer.material = Instantiate(ticksRenderer.material) as Material;
+        axis.OnExited.Invoke();
 
         return clone;
     }
@@ -513,31 +460,44 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool OnGrab(WandController controller)
     {
-        // if it's a cloning interaction
-        if(isPrototype) {
-            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
-        } else {
-            // Debug.Log("I'm being grabbed: " + isDirty + " and pos is: " + transform.position);
-            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
-        }
+        // don't let any interactions happen if we're tweening
+        if (isTweening || DOTween.IsTweening(transform))
+            return false;
 
-
-        if (!isTweening)
+        // What happens if the Axis is clonable
+        if(isPrototype)
         {
-            // Here's where we set the controller as the tansform
-            if(!isOn2DPanel) {
+            // This part is for registering the action for undo and redo stuff
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
+
+            if(isOn2DPanel)
+            {
+                // we don't want it to move if it's a prototype that is on the 2d panel
+                activateGhost(controller);
+                return false;
+            }
+        } 
+        else
+        {
+            // registering actions for undo and redo
+            EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisGrabbed, this);
+
+            if (!isOn2DPanel)
+            {
+                // meaning that if we're dragging it in the 3D space, just let the 
+                // axis drag it around by making it the child of the controller
                 transform.parent = controller.transform;
-            } else {
+            } else
+            {
                 // Save the positin and the rotation of the axis before we start a 2D movement
                 ZeulerAnglesBefore2DRotation = transform.eulerAngles;
                 positionBefore2Drotation = transform.position;
                 // Save the position and the rotation of the controller before a 2D movement
-                previousControllerRotationAngle  = controller.transform.eulerAngles.z;
+                previousControllerRotationAngle = controller.transform.eulerAngles.z;
                 previousControllerPosition = controller.transform.position;
             }
-            transform.DOKill();
-        
         }
+
         GetComponent<Rigidbody>().isKinematic = true;
         isDirty = true;
         return true;
@@ -594,6 +554,7 @@ public class Axis : MonoBehaviour, Grabbable {
         {
             // return the axis to its position
             ReturnToOrigin();
+            return;
         }
 
         #region Animating Axis to move for each Visualization
@@ -705,50 +666,124 @@ public class Axis : MonoBehaviour, Grabbable {
 
     }
 
+    private void handleParentDataShelfMovement()
+    {
+        // This part is to handle what happens if the parent of this object moves around
+        if (transform.parent != null && transform.parent.tag == "DataShelfPanel")
+        {
+
+            // While the data panel is moving, don't clone anything (aka keep the isProto to false)
+            if (parentPrevPosition != Vector3.zero && parentPrevPosition.Equals(transform.parent.position))
+            {
+                parentIsMoving = false;
+            }
+            else
+            {
+                parentIsMoving = true;
+            }
+
+            // Making sure that the parent of the axis and its corresponding visualizations are the same
+            foreach (var visu in correspondingVisualizations())
+            {
+                if (visu.transform.parent == null || visu.transform.parent.tag != "DataShelfPanel")
+                {
+                    visu.transform.SetParent(transform.parent);
+                }
+            }
+
+            // Keep the last position of the parent in this variable for comparison
+            parentPrevPosition = transform.parent.position;
+
+            if (parentIsMoving)
+            {
+                // update the origin position and rotation for when the axes move around
+                this.originPosition = transform.position;
+                this.originRotation = transform.rotation;
+            }
+        }
+    }
+
+    private void handleCloningAxis()
+    {
+        // TODO: I should do something about when I want to clone a visualization and I don't care
+        // if the vis is on a moving parent or not, basically I must make sure that the visualization 
+        // cloning only happens when grabbing takes place (either for the cloning knob or for the axis 
+        // itself)
+        if (isPrototype && !isOn2DPanel /* && !parentIsMoving */ )
+        {
+
+            if (Vector3.Distance(originPosition, transform.position) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
+            {
+                print("distance for cloning is " + Vector3.Distance(originPosition, transform.position));
+                isPrototype = false;
+                GameObject clone = Clone();
+                clone.GetComponent<Axis>().OnExited.Invoke();
+                //df
+
+                // We want the clone to go back to the datashelf and set the datashelf as the parent of it
+                // if the axis that is being cloned is part of the dataShelf
+                if (originalParent.tag == "DataShelfPanel")
+                {
+                    clone.transform.SetParent(originalParent);
+                    clone.GetComponent<Axis>().initOriginalParent(originalParent);
+                }
+
+                // This is the part that we get to do the shaking sequence of the main object
+                clone.GetComponent<Axis>().ReturnToOrigin();
+
+                // Only activate the cloning knob when the axis is out of the dataShelf
+                // TODO: turn this knob to something else when we move this to a visualization
+                cloningWidgetGameObject.SetActive(true);
+
+
+                SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
+
+                foreach (var obj in GameObject.FindObjectsOfType<WandController>())
+                {
+                    // It means shaking the controller not the visualization itself
+                    if (obj.IsDragging())
+                        obj.Shake();
+                }
+
+                // in the end set the parent of that Axis to null
+                //originalParent = null;
+                //transform.SetParent(null);
+
+            }
+        }
+    }
+
     public void OnDrag(WandController controller)
     {
         if (grabbingController == null || grabbingController != controller)
             grabbingController = controller;
 
-        if (isOn2DPanel && !DOTween.IsTweening(transform)) { //This was previous version
-            //if (grabbingController == null || grabbingController != controller)
-            //    grabbingController = controller;
+        // this only happens if the we're manipulating the axis that is on 
+        if (isOn2DPanel && !DOTween.IsTweening(transform)) { 
 
             Transform TwoPanel = GameObject.FindGameObjectWithTag("2DPanel").transform;
-
-            // Handling the correct rotation of the axes
-            Quaternion desiredRotation = Quaternion.Euler(0, 0, controller.transform.eulerAngles.z - previousControllerRotationAngle);
-
-            if(Vector3.Dot(controller.transform.forward, transform.forward) < 0) {
-                desiredRotation = Quaternion.Inverse(desiredRotation);
-            }
-            
-            // Don't do the rotation and all when it's on the datashelf
-            if(!isPrototype) {
-                transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
-            }
-
-            // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
-            Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - previousControllerPosition, transform.forward);
-
-            // Don't do the translation and all when it's on the datashelf
-            if(!isPrototype) {
-                transform.position = positionBefore2Drotation + planarMappingOfDirection;
-            }
             // We need the distance in the direction of the normal vector of the plane
-            Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - transform.position, transform.forward);
-            
-            if(controllerOrthogonalDistance.magnitude > 0.25f) {
-                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                transform.SetParent(null);
-                
-                Sequence seq = DOTween.Sequence();
-                seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
-                seq.Join(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
+            //Vector3 distanceWithPlane = Vector3.Project(controller.transform.position - TwoPanel.position, TwoPanel.forward);
 
-                isOn2DPanel = false;
-                OnGrab(controller);
+
+            if(!isPrototype)
+            {
+                // if the axis is not a clonable one, just move it on 2D plane
+                MoveAxisOn2dPlane(controller);
             }
+
+            //We need the distance in the direction of the normal vector of the plane
+            Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - originPosition, TwoPanel.forward);
+
+            // ------------------TODO--------------------
+            // we're chaning this part for the new cloning system
+            // this should be removed and the cloning logic should be handled from inside the ghost axis thingy
+            if(controllerOrthogonalDistance.magnitude > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
+            {
+                print("distance with plane is " + controllerOrthogonalDistance.magnitude);
+                MoveOutOf2DBoard(controller);
+            }
+            
         } 
         // else if(isOn2DPanel && DOTween.IsTweening(transform)) {
         //     // transform.DOKill();
@@ -766,9 +801,64 @@ public class Axis : MonoBehaviour, Grabbable {
         OnExited.Invoke();
     }
 
+    public void MoveOutOf2DBoard(WandController controller)
+    {
+            GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            transform.SetParent(null);
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
+            seq.Append(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
+
+            isOn2DPanel = false;
+            // why this? 
+            OnGrab(controller);
+            //OnRelease(controller);
+            // here we should put the logic for cloning instead of the release section! 
+    }
+    
+    //public void MoveOutOf2DBoard()
+    //{
+    //        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+    //        transform.SetParent(null);
+
+    //        Sequence seq = DOTween.Sequence();
+    //        seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
+    //        seq.Append(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
+
+    //        isOn2DPanel = false;
+    //        // why this? 
+    //        //OnGrab(controller);
+    //        //OnRelease(controller);
+    //        // here we should put the logic for cloning instead of the release section! 
+    //}
+
+    private void MoveAxisOn2dPlane(WandController controller)
+    {
+        // Handling the correct rotation of the axes
+        Quaternion desiredRotation = Quaternion.Euler(0, 0, controller.transform.eulerAngles.z - previousControllerRotationAngle);
+
+        if (Vector3.Dot(controller.transform.forward, transform.forward) < 0)
+        {
+            desiredRotation = Quaternion.Inverse(desiredRotation);
+        }
+
+        // Don't do the rotation and all when it's on the datashelf
+        transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, ZeulerAnglesBefore2DRotation.z) * (desiredRotation);
+
+        // Map the direction of the movement to the plane of our 2D thing and then add it to the position point
+        Vector3 planarMappingOfDirection = Vector3.ProjectOnPlane(controller.transform.position - previousControllerPosition, transform.forward);
+
+        // Don't do the translation and all when it's on the datashelf
+        transform.position = positionBefore2Drotation + planarMappingOfDirection;
+
+    }
+
     // This function is responsible for the shaking animation that happens when we get the axis off of the data shelf
     void ReturnToOrigin()
     {
+        print("return to origin called at " + Time.realtimeSinceStartup);
+
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DORotate(originRotation.eulerAngles, 0.7f, RotateMode.Fast).SetEase(Ease.OutSine));
         seq.Join(transform.DOMove(originPosition, 0.7f).SetEase(Ease.OutElastic));
@@ -861,8 +951,109 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void AnimateTo(Vector3 pos, Quaternion rot)
     {
+        //if (!DOTween.IsTweening(transform))
+        //{
+        //    transform.DORotateQuaternion(rot, 0.4f).SetEase(Ease.OutBack);
+        //    transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);
+        //} else
+        //{
+        print("animate to is called at " + Time.realtimeSinceStartup);
+        StartCoroutine(AnimatorCoroutine(pos, rot));
+        //}d
+    }
+
+    private IEnumerator AnimatorCoroutine(Vector3 pos, Quaternion rot)
+    {
+        List<Tween> activeTweens = DOTween.TweensByTarget(transform);
+
+        if (activeTweens != null && activeTweens.Count != 0)
+        {
+            foreach (Tween t in activeTweens)
+            {
+                yield return t.WaitForCompletion();
+                // This log will happen after the tween has completed
+                Debug.Log("Tween completed! " + t.id);
+            }
+        }
+
+        print("all coroutines are done! ");
         transform.DORotateQuaternion(rot, 0.4f).SetEase(Ease.OutBack);
-        transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);        
+        transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);
+    }    
+    
+    public void MoveTo2DBoard(Transform TwoDBoard, Vector3 pos, Quaternion rot, Vector3 scale)
+    {
+        //if (!DOTween.IsTweening(transform))
+        //{
+        //    print("I'm NOT tweening baby!");
+        //    Sequence seq = DOTween.Sequence();
+        //    // a.transform.
+        //    seq.Append(transform.DORotate(rot.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
+
+        //    seq.Append(transform.DOMove(TwoDBoard.transform.position + pos + (TwoDBoard.transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
+
+        //    seq.Join(transform.DOScale(new Vector3(transform.localScale.x, transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
+
+        //    seq.AppendCallback(() =>
+        //    {
+        //        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        //        // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
+        //        // TODO: fix this later in a way that the item is moved with the panel,
+        //        // right now it won't be moved with the parent
+        //        // a.transform.SetParent(transform.parent.parent);
+        //        isOn2DPanel = true;
+        //    });
+        //} else
+        //{
+        //print(" I am tweening it seems!");
+
+
+        // We want the axis to be released from the controller before it begins the sequence
+        foreach (var obj in GameObject.FindObjectsOfType<WandController>())
+        {
+            if (obj.IsDragging(this))
+            {
+                print("on release called from two d " + Time.realtimeSinceStartup);
+                OnRelease(obj);
+            }
+        }
+
+        StartCoroutine(AnimateTo2DBoardCoroutine(TwoDBoard, pos, rot, scale));
+        //}
+    }
+
+    private IEnumerator AnimateTo2DBoardCoroutine(Transform TwoDBoard, Vector3 pos, Quaternion rot, Vector3 scale)
+    {
+        List<Tween> activeTweens = DOTween.TweensByTarget(transform);
+        
+        if(activeTweens != null && activeTweens.Count != 0)
+        {
+            foreach(Tween t in activeTweens)
+            {
+                yield return t.WaitForCompletion();
+                // This log will happen after the tween has completed
+                Debug.Log("Tween completed! " + t.id);
+            }
+        }
+
+        print("all coroutines are done! ");
+        Sequence seq = DOTween.Sequence();
+        // a.transform.
+        seq.Append(transform.DORotate(rot.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
+
+        seq.Append(transform.DOMove(TwoDBoard.transform.position + pos + (TwoDBoard.transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
+
+        seq.Join(transform.DOScale(new Vector3(transform.localScale.x, transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
+
+        seq.AppendCallback(() =>
+        {
+            GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
+            // TODO: fix this later in a way that the item is moved with the panel,
+            // right now it won't be moved with the parent
+            // a.transform.SetParent(transform.parent.parent);
+            isOn2DPanel = true;
+        });
     }
 
     public void UpdateAttributeFilters() {
@@ -882,6 +1073,15 @@ public class Axis : MonoBehaviour, Grabbable {
         {
             v.transform.localScale *= scaleFactor;
         }
+    }
+
+    private void activateGhost(WandController grabbingController)
+    {
+        GameObject ghostClone = Instantiate(ghostCube.gameObject, transform);
+        ghostClone.SetActive(true);
+        ghostClone.transform.localScale = new Vector3(ghostClone.transform.localScale.x, ghostClone.transform.localScale.y, AXIS_ROD_WIDTH / 2f);
+        ghostClone.GetComponent<AxisGhost>().changeColor();
+        ghostClone.GetComponent<AxisGhost>().OnGrab(grabbingController);
     }
 
 }

@@ -6,6 +6,8 @@ using DG.Tweening;
 
 public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 {
+    public static float COLLISION_DISTANCE_BOUNDARY = 0.35f;
+
     Mesh mesh;
     Vector3[] vertices;
 
@@ -31,9 +33,19 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
         {
             var axis = ConnectedAxes[i];
             var AxisRigidBody = axis.GetComponent<Rigidbody>();
-            if(Vector3.Project(axis.transform.position - transform.position, transform.forward).magnitude > 0.25f) {
+            float distanceAlongPlaneNormal = Vector3.Project(axis.transform.position - transform.position, transform.forward).magnitude;
+            if (distanceAlongPlaneNormal > COLLISION_DISTANCE_BOUNDARY) {
+                print("removing axis " + axis.name);
+
+
+                // TODO: here's the part that we need to tell the axis to change form into a 3D object again
+                //something like axis.Getbackto3DShape()
+                //axis.MoveOutOf2DBoard();
+
                 ConnectedAxes.RemoveAt(i);
+
             } else {
+                // For all the existing axes, just freeze their movement to two degrees
                 if(AxisRigidBody.constraints == RigidbodyConstraints.FreezeAll){
                     AxisRigidBody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
                 }
@@ -51,9 +63,13 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     }
 
     void OnTriggerEnter(Collider other) {
-        // if(!DOTween.IsTweening(this.transform)) {
             if(other.GetComponent<Axis>()) {
                 Axis a = other.GetComponent<Axis>();
+                if(ConnectedAxes.Contains(a))
+                {
+                    print("axis is already on the panel " + a.name);
+                    return;
+                }
 
                 // Find the point of entrance
                 Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((a.transform.position - transform.position), transform.forward);
@@ -66,36 +82,13 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
                 float rotationAroundYAngleOffset = Vector3.Dot(a.transform.right, transform.right) > 0 ? 0 : (isParallelWithPanel ? 0 : 180f);
             
                 aBeforeRotation.eulerAngles = new Vector3(rotationAroundXAngleOffset + transform.eulerAngles.x, rotationAroundYAngleOffset + transform.eulerAngles.y, aBeforeRotation.eulerAngles.z);
-                // We want the axis to be released from the controller before it begins the sequence
-                foreach (var obj in GameObject.FindObjectsOfType<WandController>())
-                {
-                    // It means shaking the controller not the visualization itself
-                    if (obj.IsDragging(a)) {
-                        a.OnRelease(obj);
-                    }
-                }
 
-                // Rotation and position change stuff
-                Sequence seq = DOTween.Sequence();
-                // a.transform.
-                seq.Append(a.transform.DORotate(aBeforeRotation.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
-
-                seq.Append(a.transform.DOMove(transform.position + projectedDistanceOnPlane + (transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
-
-                seq.Join(a.transform.DOScale(new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
-
-                seq.AppendCallback(() => {
-                    a.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                    // a 2D Panel will always be inside a dataShelf then! Cube -> 2DPanel -> DataShelf
-                    // TODO: fix this later in a way that the item is moved with the panel,
-                    // right now it won't be moved with the parent
-                    // a.transform.SetParent(transform.parent.parent);
-                    a.isOn2DPanel = true;
-                });
-
+                // just ask the axis class to handle it from now on
+                a.MoveTo2DBoard(transform, projectedDistanceOnPlane, aBeforeRotation, new Vector3(a.transform.localScale.x, a.transform.localScale.y, 0.00001f));
+                
                 ConnectedAxes.Add(a);
+
             }
-        // }
     }
 
     public void clearConnectedAxisList()

@@ -133,7 +133,7 @@ public class WandController : MonoBehaviour
         SteamVR_Input_Sources fromSource
     )
     {
-        Debug.Log("Trigger is down pressed");
+        //Debug.Log("Trigger is down pressed");
         gripping = true;
         if (intersectingGrabbables.Any(x => x != null) && draggingObjects.Count == 0)
         {
@@ -151,7 +151,7 @@ public class WandController : MonoBehaviour
         SteamVR_Input_Sources fromSource
     )
     {
-        Debug.Log("Trigger is up pressed");
+        Debug.Log("Trigger is up pressed " + Time.realtimeSinceStartup + " count is " + draggingObjects.Count);
         if (draggingObjects.Count > 0)
         {
             draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnRelease(this));
