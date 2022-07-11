@@ -8,15 +8,17 @@ using DG.Tweening;
 
 public class FilterBubbleButton : MonoBehaviour, Grabbable
 {
+    public static Color OG_COMPACT_MENU_COLOR = new Color(0.07843138f, 0.07843138f, 0.07843138f, 0.9411765f);
+
 
     public GameObject filterBubbleGameobject;
-    private CanvasGroup filterBubbleMenuCanvas;
+    public CanvasGroup filterBubbleMenuCanvas;
     public GameObject filterBubbleCompactGameobject;
 
     public Text filterTextsGameobject;
 
     public Visualization visReference; 
-    private CanvasGroup filterBubbleCompactMenuCanvas;
+    public CanvasGroup filterBubbleCompactMenuCanvas;
 
     [SerializeField]
     UnityEvent OnEntered;
@@ -28,6 +30,14 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     Vector3 rescaled = Vector3.one;
 
     public bool isGlobalFilterBubble = false;
+
+    public bool hasCollidedWithVis = false;
+    public Visualization collidedVis = null;
+
+    private WandController visGrabbingController = null;
+    private string currentFilterText = "";
+
+
 
     // Use this for initialization
     void Start () {
@@ -45,14 +55,16 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         Debug.Assert((filterBubbleGameobject != null), "The filter bubble object cannot be null");
         Debug.Assert((filterBubbleCompactGameobject != null), "The filter bubble object cannot be null");
         if(filterBubbleCompactGameobject && filterBubbleGameobject) {
-            filterBubbleMenuCanvas = filterBubbleGameobject.transform.Find("ScatterplotMenu").GetComponent<CanvasGroup>();
-            filterBubbleCompactMenuCanvas = filterBubbleCompactGameobject.transform.Find("ScatterplotMenu").GetComponent<CanvasGroup>();
+            Debug.Assert((filterBubbleMenuCanvas != null), "The filter bubble menu canvas cannot be null");
+            Debug.Assert((filterBubbleCompactMenuCanvas != null), "The filter bubble compact menu canvas cannot be null");
+            //filterBubbleMenuCanvas = filterBubbleGameobject.transform.Find("ScatterplotMenu").GetComponent<CanvasGroup>();
+            //filterBubbleCompactMenuCanvas = filterBubbleCompactGameobject.transform.Find("ScatterplotMenu").GetComponent<CanvasGroup>();
         }
     }
 
     public int GetPriority()
     {
-        return 100; // I should work with this to have the highest priority
+        return 1; // I should work with this to have the lowest priority
     }
 
     public void OnDrag(WandController controller)
@@ -72,56 +84,53 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
                 return;
         }
 
-        if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
-            Sequence seq = DOTween.Sequence();
-            seq.Append(filterBubbleCompactMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
-            seq.Join(filterBubbleMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
-        }
+        ExpandFilterBubble();
     }
 
     void OnTriggerEnter(Collider other) {
         // if the entered one is a visualization or an axis
         // Even the histograms are always visualizations so listen for visualization collapse and not axis! 
         if(other.GetComponent<Visualization>()) {
-            Debug.Log("I've collided with an axis with the name of: " + other.name);
+            Debug.Log("I've collided with an visualization/axis with the name of: " + other.name);
 
-            // find out the involved axis in the visualization
-            List<Axis> involvedAxes;
-            // if(other.GetComponent<Visualization>()) {
-            involvedAxes = other.GetComponent<Visualization>().axes;
-            if(involvedAxes.Any(axis => axis.isPrototype))
-                return;
+            // just set a flag here that says we've collided with a visualization 
+            hasCollidedWithVis = true;
+            collidedVis = other.GetComponent<Visualization>();
+            visGrabbingController = collidedVis.axes[0].grabbingController;
+
             
-            // Here we're making sure that both the axes and the visualization will hide after hitting one another
-            Sequence seq = DOTween.Sequence();
-            seq.Append(other.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            foreach (var axis in involvedAxes)
-            {
-              seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            }
-            seq.AppendCallback(() => {
+            showDropFilterHint();
+        }
+    }
 
-                foreach (var axis in involvedAxes)
-                {
-                    axis.gameObject.SetActive(false);
-                }
-                other.gameObject.SetActive(false);
-                visReference.AddNewFilterToFilterBubbles(involvedAxes);
-               
-                changeCompactFilterText();
-            });
+    private void OnTriggerExit(Collider other)
+    {
+        if(hasCollidedWithVis && collidedVis != null)
+        {
+            var exitingVis = other.GetComponent<Visualization>();
+            if (exitingVis != null && exitingVis.GetInstanceID() == collidedVis.GetInstanceID())
+            {
+                // means that if the same visualization that entered is exitting now
+                // reset everything
+                hasCollidedWithVis = false;
+                collidedVis = null;
+
+                OnExited.Invoke();
+                hideDropFilterHint();
+                CollapseFilterBubble();
+            }
         }
     }
 
     public void OnExit(WandController controller)
     {
+        // regardless of what the controller is carrying, if we exit the filter area, reset everything
+        hasCollidedWithVis = false;
+        collidedVis = null;
+
         OnExited.Invoke();
-        if(filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas) {
-            changeCompactFilterText();
-            Sequence seq = DOTween.Sequence();
-            seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
-            seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
-        }
+        hideDropFilterHint();
+        CollapseFilterBubble();
     }
 
     private List<AttributeFilter> AddandSortRange(List<AttributeFilter> src, List<AttributeFilter> toBeAdded) {
@@ -144,16 +153,12 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
-        // We should simply act as the ontouch of a button and show the childs of it which are the data shelf items
-        // it needs to be a toggle situation - clicked: on/off
-
-        // if this doesn't return a true value, the OnRelease won't work
         return false; // it's not supposed to be draggable, so return false for this
     }
 
     public void OnRelease(WandController controller)
     {
-
+        // nothing here to implement
     }
 
      public void ProximityEnter()
@@ -168,10 +173,69 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         // transform.DOScale(initialScale, 0.25f);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if(hasCollidedWithVis && visGrabbingController != null &&  collidedVis != null)
+        {
+            if(!visGrabbingController.gripping)
+            {
+                // if the controller that is holding the visualization released the trigger
+                // while inside the filter bubble area, add the filters 
+                hideDropFilterHint();
+                TurnVisIntoFilters(collidedVis);
+            }
+        }        
+    }
+
+    private void TurnVisIntoFilters(Visualization vis)
+    {
+        // find out the involved axis in the visualization
+        List<Axis> involvedAxes;
+        involvedAxes = vis.axes;
+
+        // never add the prototypes to the filters 
+        if (involvedAxes.Any(axis => axis.isPrototype))
+            return;
+
+        // Here we're making sure that both the axes and the visualization will hide after hitting one another
+        Sequence seq = DOTween.Sequence();
+        seq.Append(vis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        foreach (var axis in involvedAxes)
+        {
+            seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        }
+        seq.AppendCallback(() => {
+
+            foreach (var axis in involvedAxes)
+            {
+                axis.gameObject.SetActive(false);
+            }
+            vis.gameObject.SetActive(false);
+            visReference.AddNewFilterToFilterBubbles(involvedAxes);
+
+            changeCompactFilterText();
+        });
+    }
+
+    private void ExpandFilterBubble()
+    {
+        if (filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas)
+        {
+            Sequence seq = DOTween.Sequence();
+            seq.Append(filterBubbleCompactMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
+            seq.Join(filterBubbleMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
+        }
+    }
+
+    private void CollapseFilterBubble()
+    {
+        if (filterBubbleGameobject && filterBubbleCompactGameobject && filterBubbleCompactMenuCanvas && filterBubbleMenuCanvas)
+        {
+            changeCompactFilterText();
+            Sequence seq = DOTween.Sequence();
+            seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
+            seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
+        }
     }
 
     public void changeCompactFilterText() {
@@ -218,6 +282,19 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
             filterText = filterText + SceneManager.Instance.dataObject.indexToDimension(filter.idx) + ": [" + minimumValueDimensionLabel + "-" + maximumValueDimensionLabel + "]" + (i < 1 ? "\n " : "");
         }
+        currentFilterText = filterText;
         filterTextsGameobject.text = filterText;
+    }
+
+    private void showDropFilterHint()
+    {
+        filterBubbleCompactMenuCanvas.gameObject.GetComponent<Image>().color = Color.green;
+        filterTextsGameobject.text = "DROP VIS HERE TO APPLY AS FILTER";
+    }
+
+    private void hideDropFilterHint()
+    {
+        filterBubbleCompactMenuCanvas.gameObject.GetComponent<Image>().color = OG_COMPACT_MENU_COLOR;
+        filterTextsGameobject.text = currentFilterText;
     }
 }

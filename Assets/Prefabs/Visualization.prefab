@@ -538,6 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 2288782108697580143}
+  scalingFactor: 0.5
   histogramObject: {fileID: 1039085207644392}
   scatterplot2DObject: {fileID: 1277313901451468}
   parallelCoordsObject: {fileID: 1129375698972400}
@@ -564,6 +565,7 @@ MonoBehaviour:
   maxYFilter: 1
   minZFilter: -1
   maxZFilter: 1
+  scale: 1
   viewType: 0
   AttributeFilters: []
   filterBubbleGameobject: {fileID: 3775835767712840229}
@@ -751,9 +753,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   filterBubbleGameobject: {fileID: 3775835767712840229}
+  filterBubbleMenuCanvas: {fileID: 1887022892601913752}
   filterBubbleCompactGameobject: {fileID: 7649386258716422347}
   filterTextsGameobject: {fileID: 1750805554035909239}
   visReference: {fileID: 114548593337877974}
+  filterBubbleCompactMenuCanvas: {fileID: 4959147875934471976}
   OnEntered:
     m_PersistentCalls:
       m_Calls:
@@ -810,6 +814,8 @@ MonoBehaviour:
         m_CallState: 2
   initialScale: {x: 0, y: 0, z: 0}
   isGlobalFilterBubble: 0
+  hasCollidedWithVis: 0
+  collidedVis: {fileID: 0}
 --- !u!65 &1040606255149369041
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1587,7 +1593,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &867669913359603107
 MonoBehaviour:
   m_ObjectHideFlags: 0
