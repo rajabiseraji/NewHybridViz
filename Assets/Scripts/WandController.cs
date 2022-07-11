@@ -424,7 +424,7 @@ public class WandController : MonoBehaviour
     {
         hapticAction.Execute(0, duration, frequency, amplitude, source);
 
-        print("shake " + source.ToString());
+        //print("shake " + source.ToString());
     }
 
     IEnumerator ShakeCoroutine()
@@ -453,7 +453,7 @@ public class WandController : MonoBehaviour
     {
         //if (!isOculusRift)
         //StartCoroutine(ShakeCoroutine());
-        shake(1, 150, 75, handType);
+        shake(1f, 150, 0.5f, handType);
     }
 
     public void OnApplicationQuit()
