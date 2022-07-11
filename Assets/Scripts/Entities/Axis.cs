@@ -13,6 +13,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public static float AXIS_ROD_LENGTH = 0.2660912f;
     public static float AXIS_ROD_WIDTH = 0.02059407f;
+    public static float CONTROLLER_VELOCITY_FOR_DELETION = 0.25f;
 
     [SerializeField] public TextMeshPro label;
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
@@ -232,7 +233,7 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         this.originPosition = originPosition;
         this.originRotation = originRotation;
-        this.originScale = transform.localScale;
+        this.originScale = transform.localScale + new Vector3(0, 0, AXIS_ROD_WIDTH/2);
     }
 
     public void initOriginalParent(Transform originalParent){
@@ -470,12 +471,13 @@ public class Axis : MonoBehaviour, Grabbable {
             // This part is for registering the action for undo and redo stuff
             EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
 
-            if(isOn2DPanel)
-            {
-                // we don't want it to move if it's a prototype that is on the 2d panel
-                activateGhost(controller);
-                return false;
-            }
+            // if it's not on the 2D panel, switch it back to non-proto as soon as 
+            // we call the cloning function
+            isPrototype = isOn2DPanel ? isPrototype : false;
+            
+            // we don't want it to move if it's a prototype that is on the 2d panel
+            activateGhost(controller);
+            return false;
         } 
         else
         {
@@ -536,7 +538,7 @@ public class Axis : MonoBehaviour, Grabbable {
         {
             // destroy the axis
             // This is the part that controls to see if we're throwing it with some velicity, it needs to be dstoryed
-            if (controller.Velocity.magnitude > 0.2f)
+            if (controller.Velocity.magnitude > CONTROLLER_VELOCITY_FOR_DELETION)
             {
                 Rigidbody body = GetComponent<Rigidbody>();
                 body.isKinematic = false;
@@ -549,13 +551,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
                 return;
             }
-        } // logic for sending the Axis that is cloned back to its original location
-        else
-        {
-            // return the axis to its position
-            ReturnToOrigin();
-            return;
-        }
+        } 
 
         #region Animating Axis to move for each Visualization
 
@@ -705,11 +701,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     private void handleCloningAxis()
     {
-        // TODO: I should do something about when I want to clone a visualization and I don't care
-        // if the vis is on a moving parent or not, basically I must make sure that the visualization 
-        // cloning only happens when grabbing takes place (either for the cloning knob or for the axis 
-        // itself)
-        if (isPrototype && !isOn2DPanel /* && !parentIsMoving */ )
+        if (isPrototype && !isOn2DPanel  && !parentIsMoving )
         {
 
             if (Vector3.Distance(originPosition, transform.position) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
@@ -753,42 +745,40 @@ public class Axis : MonoBehaviour, Grabbable {
         }
     }
 
+    // This function is only called if the OnGrab function returns true 
+    // and the WandController is dragging the object
     public void OnDrag(WandController controller)
     {
         if (grabbingController == null || grabbingController != controller)
             grabbingController = controller;
 
-        // this only happens if the we're manipulating the axis that is on 
-        if (isOn2DPanel && !DOTween.IsTweening(transform)) { 
+        isDirty = true;
+
+        if (DOTween.IsTweening(transform))
+            return;
+
+        // this only happens if the we're manipulating the axis on the 2D plane 
+        if (isOn2DPanel) { 
 
             Transform TwoPanel = GameObject.FindGameObjectWithTag("2DPanel").transform;
             // We need the distance in the direction of the normal vector of the plane
-            //Vector3 distanceWithPlane = Vector3.Project(controller.transform.position - TwoPanel.position, TwoPanel.forward);
+            Vector3 distanceWithPlane = Vector3.Project(controller.transform.position - TwoPanel.position, TwoPanel.forward);
 
-
-            if(!isPrototype)
-            {
-                // if the axis is not a clonable one, just move it on 2D plane
-                MoveAxisOn2dPlane(controller);
-            }
+            // if the axis is not a clonable one, just move it on 2D plane
+            MoveAxisOn2dPlane(controller);
 
             //We need the distance in the direction of the normal vector of the plane
-            Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - originPosition, TwoPanel.forward);
+            //Vector3 controllerOrthogonalDistance = Vector3.Project(controller.transform.position - originPosition, TwoPanel.forward);
 
-            // ------------------TODO--------------------
-            // we're chaning this part for the new cloning system
-            // this should be removed and the cloning logic should be handled from inside the ghost axis thingy
-            if(controllerOrthogonalDistance.magnitude > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
+            // This handles how the axis moves out of the 2D plane
+            if(distanceWithPlane.magnitude > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
             {
-                print("distance with plane is " + controllerOrthogonalDistance.magnitude);
+                print("distance with plane is " + distanceWithPlane.magnitude);
                 MoveOutOf2DBoard(controller);
             }
             
         } 
-        // else if(isOn2DPanel && DOTween.IsTweening(transform)) {
-        //     // transform.DOKill();
-        // }
-        isDirty = true;
+        
     }
 
     public void OnEnter(WandController controller)
@@ -811,28 +801,9 @@ public class Axis : MonoBehaviour, Grabbable {
             seq.Append(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
 
             isOn2DPanel = false;
-            // why this? 
             OnGrab(controller);
-            //OnRelease(controller);
-            // here we should put the logic for cloning instead of the release section! 
     }
     
-    //public void MoveOutOf2DBoard()
-    //{
-    //        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-    //        transform.SetParent(null);
-
-    //        Sequence seq = DOTween.Sequence();
-    //        seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
-    //        seq.Append(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
-
-    //        isOn2DPanel = false;
-    //        // why this? 
-    //        //OnGrab(controller);
-    //        //OnRelease(controller);
-    //        // here we should put the logic for cloning instead of the release section! 
-    //}
-
     private void MoveAxisOn2dPlane(WandController controller)
     {
         // Handling the correct rotation of the axes
@@ -1079,8 +1050,6 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         GameObject ghostClone = Instantiate(ghostCube.gameObject, transform);
         ghostClone.SetActive(true);
-        ghostClone.transform.localScale = new Vector3(ghostClone.transform.localScale.x, ghostClone.transform.localScale.y, AXIS_ROD_WIDTH / 2f);
-        ghostClone.GetComponent<AxisGhost>().changeColor();
         ghostClone.GetComponent<AxisGhost>().OnGrab(grabbingController);
     }
 

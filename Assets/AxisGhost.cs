@@ -90,6 +90,9 @@ public class AxisGhost : MonoBehaviour, Grabbable
             returnToOrigin();
         }
 
+        if (grabbingController != null && grabbingController.gripping)
+            grabbingController.Shake();
+
 
         if(!isCloned && Vector3.Distance(transform.position, parentOrigininalPosition) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
         {
@@ -114,11 +117,6 @@ public class AxisGhost : MonoBehaviour, Grabbable
         clone.transform.DOScaleZ(Axis.AXIS_ROD_WIDTH/2, 0.4f).SetEase(Ease.OutElastic);
         clone.GetComponent<Axis>().cloningWidgetGameObject.SetActive(true);
         SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
-    }
-
-    public void changeColor()
-    {
-        //GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f, 0.5f);
     }
 
     private void OnDestroy()
