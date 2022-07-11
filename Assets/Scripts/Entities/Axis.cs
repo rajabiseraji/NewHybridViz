@@ -745,15 +745,13 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public void MoveOutOf2DBoard(WandController controller)
     {
-            GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            transform.SetParent(null);
+        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        transform.SetParent(null);
 
-            Sequence seq = DOTween.Sequence();
-            seq.Append(transform.DOMove(controller.transform.position, 0.7f).SetEase(Ease.OutElastic));
-            seq.Append(transform.DOScale(originScale, 0.7f).SetEase(Ease.OutElastic));
+        AnimateTo(controller.transform.position, transform.rotation, originScale);
 
-            isOn2DPanel = false;
-            OnGrab(controller);
+        isOn2DPanel = false;
+        OnGrab(controller);
     }
     
     private void MoveAxisOn2dPlane(WandController controller)
@@ -863,13 +861,13 @@ public class Axis : MonoBehaviour, Grabbable {
         OnNormalized.Invoke(MinNormaliser, MaxNormaliser);
     }
 
-    public void AnimateTo(Vector3 pos, Quaternion rot)
+    public void AnimateTo(Vector3 pos, Quaternion rot, Vector3? scale = null)
     {
         print("animate to is called at " + Time.realtimeSinceStartup);
-        StartCoroutine(AnimatorCoroutine(pos, rot));
+        StartCoroutine(AnimatorCoroutine(pos, rot, scale));
     }
 
-    private IEnumerator AnimatorCoroutine(Vector3 pos, Quaternion rot)
+    private IEnumerator AnimatorCoroutine(Vector3 pos, Quaternion rot, Vector3? scale = null)
     {
         List<Tween> activeTweens = DOTween.TweensByTarget(transform);
 
@@ -886,6 +884,8 @@ public class Axis : MonoBehaviour, Grabbable {
         print("all coroutines are done! ");
         transform.DORotateQuaternion(rot, 0.4f).SetEase(Ease.OutBack);
         transform.DOMove(pos, 0.4f).SetEase(Ease.OutBack);
+        if(scale != null)
+            transform.DOScale((Vector3)scale, 0.4f).SetEase(Ease.OutElastic);
     }    
     
     public void MoveTo2DBoard(Transform TwoDBoard, Vector3 pos, Quaternion rot, Vector3 scale)
