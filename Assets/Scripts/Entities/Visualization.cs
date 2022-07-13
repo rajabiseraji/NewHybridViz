@@ -957,6 +957,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    // determines if the axse of this visualization are on 2D board and are prototypes
+    public bool hasPrototypeAxis()
+    {
+        return axes.Any((axis) => axis.isPrototype == true);
+    }
+
     // Called every frame
     private void CheckFilterBubble() {
         // This is of course very bad for the performance! so maybe do something about it! 

@@ -98,8 +98,9 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             collidedVis = other.GetComponent<Visualization>();
             visGrabbingController = collidedVis.axes[0].grabbingController;
 
-            
-            showDropFilterHint();
+            // if the visualization has any prototype axes, then don't show the drop hint
+            if(!collidedVis.hasPrototypeAxis())
+                showDropFilterHint();
         }
     }
 

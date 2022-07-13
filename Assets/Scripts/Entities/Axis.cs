@@ -748,6 +748,9 @@ public class Axis : MonoBehaviour, Grabbable {
         GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         transform.SetParent(null);
 
+        // ask the twoD panel to remove this axis from its list of connectedAxes
+       
+
         AnimateTo(controller.transform.position, transform.rotation, originScale);
 
         isOn2DPanel = false;
@@ -923,7 +926,7 @@ public class Axis : MonoBehaviour, Grabbable {
         // a.transform.
         seq.Append(transform.DORotate(rot.eulerAngles, 0.1f).SetEase(Ease.OutElastic));
 
-        seq.Append(transform.DOMove(TwoDBoard.transform.position + pos + (TwoDBoard.transform.forward * 0.05f), 0.3f).SetEase(Ease.OutElastic));
+        seq.Append(transform.DOMove(TwoDBoard.transform.position + pos + (TwoDBoard.transform.forward * -0.05f), 0.3f).SetEase(Ease.OutElastic));
 
         seq.Join(transform.DOScale(new Vector3(transform.localScale.x, transform.localScale.y, 0.00001f), 0.3f).SetEase(Ease.OutElastic));
 
