@@ -36,6 +36,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     void Update()
     {
         
+        
         if(hasCollidedWithAxis && collidedAxis != null)
         {
             // if the controller that was grabbing the axis has let go while the axis is inside
@@ -76,7 +77,6 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
             AmIMoving = false;
         } else 
             AmIMoving = true;
-        // TODO: implement a check that removes the axis that its Z (in planes coords) distance with our plane is more than 0.25f 
 
         MyPrevPosition = transform.position;
     }
@@ -137,6 +137,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     private void addCollidedAxisToBoard(Axis a = null)
     {
+        print("im inside adding axis thingy");
         Axis collidedAxis = a != null ? a : this.collidedAxis;
 
         if(collidedAxis == null)
@@ -185,6 +186,16 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
+        /*
+         * 
+         * --------------- TODO ---------------------
+         * enable this part again, I've disabled it to
+         * test it with a menu that is attached to the 
+         * controller
+         *
+         */
+        return false;
+
         if(!transform.parent.parent) {
             transform.parent.parent = controller.transform;
             return false;
