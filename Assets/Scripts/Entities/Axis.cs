@@ -255,7 +255,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void OnDestroy()
     {
-        print("on destroy is called on " + axisId);
+        print("on destroy is called on " + axisId + " " + Time.realtimeSinceStartup);
         SceneManager.Instance.sceneAxes.Remove(this);
         if (ghostSourceAxis != null)
         {

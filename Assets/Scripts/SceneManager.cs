@@ -7,9 +7,11 @@ using UnityEngine.Events;
 public class SceneManager : MonoBehaviour
 {
 
-    const float AXIS_X_PADDING = 0.35f;
-    const float AXIS_Y_PADDING = -2f;
-    const int AXES_PER_ROW = 7;
+    const float AXIS_X_PADDING = 0.3f;
+    const float AXIS_Y_PADDING = -3f;
+    const int AXES_PER_ROW = 2;
+
+    public const float AXIS_SCALE_FACTOR = 0.5f;
 
     // TODO: We need to change this function in order to create our scene and its corresponding objects
 
@@ -147,7 +149,7 @@ public class SceneManager : MonoBehaviour
             GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
 
             Axis axis = obj.GetComponent<Axis>();
-            axis.Init(dataObject, i, true, 0.5f);
+            axis.Init(dataObject, i, true, AXIS_SCALE_FACTOR);
             axis.InitOrigin(v, obj.transform.rotation);
             axis.initOriginalParent(dataShelfPanel);
             axis.tag = "Axis";
@@ -180,7 +182,7 @@ public class SceneManager : MonoBehaviour
 
         // make all of those attributes again
         makeSelectedDataAttributeAxes();
-        putThingsInFrontofCamera();
+        //putThingsInFrontofCamera();
     }
     
     void makeSelectedDataAttributeAxes()
@@ -192,13 +194,13 @@ public class SceneManager : MonoBehaviour
             Vector3 v = AxisPlaceholderObject.position;
             v += ((i % AXES_PER_ROW) * AXIS_X_PADDING) * dataShelfPanel.right;
             v += (((i / AXES_PER_ROW) / AXIS_Y_PADDING)) * dataShelfPanel.up;
-            v += dataShelfPanel.forward * 0.1f;
+            //v += dataShelfPanel.forward * -0.1f;
 
             GameObject obj = (GameObject)Instantiate(axisPrefab, v, dataShelfPanel.rotation, dataShelfPanel);
             //obj.transform.localScale = obj.transform.localScale * 0.5f;
             // obj.transform.position = v;
             Axis axis = obj.GetComponent<Axis>();
-            axis.Init(dataObject, selectedDataAttributesIds[i], true, 0.5f);
+            axis.Init(dataObject, selectedDataAttributesIds[i], true, AXIS_SCALE_FACTOR);
             axis.InitOrigin(v, obj.transform.rotation);
             axis.initOriginalParent(dataShelfPanel);
             axis.tag = "Axis";
