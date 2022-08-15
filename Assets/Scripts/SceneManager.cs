@@ -9,9 +9,9 @@ public class SceneManager : MonoBehaviour
 
     const float AXIS_X_PADDING = 0.3f;
     const float AXIS_Y_PADDING = -3f;
-    const int AXES_PER_ROW = 2;
+    const int AXES_PER_ROW = 7;
 
-    public const float AXIS_SCALE_FACTOR = 0.5f;
+    public const float AXIS_SCALE_FACTOR = 1f;
 
     // TODO: We need to change this function in order to create our scene and its corresponding objects
 
@@ -127,7 +127,7 @@ public class SceneManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            int[] list = { 6, 4, 5 };
+            int[] list = { 1, 2, 3, 4, 6, 7, 9 };
             print(list);
             setSelectedDataAttributeIds(list.ToList<int>());
         }
@@ -233,6 +233,12 @@ public class SceneManager : MonoBehaviour
 
 
     }
+
+    //public void AddNewFilterToFilterBubbles(List<Axis> axes)
+    //{
+    //    filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(axes);
+    //    updateAxesAttributeFilters();
+    //}
 
     public void placeDesktopMonitors()
     {

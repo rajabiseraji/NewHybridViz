@@ -88,6 +88,24 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
     }
 
     void OnTriggerEnter(Collider other) {
+        // check for the Dot from our raycasting module 
+        if(other.CompareTag("PointerDot"))
+        {
+            print("dot just entered the thing");
+            if (!isGlobalFilterBubble)
+            {
+                if (visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0)
+                    return;
+            }
+            else
+            {
+                if (SceneManager.Instance.globalFilters == null || SceneManager.Instance.globalFilters.Count == 0)
+                    return;
+            }
+
+            ExpandFilterBubble();
+        }
+
         // if the entered one is a visualization or an axis
         // Even the histograms are always visualizations so listen for visualization collapse and not axis! 
         if(other.GetComponent<Visualization>()) {
@@ -106,6 +124,19 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     private void OnTriggerExit(Collider other)
     {
+        if(other.CompareTag("PointerDot"))
+        {
+            print("dot just entered the thing");
+            // regardless of what the controller is carrying, if we exit the filter area, reset everything
+            hasCollidedWithVis = false;
+            collidedVis = null;
+
+            OnExited.Invoke();
+            hideDropFilterHint();
+            CollapseFilterBubble();
+        }
+
+
         if(hasCollidedWithVis && collidedVis != null)
         {
             var exitingVis = other.GetComponent<Visualization>();
@@ -198,7 +229,25 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         if (involvedAxes.Any(axis => axis.isPrototype))
             return;
 
+        /*
+         * -----------------TODO -----------------------
+         */
+        // before doing the scaling thing, we need to disable the filter bubble of the collided visualization
+        // this is prevent adding the receptor visualization as a filter of the visualization that is being destroyed and getting a bunch of null pointer exceptions
+        /*
+         *  End TODO
+         */
+
         // Here we're making sure that both the axes and the visualization will hide after hitting one another
+        // reset everything
+        //hasCollidedWithVis = false;
+        //collidedVis = null;
+
+        //OnExited.Invoke();
+        //hideDropFilterHint();
+        //CollapseFilterBubble();
+
+
         Sequence seq = DOTween.Sequence();
         seq.Append(vis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
         foreach (var axis in involvedAxes)
@@ -209,10 +258,22 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
             foreach (var axis in involvedAxes)
             {
+                print("deactivating axis " + axis.name + " " + Time.realtimeSinceStartup);
                 axis.gameObject.SetActive(false);
             }
             vis.gameObject.SetActive(false);
-            visReference.AddNewFilterToFilterBubbles(involvedAxes);
+            
+            if(!isGlobalFilterBubble) 
+                visReference.AddNewFilterToFilterBubbles(involvedAxes);
+            else
+            {
+                // this is for global filters
+                /*
+                 ------------- TODO ----------------
+                    Later we can move this into Scenemanager instead of here!
+                 */
+                filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(involvedAxes);
+            }
 
             changeCompactFilterText();
         });

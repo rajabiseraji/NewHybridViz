@@ -7,6 +7,7 @@ using DG.Tweening;
 public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 {
     public static float COLLISION_DISTANCE_BOUNDARY = 0.35f;
+    public bool IS_DRAGGABLE_BY_CONTROLLER = true;
 
     public GameObject dropHint;
     public GameObject panelHighlight;
@@ -188,13 +189,13 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     {
         /*
          * 
-         * --------------- TODO ---------------------
          * enable this part again, I've disabled it to
          * test it with a menu that is attached to the 
          * controller
          *
          */
-        return false;
+        if (!IS_DRAGGABLE_BY_CONTROLLER)
+            return false;
 
         if(!transform.parent.parent) {
             transform.parent.parent = controller.transform;

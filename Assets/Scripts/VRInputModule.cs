@@ -26,6 +26,7 @@ public class VRInputModule : BaseInputModule
 
     public void Press()
     {
+        print("I'm pressing  the down thingy");
         Data.pointerPressRaycast = Data.pointerCurrentRaycast;
 
         Data.pointerPress = ExecuteEvents.GetEventHandler<IPointerClickHandler>(Data.pointerPressRaycast.gameObject);
@@ -37,6 +38,7 @@ public class VRInputModule : BaseInputModule
 
     public void Release()
     {
+        print("im releasing from the down thingy");
         GameObject pointerRelease = ExecuteEvents.GetEventHandler<IPointerClickHandler>(Data.pointerCurrentRaycast.gameObject);
 
         if (Data.pointerPress == pointerRelease)

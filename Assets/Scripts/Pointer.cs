@@ -11,7 +11,7 @@ public class Pointer : MonoBehaviour
     public Camera Camera { get; private set; } = null;
 
     private LineRenderer lineRenderer = null;
-    private VRInputModule inputModule = null;
+    public VRInputModule inputModule = null;
 
     private void Awake()
     {
@@ -29,6 +29,7 @@ public class Pointer : MonoBehaviour
 
     private void Update()
     {
+        Debug.Assert(inputModule != null, "the input module should not be zero!");
         UpdateLine();
     }
 

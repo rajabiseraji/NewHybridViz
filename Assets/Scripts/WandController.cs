@@ -422,7 +422,9 @@ public class WandController : MonoBehaviour
 
     public void shake(float duration, float frequency, float amplitude, SteamVR_Input_Sources source)
     {
-        hapticAction.Execute(0, duration, frequency, amplitude, source);
+        // Deactivated for the controller's battery
+        // TODO: reactivate
+        //hapticAction.Execute(0, duration, frequency, amplitude, source);
 
         //print("shake " + source.ToString());
     }
