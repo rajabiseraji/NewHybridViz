@@ -805,6 +805,7 @@ public class Axis : MonoBehaviour, Grabbable {
             isCollidingWithMonitor = true;
             collidingMonitor = other.gameObject;
             print("just collided with a monitor " + other.gameObject.name);
+
         }            
         //print("in AXIS: " + other.gameObject.name);
     }

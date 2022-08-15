@@ -15,6 +15,9 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     public bool isBeingGrabbed = false;
     public bool isControllerInsideMonitor = false;
 
+    public GameObject DropPromptPrefab = null;
+    public GameObject DropPromptGameObject = null;
+
     public WsClient WebsocketManager;
 
     public int GetPriority()
@@ -128,11 +131,15 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     {
         VRCamera = GameObject.FindGameObjectWithTag("MainCamera");
         WebsocketManager = GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>();
-        
+
+        Debug.Assert((DropPromptPrefab != null), "In Monitor board: The Drop Prompt Prefab cannot be null");
         Debug.Assert((VRCamera != null), "In Monitor board: The VR Camera object cannot be null");
         Debug.Assert((WebsocketManager != null), "In Monitor board: The Websocket manager object cannot be null");
 
 
+        DropPromptGameObject = Instantiate(DropPromptPrefab, transform);
+        DropPromptGameObject.GetComponent<RectTransform>().localPosition += new Vector3(0, 0, -0.02f);
+        DropPromptGameObject.SetActive(false);
 
         dotSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         dotSphere.transform.localScale = Vector3.one * 0.01f;
@@ -168,6 +175,12 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         if(other.GetComponent<WandController>())
         {
             isControllerInsideMonitor = true;
+        } else if (other.GetComponent<Axis>() || other.GetComponent<Visualization>())
+        {
+            print("just a vis got it!");
+            // show the drop prompt 
+            Debug.Assert(DropPromptGameObject != null, "In Monitor Plane: Drop Prompt gameobject is Null!");
+            DropPromptGameObject.SetActive(true);
         }
 
     }
@@ -177,6 +190,12 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         if (other.GetComponent<WandController>())
         {
             isControllerInsideMonitor = false;
+        }
+        else if (other.GetComponent<Axis>() || other.GetComponent<Visualization>())
+        {
+            // hide the drop prompt 
+            Debug.Assert(DropPromptGameObject != null, "In Monitor Plane: Drop Prompt gameobject is Null!");
+            DropPromptGameObject.SetActive(false);
         }
     }
 
@@ -224,6 +243,10 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
             if (result.hit)
             {
+                // hide the drop vis gameobject thingy
+                DropPromptGameObject.SetActive(false);
+
+
                 print("I've hit somethig");
                 print(result.desktopCoord.x);
                 print(result.desktopCoord.y);

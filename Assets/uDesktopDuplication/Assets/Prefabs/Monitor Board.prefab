@@ -113,6 +113,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d0a715df361021439f7957b871406bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  grabbingController: {fileID: 0}
+  dotSphere: {fileID: 0}
+  dotCube: {fileID: 0}
+  VRCamera: {fileID: 0}
+  positionToCreateExtrudedVis: {x: 0, y: 0, z: 0}
+  isBeingGrabbed: 0
+  isControllerInsideMonitor: 0
+  DropPromptPrefab: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+    type: 3}
+  DropPromptGameObject: {fileID: 0}
+  WebsocketManager: {fileID: 0}
 --- !u!65 &8436924047661946788
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -33,6 +33,7 @@ TagManager:
   - FxTemporaire
   - AxisPlaceHolder
   - AxisGhost
+  - PromptCanvas
   layers:
   - Default
   - TransparentFX
