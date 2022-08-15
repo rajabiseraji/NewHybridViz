@@ -239,13 +239,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
          */
 
         // Here we're making sure that both the axes and the visualization will hide after hitting one another
-        // reset everything
-        //hasCollidedWithVis = false;
-        //collidedVis = null;
-
-        //OnExited.Invoke();
-        //hideDropFilterHint();
-        //CollapseFilterBubble();
+        
 
 
         Sequence seq = DOTween.Sequence();

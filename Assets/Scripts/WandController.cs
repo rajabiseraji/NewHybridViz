@@ -348,12 +348,12 @@ public class WandController : MonoBehaviour
 
     // this method gets active when another collider hits the controller
     /* There's a list of intersecting grabbables for each controller, it sorts the grabbables based on the priority and then sets the first one as the active grabbable component */
-    void OnTriggerEnter(Collider col)
+    public void OnTriggerEnter(Collider col)
     {
         if (draggingObjects.Count > 0)
             return;
 
-        var grabble = col.GetComponent<Grabbable>();
+        var grabble = col.GetComponent<Grabbable>(); 
         if (grabble != null && !intersectingGrabbables.Contains(col))
         {
             Collider activeGrabbable = intersectingGrabbables.FirstOrDefault();
@@ -374,7 +374,7 @@ public class WandController : MonoBehaviour
         }
     }
 
-    void OnTriggerExit(Collider col)
+    public void OnTriggerExit(Collider col)
     {
         intersectingGrabbables.RemoveAll(x => x == null);
 

@@ -7,6 +7,10 @@ public class Pointer : MonoBehaviour
 {
     [SerializeField] private float defaultLength = 5.0f;
     [SerializeField] private GameObject dot = null;
+    public WandController parentController = null;
+    public bool enableRaycastObjectManipulation = false;
+
+    private Collider currentCollider = null;
 
     public Camera Camera { get; private set; } = null;
 
@@ -30,6 +34,7 @@ public class Pointer : MonoBehaviour
     private void Update()
     {
         Debug.Assert(inputModule != null, "the input module should not be zero!");
+        Debug.Assert(parentController != null, "Parent controller cannot be null!");
         UpdateLine();
     }
 
@@ -55,6 +60,41 @@ public class Pointer : MonoBehaviour
         // Set linerenderer
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, endPosition);
+
+        handleRemoteObjectManipulation(hit);
+    }
+
+    private void handleRemoteObjectManipulation(RaycastHit hit)
+    {
+        if (!enableRaycastObjectManipulation)
+            return;
+
+        if (hit.collider != null) // if something was hit
+        {
+            if (currentCollider != null && hit.collider.GetInstanceID() != currentCollider.GetInstanceID())
+                parentController.OnTriggerExit(currentCollider);
+
+            if (currentCollider != null && hit.collider.GetInstanceID() == currentCollider.GetInstanceID())
+            {
+                // if you hit the same object just don't do anything!
+                return;
+            }
+
+            print("dot has collided with " + hit.collider.name);
+            parentController.OnTriggerEnter(hit.collider);
+            currentCollider = hit.collider;
+        }
+
+        if (hit.collider == null)
+        {
+            if (currentCollider != null)
+            {
+                parentController.OnTriggerExit(currentCollider);
+                print("dot has exited from " + currentCollider.name);
+            }
+
+            currentCollider = null;
+        }
     }
 
     private RaycastHit CreateRaycast()
