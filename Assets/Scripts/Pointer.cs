@@ -80,7 +80,7 @@ public class Pointer : MonoBehaviour
                 return;
             }
 
-            print("dot has collided with " + hit.collider.name);
+            //print("dot has collided with " + hit.collider.name);
             parentController.OnTriggerEnter(hit.collider);
             currentCollider = hit.collider;
         }
@@ -90,7 +90,7 @@ public class Pointer : MonoBehaviour
             if (currentCollider != null)
             {
                 parentController.OnTriggerExit(currentCollider);
-                print("dot has exited from " + currentCollider.name);
+                //print("dot has exited from " + currentCollider.name);
             }
 
             currentCollider = null;

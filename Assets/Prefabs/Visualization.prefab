@@ -538,7 +538,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 2288782108697580143}
-  scalingFactor: 1
+  HistogramScalingFactor: 1
+  OtherVisualizationsScalingFactor: 1
   histogramObject: {fileID: 1039085207644392}
   scatterplot2DObject: {fileID: 1277313901451468}
   parallelCoordsObject: {fileID: 1129375698972400}
@@ -565,7 +566,6 @@ MonoBehaviour:
   maxYFilter: 1
   minZFilter: -1
   maxZFilter: 1
-  scale: 1
   viewType: 0
   AttributeFilters: []
   filterBubbleGameobject: {fileID: 3775835767712840229}
@@ -677,7 +677,7 @@ GameObject:
   - component: {fileID: 3005133096358292058}
   - component: {fileID: 5361860278839895032}
   - component: {fileID: 1040606255149369041}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: FilterBubbleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1104,7 +1104,7 @@ GameObject:
   - component: {fileID: 7921509969078378520}
   - component: {fileID: 7239295752670202684}
   - component: {fileID: 3083261791277966882}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Hilight (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

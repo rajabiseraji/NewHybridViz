@@ -804,16 +804,21 @@ public class Axis : MonoBehaviour, Grabbable {
         {
             isCollidingWithMonitor = true;
             collidingMonitor = other.gameObject;
+            print("just collided with a monitor " + other.gameObject.name);
         }            
         //print("in AXIS: " + other.gameObject.name);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(isCollidingWithMonitor && collidingMonitor != null)
+        if (other.GetComponent<MonitorBoardInteractions>())
         {
-            isCollidingWithMonitor = false;
-            collidingMonitor = null;
+            if (isCollidingWithMonitor && collidingMonitor != null)
+            {
+                isCollidingWithMonitor = false;
+                collidingMonitor = null;
+                print("just GOT OUT of a monitor " + other.gameObject.name);
+            }
         }
     }
 

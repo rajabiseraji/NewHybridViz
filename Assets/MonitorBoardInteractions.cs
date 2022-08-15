@@ -45,7 +45,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         isBeingGrabbed = true;
 
 
-        Debug.Log("Hey i have been grabbed by the controller" + Time.deltaTime);
+        Debug.Log("From " + name + ": Hey i have been grabbed by the controller" + Time.deltaTime);
         // here we need to send a websocket msg to tell the system that we are trying to extrude something in this position
         dotSphere.transform.position = controller.transform.position;
         // if a hand or a controller collided into us
@@ -174,7 +174,10 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
     private void OnTriggerExit(Collider other)
     {
-        
+        if (other.GetComponent<WandController>())
+        {
+            isControllerInsideMonitor = false;
+        }
     }
 
     /*
@@ -213,8 +216,11 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
             Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((collidedVis.transform.position - transform.position), transform.forward);
 
-            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - collidedVis.transform.position;
-            var result = GetComponent<uDesktopDuplication.Texture>().RayCast(collidedVis.transform.position, dirForRaycast);
+            Vector3 pointOffTheScreen = (transform.position + transform.forward * -0.3f);
+            
+            Vector3 dirForRaycast = (transform.position + projectedDistanceOnPlane) - pointOffTheScreen;
+
+            var result = GetComponent<uDesktopDuplication.Texture>().RayCast(pointOffTheScreen, dirForRaycast);
 
             if (result.hit)
             {
