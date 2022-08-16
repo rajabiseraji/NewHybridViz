@@ -26,7 +26,24 @@ public class WsClient : MonoBehaviour
         {
             if(receivedMsg.typeOfMessage == "CODAPINFO")
             {
+
+                if((receivedMsg.x == -1 && receivedMsg.y == -1) || receivedMsg.text == "NOT_FOUND")
+                {
+                    // this means that there was nothing in the place that we put the controller
+
+                    // TODO: the correct way to this is to handle it using event system and then 
+                    // listening for that event in the MonitorBoardInteraction script
+                    // however, for now we just set a flag in the SceneManager script to set this up
+                    SceneManager.Instance.extrusionWasEmpty = true;
+                    print("we didn't find anything under the extrusion, just set the variable in SceneManager");
+
+                    return;
+
+                }
                 // This is a message that is sent to tell XR about the axes that we want to be extruded
+
+                // TODO
+                // We should check for the type of the msg here, checking if it's a highlight, extrusion or what
                 Debug.Log("we want something to be extruded!");
                 string xAxisName = receivedMsg.xAxisName;
                 string yAxisName = receivedMsg.yAxisName;
@@ -36,6 +53,8 @@ public class WsClient : MonoBehaviour
                     SceneManager.Instance.SetYToBeCreatedAxis(yAxisName);
                 if(xAxisName != "")
                     SceneManager.Instance.SetXToBeCreatedAxis(xAxisName);
+
+                SceneManager.Instance.extrusionWasEmpty = false;
             }
         }
     }

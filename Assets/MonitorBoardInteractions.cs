@@ -20,6 +20,8 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
     public WsClient WebsocketManager;
 
+    private float SPHERE_SCALE = 0.03f;
+
     public int GetPriority()
     {
         // We want a low priority so that the controller doesn't grab this
@@ -43,6 +45,23 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
+        // Enable this if we want the extrusion to happen on Grab and not on Trigger
+        initiateExtrusionProcess(controller);
+
+        // This should be false if we don't want the controller to be able to move the monitor 
+        // itself
+        return false;
+    }
+
+    public void OnRelease(WandController controller)
+    {
+        doExtrudeVisualization(controller);
+    }
+
+    void initiateExtrusionProcess(WandController controller)
+    {
+        // reset the flag that we set in SceneManager for detecting empty extrusions
+        SceneManager.Instance.extrusionWasEmpty = false;
 
         grabbingController = controller;
         isBeingGrabbed = true;
@@ -50,7 +69,10 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
         Debug.Log("From " + name + ": Hey i have been grabbed by the controller" + Time.deltaTime);
         // here we need to send a websocket msg to tell the system that we are trying to extrude something in this position
+        dotSphere.transform.localScale = Vector3.one * SPHERE_SCALE;
+        dotSphere.SetActive(true);
         dotSphere.transform.position = controller.transform.position;
+        dotSphere.GetComponent<Renderer>().material.color = new Color(1, 1, 0, 0.3f); // Yellow
         // if a hand or a controller collided into us
         // get the result of the collision and make monitor raycast
         Vector3 projectedDistanceOnPlane = Vector3.ProjectOnPlane((controller.transform.position - transform.position), transform.forward);
@@ -63,6 +85,12 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             print("controller is grabbing the monitor from now");
             // make a cube or small sphere at the point that the two collide with one ancollidedObjectWithMe 
 
+            // Show some sort of a drop-in or drop-off hint that shows something is being lifted off the screen!
+            // for now we just attach the dotSphere thingy to it
+            dotSphere.transform.parent = controller.transform;
+            // TODO: fix this later to a proper ghost kind of situation
+            // Later I can use the rectangles from Gaze Point Analyzer class to make highlights in Unity and not on Dekstop
+
             print("Raycast has hit somethig");
             print(result.desktopCoord.x);
             print(result.desktopCoord.y);
@@ -73,18 +101,44 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
                 null);
             GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendMsgToDesktop(msg);
         }
-
-
-
-        // This should be false if we don't want the controller to be able to move the monitor 
-        // itself
-        return false;
     }
 
-    public void OnRelease(WandController controller)
+    void doExtrudeVisualization(WandController controller)
     {
         isBeingGrabbed = false;
         grabbingController = null;
+
+        
+
+        // TODO: change it later when we implement proper prompt for this
+        // disable the sphere from following the controller after the controller is released!
+        dotSphere.transform.parent = null;
+        dotCube.transform.position = controller.transform.position;
+
+        // This is what happens if we don't find anything underneath the visualization
+        if (SceneManager.Instance.extrusionWasEmpty)
+        {
+            dotSphere.GetComponent<Renderer>().material.color = new Color(1, 0, 0, 0.3f);
+            print("The extrusion selection was empty, I'm returning now!");
+            Sequence s = DOTween.Sequence();
+            s.PrependInterval(0.5f);
+            s.Append(dotSphere.transform.DOScale(0, 0.3f).SetEase(Ease.OutSine));
+            s.AppendCallback(() =>
+            {
+                dotSphere.SetActive(false);
+            });
+            return;
+        }
+
+        // What to do to the object if we have an active visuaization underneath: 
+        dotSphere.GetComponent<Renderer>().material.color = Color.green;
+        Sequence seq = DOTween.Sequence();
+        seq.PrependInterval(1);
+        seq.Append(dotSphere.transform.DOScale(0, 0.3f).SetEase(Ease.OutSine));
+        seq.AppendCallback(() =>
+        {
+            dotSphere.SetActive(false);
+        });
 
         Vector3 distanceVector = controller.transform.position - transform.position;
         float distanceAlongNormal = -Vector3.Dot(transform.forward, distanceVector);
@@ -100,7 +154,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             isControllerInsideMonitor = false;
         }
 
-        dotCube.transform.position = controller.transform.position;
+
         positionToCreateExtrudedVis = controller.transform.position;
 
         Vector3 cameraAngles = VRCamera.transform.eulerAngles;
@@ -142,8 +196,9 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
         DropPromptGameObject.SetActive(false);
 
         dotSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        dotSphere.transform.localScale = Vector3.one * 0.01f;
-        dotSphere.GetComponent<Renderer>().material.color = Color.red;
+        dotSphere.transform.localScale = Vector3.one * SPHERE_SCALE;
+        dotSphere.GetComponent<Renderer>().material.color = new Color(1, 1, 0, 0.3f);
+
         
         dotCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         dotCube.transform.localScale = Vector3.one * 0.02f;
@@ -168,13 +223,21 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             } 
         }
 
+        if (isBeingGrabbed && SceneManager.Instance.extrusionWasEmpty)
+        {
+            OnRelease(grabbingController);
+        }
+
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.GetComponent<WandController>())
+        WandController controller = other.GetComponent<WandController>();
+        if (controller)
         {
             isControllerInsideMonitor = true;
+            // I think we should send the info request from CODAP right as the controller enters the display and show the dot here
+
         } else if (other.GetComponent<Axis>() || other.GetComponent<Visualization>())
         {
             print("just a vis got it!");

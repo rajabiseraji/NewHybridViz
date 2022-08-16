@@ -51,7 +51,9 @@ public class SceneManager : MonoBehaviour
     public int toBeActivatedYAxisId = -1; 
     public int toBeActivatedZAxisId = -1; 
     public int toBeActivatedColorAxisId = -1; 
-    public int toBeActivatedSizeAxisId = -1; 
+    public int toBeActivatedSizeAxisId = -1;
+
+    public bool extrusionWasEmpty = false;
 
     static SceneManager _instance;
     public static SceneManager Instance
