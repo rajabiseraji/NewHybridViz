@@ -383,6 +383,11 @@ public class SceneManager : MonoBehaviour
             // if the YAxis has also been called for activation, we need to move the X axis a little bit to the bottom so that it can make a 2D scatterplot
             Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
             // This will create X Axis
+
+            // We need to move XAxis to the right by 1.5 * AXIS_ROD_LENGTH 
+            // this is to prevent flipping
+            xAxisPosition = toBeActivatedYAxisId != -1 ? xAxisPosition + (Axis.AXIS_ROD_LENGTH * 1f * XAxisRightVector) : xAxisPosition;
+
             CreateHistogram(toBeActivatedXAxisId ,xAxisPosition, xAxisRotation);
             
         }
