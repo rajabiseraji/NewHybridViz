@@ -63,6 +63,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     
     [SerializeField]
     Color[] visualizationColors = null;
+    
+    [SerializeField]
+    float[] visualizationSizes = null;
     // the default it gets is an empty array not null! 
 
     //[SerializeField]
@@ -409,6 +412,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             AddNewFilterToFilterBubbles(axis.AttributeFilters);
             // check for visualization color stuff
             restoreVisualizationColorsFromAxis(axis);
+            // check for visualization size stuff
+            restoreVisualizationSizesFromAxis(axis);
+
 
             UpdateViewType();//
             UpdateVisualizations();
@@ -553,7 +559,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             instantiatedViews.Add(scatter2DT.Item2);
             //scatter2DT.Item2.setDefaultColor();
             scatter2DT.Item2.setColors(visualizationColors, false);
-            scatter2DT.Item2.setSizes(VisualisationAttributes.Instance.sizes);
+            scatter2DT.Item2.setSizes(getVisualizationSizes());
             OnChangePointSize(VisualisationAttributes.Instance.ScatterplotDefaultPointSize);
             OnChangeMinPointSize(VisualisationAttributes.Instance.MinScatterplotPointSize);
             OnChangeMaxPointSize(VisualisationAttributes.Instance.MaxScatterplotPointSize);
@@ -608,7 +614,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 instantiatedViews.Add(scatter3DT.Item2);
                 //scatter3DT.Item2.setDefaultColor();
                 scatter3DT.Item2.setColors(visualizationColors, false);
-                scatter3DT.Item2.setSizes(VisualisationAttributes.Instance.sizes);
+                scatter3DT.Item2.setSizes(getVisualizationSizes());
                 OnChangePointSize(VisualisationAttributes.Instance.ScatterplotDefaultPointSize);
                 OnChangeMinPointSize(VisualisationAttributes.Instance.MinScatterplotPointSize);
                 OnChangeMaxPointSize(VisualisationAttributes.Instance.MaxScatterplotPointSize);
@@ -1117,10 +1123,64 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         this.visualizationColors = GetColorMapping(a.axisId);
         a.correspondingVisColors.AddRange(visualizationColors);
-        foreach(Axis axis in axes) {
+        foreach (Axis axis in axes)
+        {
             axis.correspondingVisColors.AddRange(visualizationColors);
         }
         OnAttributeChanged(a.axisId);
+    }
+
+    // this version is to be called by SceneManger 
+    // this version is just for debugging
+    public void setVisualizationSizes(float[] newSizes, int attributeId = 1)
+    {
+        this.visualizationSizes = newSizes;
+        OnAttributeChanged(attributeId);
+    }
+
+    private void restoreVisualizationSizesFromAxis(Axis axis)
+    {
+        if (visualizationSizes.Count() == 0 && axis.correspondingVisColors.Count() > 0)
+        {
+            visualizationSizes = axis.correspondingVisSizes.ToArray();
+            print("In Visualization " + name + " and just changes sizes of the thing with Axis " + axis.name);
+        }
+    }
+
+    // This is to be called when we drop an axis in the view area
+    public void setVisualizationSizes(Axis a)
+    {
+        this.visualizationSizes = GetSizeMapping(a.axisId);
+        a.correspondingVisSizes.AddRange(visualizationSizes);
+        foreach(Axis axis in axes) {
+            axis.correspondingVisSizes.AddRange(visualizationSizes);
+        }
+        OnAttributeChanged(a.axisId);
+    }
+
+    private float[] getVisualizationSizes()
+    {
+        if(visualizationSizes.Count() == 0)
+        {
+            return Enumerable.Range(0, SceneManager.Instance.dataObject.DataPoints).Select(_ => 1f).ToArray();
+        } else
+        {
+            return visualizationSizes;
+        }
+    }
+
+    float[] GetSizeMapping(int sizedAttributeAxisId)
+    {
+        if (sizedAttributeAxisId >= 0)
+        {
+            return SceneManager.Instance.dataObject.getDimension(sizedAttributeAxisId);
+        }
+        else
+        {
+            return Enumerable.Range(0, SceneManager.Instance.dataObject.DataPoints).Select(_ => 1f).ToArray();
+        }
+
+        //EventManager.TriggerEvent(ApplicationConfiguration.OnScatterplotAttributeChanged, VisualisationAttributes.Instance.SizeAttribute);
     }
 
     Color[] GetColorMapping(int coloredAttributeAxisId)

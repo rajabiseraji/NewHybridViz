@@ -36,6 +36,7 @@ public class Axis : MonoBehaviour, Grabbable {
     
     public Visualization collidingVisForPrompt = null;
     public bool isCollidingWithColorPrompt = false;
+    public bool isCollidingWithSizePrompt = false;
 
     // To detect if the dataShelf panel is moving
     public bool parentIsMoving = false;
@@ -132,6 +133,7 @@ public class Axis : MonoBehaviour, Grabbable {
     // TODO: in the future just re-write the ParseScene function to accepct individual configs
     //[SerializeField] 
     public List<Color> correspondingVisColors = new List<Color>();
+    public List<float> correspondingVisSizes = new List<float>();
 
 
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
@@ -677,32 +679,43 @@ public class Axis : MonoBehaviour, Grabbable {
 
     private void handleReleaseInVisualizationPrompt()
     {
-        if (!isPrototype)
+        if (!isPrototype && collidingVisForPrompt != null && (isCollidingWithColorPrompt || isCollidingWithSizePrompt))
         {
-            if (isCollidingWithColorPrompt && collidingVisForPrompt != null)
+            if (isCollidingWithColorPrompt)
             {
                 // Call the visualization method that handles color assignments
                 collidingVisForPrompt.setVisualizationColors(this);
-                setCollidedVisualizationForPrompt(null);
+                // Reset everything after the assignment happens
+                setCollidedVisualizationForPrompt(null, PromptCollisionHandler.PromptType.Color);
 
-                //now scale and destroy the axis!
-                gameObject.layer = LayerMask.NameToLayer("TransparentFX");
-                //gameObject.SetActive(false);
+            } else if (isCollidingWithSizePrompt)
+            {
+                // Call the visualization method that handles size assignments
+                collidingVisForPrompt.setVisualizationSizes(this);
 
-                // TODO: this is just a hack 
-                // ImAxisRecognizer is written in a way that SP and SPLOMS3D array won't be cleared 
-                // unless the position of an axis changes, so here's a hack to drop the thing instead 
-                // of dealing with re-writing and refactoring the whole ImAxisRecognizer code!
-
-                Sequence seq = DOTween.Sequence();
-                seq.Append(transform.DOScale(0.0f, 0.3f).SetEase(Ease.InBack));
-                seq.Append(transform.DOMoveY(-10000.0f, 0.5f).SetEase(Ease.InBack));
-                seq.AppendCallback(() =>
-                {
-                    Destroy(gameObject);
-                });
-
+                // Reset everything after the assignment happens
+                setCollidedVisualizationForPrompt(null, PromptCollisionHandler.PromptType.Size);
             }
+
+
+            // no matter if it's size of color, we need it destroyed after the drop happens
+
+            //now scale and destroy the axis!
+            gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+            //gameObject.SetActive(false);
+
+            // TODO: this is just a hack 
+            // ImAxisRecognizer is written in a way that SP and SPLOMS3D array won't be cleared 
+            // unless the position of an axis changes, so here's a hack to drop the thing instead 
+            // of dealing with re-writing and refactoring the whole ImAxisRecognizer code!
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOScale(0.0f, 0.3f).SetEase(Ease.InBack));
+            seq.Append(transform.DOMoveY(-10000.0f, 0.5f).SetEase(Ease.InBack));
+            seq.AppendCallback(() =>
+            {
+                Destroy(gameObject);
+            });
         }
     }
 
@@ -893,16 +906,24 @@ public class Axis : MonoBehaviour, Grabbable {
         //}
     }
 
-    public void setCollidedVisualizationForPrompt(Visualization collided)
+    public void setCollidedVisualizationForPrompt(Visualization collided, PromptCollisionHandler.PromptType promptType)
     {
         if(!collided)
         {
-            isCollidingWithColorPrompt = false;
+            if (promptType == PromptCollisionHandler.PromptType.Color)
+                isCollidingWithColorPrompt = false;
+            else if (promptType == PromptCollisionHandler.PromptType.Size)
+                isCollidingWithSizePrompt = false;
+
             collidingVisForPrompt = null;
             return;
         } else
         {
-            isCollidingWithColorPrompt = true;
+            if (promptType == PromptCollisionHandler.PromptType.Color)
+                isCollidingWithColorPrompt = true;
+            else if (promptType == PromptCollisionHandler.PromptType.Size)
+                isCollidingWithSizePrompt = true;
+
             collidingVisForPrompt = collided;
         }
 
