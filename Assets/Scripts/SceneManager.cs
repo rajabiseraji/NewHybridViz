@@ -71,10 +71,12 @@ public class SceneManager : MonoBehaviour
         //GameObject.FindGameObjectsWithTag("MonitorBoard");
 
         Debug.Assert(AxisPlaceholderObject != null, "Axis Placeholder shouldnb't be null");
+        Debug.Assert(dataShelfPanel != null, "Data Shelf panel shouldnb't be null");
 
         AxisPlaceholderObject.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 0);
 
-        dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
+        // TODO: enable it later
+        //dataShelfPanel = GameObject.FindGameObjectWithTag("DataShelfPanel").transform;
 
         // find the DataShelf panel and set it in a way that it's in front of the camera
         putThingsInFrontofCamera();
@@ -126,6 +128,10 @@ public class SceneManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A))
         {
             makeAllDataAttributeAxes();
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ChangeAxisColor(sceneAxes.Last());
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -213,7 +219,7 @@ public class SceneManager : MonoBehaviour
 
     public void putThingsInFrontofCamera()
     {
-
+        print("putting things in front of the camera");
         Vector3 cameraAngles = mainCamera.transform.eulerAngles;
         dataShelfPanel.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
 
@@ -224,7 +230,7 @@ public class SceneManager : MonoBehaviour
 
 
         dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 0.5f);
-        dataShelfPanel.position += (mainCamera.transform.up * -0.5f);
+        //dataShelfPanel.position += (mainCamera.transform.up * -0.5f);
 
         // Get the global filters in front of the camera too
         //GlobalFilterPanel.GetComponentInChildren<FilterBubbleScript>().SetAsGlobalFitlerBubble();
@@ -271,6 +277,39 @@ public class SceneManager : MonoBehaviour
     {
         sceneAxes.Remove(axis);
         OnAxisRemoved.Invoke(axis);
+    }
+
+    public void ChangeAxisColor(Axis axis)
+    {
+        axis.correspondingVisualizations()[0].setVisualizationColors(axis);
+    }
+
+
+    Color[] GetColorMapping(int coloredAttribute)
+    {
+
+        if (VisualisationAttributes.Instance.IsGradientColor)
+        {
+            /*VisualisationAttributes.Instance.colors =*/ return VisualisationAttributes.getContinuousColors(VisualisationAttributes.Instance.MinGradientColor, VisualisationAttributes.Instance.MaxGradientColor, SceneManager.Instance.dataObject.getDimension(coloredAttribute));
+        }
+        else
+        {
+
+            List<float> categories = SceneManager.Instance.dataObject.getNumberOfCategories(coloredAttribute);
+            int nbCategories = categories.Count;
+            Color[] palette = Colors.generateColorPalette(nbCategories);
+
+            Dictionary<float, Color> indexCategoryToColor = new Dictionary<float, Color>();
+            for (int i = 0; i < categories.Count; i++)
+            {
+                indexCategoryToColor.Add(categories[i], palette[i]);
+            }
+
+            /*VisualisationAttributes.Instance.colors =*/
+            return Colors.mapColorPalette(SceneManager.Instance.dataObject.getDimension(coloredAttribute), indexCategoryToColor);
+        }
+        //EventManager.TriggerEvent(ApplicationConfiguration.OnColoredAttributeChanged, VisualisationAttributes.Instance.ColoredAttribute);
+
     }
 
     //

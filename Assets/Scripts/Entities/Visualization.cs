@@ -60,6 +60,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     [SerializeField]
     GameObject linkedScatterplots;
+    
+    [SerializeField]
+    Color[] visualizationColors = null;
+    // the default it gets is an empty array not null! 
 
     //[SerializeField]
     //GameObject sizePanel;
@@ -172,6 +176,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public GameObject filterBubbleButtonGameobject;
     public GameObject filterBubbleCompactGameobject;
 
+    public GameObject colorPromptGameObject = null;
+    public GameObject sizePromptGameObject = null;
+
     void Awake()
     {
         axes = new List<Axis>();
@@ -201,6 +208,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         Debug.Assert((filterBubbleButtonGameobject != null), "In Vis: The filter bubble button object cannot be null");
         Debug.Assert((filterBubbleCompactGameobject != null), "In Vis: The filter bubble object cannot be null");
 
+        Debug.Assert((colorPromptGameObject != null), "In Vis: The Color Prompt object cannot be null");
+        Debug.Assert((sizePromptGameObject != null), "In Vis: The Size Prompt object cannot be null");
+
         //listen to menu events
         EventManager.StartListening(ApplicationConfiguration.OnSlideChangePointSize, OnChangePointSize);
         EventManager.StartListening(ApplicationConfiguration.OnSlideChangeMinPointSize, OnChangeMinPointSize);
@@ -218,6 +228,26 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         
         //ignore raycasts for brushing/details on demand
         GetComponent<SphereCollider>().gameObject.layer = 2;
+
+        // At this part, get the Color and size configuration of this visualization from the Axis that has been a part of it! 
+        // Because of the stupid Parse Scene function, whenever the axes are moved, these visualiaztion
+        // objects are made from scratch, so the Start function is called to handle that!
+        //Axis axisWithColor = null;
+        //for(int i = 0; i < axes.Count(); i++)
+        //{
+        //    print("in Visualization: checking colors for " + axes[i].name + ": " + axes[i].correspondingVisColors.Count());
+
+        //    if (axes[i].correspondingVisColors.Count() > 0)
+        //    {
+        //        axisWithColor = axes[i];
+        //        break;
+        //    }
+        //}
+        //if(axisWithColor != null)
+        //{
+        //    visualizationColors = axisWithColor.correspondingVisColors.ToArray();
+        //    print("In Visualization " + name + " and just colored the thing with Axis " + axisWithColor.name);
+        //}
     }
 
     void OnDestroy()
@@ -236,6 +266,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             axis.OnFiltered.RemoveListener(Axis_OnFilter);
             axis.OnNormalized.RemoveListener(Axis_OnNormalize);
+
+            // set the vis colors of that Axis to null when the visualization is destroyed
+            //axis.correspondingVisColors = null;
+            //print("In Visualization " + name + " Destroying everything!");
         }
     }
 
@@ -373,7 +407,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             // We want to update the filters of the visualizations based on what filters each axis has!
             AddNewFilterToFilterBubbles(axis.AttributeFilters);
-            UpdateViewType();
+            // check for visualization color stuff
+            restoreVisualizationColorsFromAxis(axis);
+
+            UpdateViewType();//
             UpdateVisualizations();
         }
     }
@@ -428,6 +465,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // This is only called when an attribiute is changed or when a new axis is added
     public void UpdateVisualizations(DataBinding.DataObject dobjs = null)
     {
+        print("In Visualization: Updating");
         foreach (Transform t in histogramObject.transform)
         {
             Destroy(t.gameObject);
@@ -490,11 +528,11 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             GameObject parallel = parallelT.Item1;
             parallel.transform.SetParent(parallelCoordsObject.transform, false);
             instantiatedViews.Add(parallelT.Item2);
-            parallelT.Item2.setDefaultColor();
+            //parallelT.Item2.setDefaultColor();
             parallelT.Item1.layer = LayerMask.NameToLayer("View");
             parallelT.Item1.tag = "View";
             parallelT.Item1.name += " parallel";
-            parallelT.Item2.setColors(VisualisationAttributes.Instance.colors, true);            
+            parallelT.Item2.setColors(visualizationColors, true);            
             DetailsOnDemandComponent = parallelT.Item1.AddComponent<DetailsOnDemand>();
             DetailsOnDemandComponent.VisualizationReference = this;
             parallelT.Item1.GetComponentInChildren<DetailsOnDemand>().setTransformParent(transform);
@@ -513,8 +551,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
             scatter2.transform.SetParent(scatterplot2DObject.transform, false);
             instantiatedViews.Add(scatter2DT.Item2);
-            scatter2DT.Item2.setDefaultColor();
-            scatter2DT.Item2.setColors(VisualisationAttributes.Instance.colors, false);
+            //scatter2DT.Item2.setDefaultColor();
+            scatter2DT.Item2.setColors(visualizationColors, false);
             scatter2DT.Item2.setSizes(VisualisationAttributes.Instance.sizes);
             OnChangePointSize(VisualisationAttributes.Instance.ScatterplotDefaultPointSize);
             OnChangeMinPointSize(VisualisationAttributes.Instance.MinScatterplotPointSize);
@@ -568,8 +606,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 GameObject scatter = scatter3DT.Item1;
                 scatter.transform.SetParent(scatterplot3DObject.transform, false);
                 instantiatedViews.Add(scatter3DT.Item2);
-                scatter3DT.Item2.setDefaultColor();
-                scatter3DT.Item2.setColors(VisualisationAttributes.Instance.colors, false);
+                //scatter3DT.Item2.setDefaultColor();
+                scatter3DT.Item2.setColors(visualizationColors, false);
                 scatter3DT.Item2.setSizes(VisualisationAttributes.Instance.sizes);
                 OnChangePointSize(VisualisationAttributes.Instance.ScatterplotDefaultPointSize);
                 OnChangeMinPointSize(VisualisationAttributes.Instance.MinScatterplotPointSize);
@@ -603,7 +641,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 axisH1.axisId, axisV1.axisId, axisH2.axisId, axisV2.axisId,
                 VisualisationFactory.Instance.linkedViewsMaterial);
             linkedView.Item1.transform.SetParent(linkedScatterplots.transform, false);
-            linkedView.Item2.setColors(VisualisationAttributes.Instance.colors, true);
+            linkedView.Item2.setColors(visualizationColors, true);
             linkedView.Item1.tag = "View";
             linkedView.Item1.name += " linkedView";
 
@@ -1054,6 +1092,70 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 break;
         }
         return colorBuffer;
+
+    }
+
+    // this version is to be called by SceneManger 
+    // this version is just for debugging
+    public void setVisualizationColors(Color[] newColors, int attributeId = 1)
+    {
+        this.visualizationColors = newColors;
+        OnAttributeChanged(attributeId);
+    }
+
+    private void restoreVisualizationColorsFromAxis(Axis axis)
+    {
+        if (visualizationColors.Count() == 0 && axis.correspondingVisColors.Count() > 0)
+        {
+            visualizationColors = axis.correspondingVisColors.ToArray();
+            print("In Visualization " + name + " and just colored the thing with Axis " + axis.name);
+        }
+    }
+
+    // This is to be called when we drop an axis in the view area
+    public void setVisualizationColors(Axis a)
+    {
+        this.visualizationColors = GetColorMapping(a.axisId);
+        a.correspondingVisColors.AddRange(visualizationColors);
+        foreach(Axis axis in axes) {
+            axis.correspondingVisColors.AddRange(visualizationColors);
+        }
+        OnAttributeChanged(a.axisId);
+    }
+
+    Color[] GetColorMapping(int coloredAttributeAxisId)
+    {
+
+        // We can find the type of data by looking at SceneManger.Instance.dobjs.TypeDimensionDictionary
+        // this dictionary has types of int, float, bool, string
+        // TypeDimensionDictionary[dimensionIndex] will get us the thing
+
+        bool isGradientColor = SceneManager.Instance.dataObject.TypeDimensionDictionary1[coloredAttributeAxisId] == "string" ? false : true;
+        print("in GetColorMapping: the type of the attribute is: " + SceneManager.Instance.dataObject.TypeDimensionDictionary1[coloredAttributeAxisId]);
+
+        if (isGradientColor)
+        {
+            /*VisualisationAttributes.Instance.colors =*/
+            return VisualisationAttributes.getContinuousColors(VisualisationAttributes.Instance.MinGradientColor, VisualisationAttributes.Instance.MaxGradientColor, SceneManager.Instance.dataObject.getDimension(coloredAttributeAxisId));
+        }
+        else
+        {
+
+            List<float> categories = SceneManager.Instance.dataObject.getNumberOfCategories(coloredAttributeAxisId);
+            int nbCategories = categories.Count;
+            Color[] palette = Colors.generateColorPalette(nbCategories);
+
+            Dictionary<float, Color> indexCategoryToColor = new Dictionary<float, Color>();
+            for (int i = 0; i < categories.Count; i++)
+            {
+                indexCategoryToColor.Add(categories[i], palette[i]);
+            }
+
+            /*VisualisationAttributes.Instance.colors =*/
+            return Colors.mapColorPalette(SceneManager.Instance.dataObject.getDimension(coloredAttributeAxisId), indexCategoryToColor);
+        }
+        // TODO: we want to enable this with the visualization ID for undo and redo
+        //EventManager.TriggerEvent(ApplicationConfiguration.OnColoredAttributeChanged, VisualisationAttributes.Instance.ColoredAttribute);
 
     }
 
@@ -1740,7 +1842,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     #endregion
 
-    List<Visualization> collidedVisualizations = new List<Visualization>();
+    public List<Visualization> collidedVisualizations = new List<Visualization>();
 
     public bool IsHidden
     {
@@ -1766,6 +1868,34 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             collidedVisualizations.Remove(vis);
         }
+    }
+
+    public void showColorPrompt()
+    {
+        // if we're dealing with a histogram don't do this!
+        if(viewType == ViewType.Histogram)
+        {
+            print("it's a histogram so we're not going to show the color prompt");
+            return;
+        }
+
+
+        colorPromptGameObject.SetActive(true); 
+    }
+
+    public void hideColorPrompt()
+    {
+        colorPromptGameObject.SetActive(false); 
+    }
+    
+    void showSizePrompt()
+    {
+        colorPromptGameObject.SetActive(true); 
+    }
+
+    void hideSizePrompt()
+    {
+        colorPromptGameObject.SetActive(false); 
     }
 
     public int GetPriority()

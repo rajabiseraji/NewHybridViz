@@ -396,6 +396,9 @@ public class View
             {
                 myMesh.colors = colors;
             }
+        } else
+        {
+            setDefaultColor();
         }
     }
 

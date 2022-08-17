@@ -619,7 +619,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             SP[i].ShowHistogram(false);
                             SP[j].ShowHistogram(false);
-
+                            print("Recognizer: histogram false 1");
                             LinkVisualisations(_name, SP[i], SP[j]);
                         }
                      
@@ -636,7 +636,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
-
+                            print("Recognizer: histogram false 2");
                             LinkVisualisations(_name, SP[i], SP[j]);
                         }
                     }
@@ -651,7 +651,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
-
+                            print("Recognizer: histogram false 3");
                             LinkVisualisations(_name, SP[i], SP[j]);
                         }
                     }
@@ -663,7 +663,11 @@ public class ImAxesRecognizer : MonoBehaviour
         foreach (var item in SP)
         {
             if (item.viewType == Visualization.ViewType.Histogram && AxisInScatterplotMaxtrix(item.axes[0]))
+            {
                 item.ShowHistogram(false);
+                print("Recognizer: histogram false 4");
+            }
+
         }
 
         //cleaning the visualisations that needs to be destroyed

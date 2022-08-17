@@ -33,6 +33,9 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public bool isCollidingWithMonitor = false;
     public GameObject collidingMonitor = null;
+    
+    public Visualization collidingVisForPrompt = null;
+    public bool isCollidingWithColorPrompt = false;
 
     // To detect if the dataShelf panel is moving
     public bool parentIsMoving = false;
@@ -123,6 +126,13 @@ public class Axis : MonoBehaviour, Grabbable {
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
 
     public float axisScaleFactor = 1f;
+
+    // This is for holding the color configurations of a visualization
+    // This is to overcome the stupid design of the ParseScene function and nothing else! 
+    // TODO: in the future just re-write the ParseScene function to accepct individual configs
+    //[SerializeField] 
+    public List<Color> correspondingVisColors = new List<Color>();
+
 
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
@@ -549,7 +559,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
                 return;
             }
-        } 
+        }
+
 
         #region Animating Axis to move for each Visualization
 
@@ -658,6 +669,41 @@ public class Axis : MonoBehaviour, Grabbable {
             cloningWidgetGameObject.SetActive(true);
         }
 
+        // Handle Axis drop inside a color prompt
+        // TODO: should this be called before or after all the ones we have above us?
+        handleReleaseInVisualizationPrompt();
+
+    }
+
+    private void handleReleaseInVisualizationPrompt()
+    {
+        if (!isPrototype)
+        {
+            if (isCollidingWithColorPrompt && collidingVisForPrompt != null)
+            {
+                // Call the visualization method that handles color assignments
+                collidingVisForPrompt.setVisualizationColors(this);
+                setCollidedVisualizationForPrompt(null);
+
+                //now scale and destroy the axis!
+                gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+                //gameObject.SetActive(false);
+
+                // TODO: this is just a hack 
+                // ImAxisRecognizer is written in a way that SP and SPLOMS3D array won't be cleared 
+                // unless the position of an axis changes, so here's a hack to drop the thing instead 
+                // of dealing with re-writing and refactoring the whole ImAxisRecognizer code!
+
+                Sequence seq = DOTween.Sequence();
+                seq.Append(transform.DOScale(0.0f, 0.3f).SetEase(Ease.InBack));
+                seq.Append(transform.DOMoveY(-10000.0f, 0.5f).SetEase(Ease.InBack));
+                seq.AppendCallback(() =>
+                {
+                    Destroy(gameObject);
+                });
+
+            }
+        }
     }
 
     private void handleParentDataShelfMovement()
@@ -806,12 +852,29 @@ public class Axis : MonoBehaviour, Grabbable {
             collidingMonitor = other.gameObject;
             print("just collided with a monitor " + other.gameObject.name);
 
-        }            
+        }
+
+
+        //Visualization collidedVis = other.GetComponent<Visualization>();
+        //if (collidedVis && !correspondingVisualizations().Contains(collidedVis))
+        //{
+        //    print("I've collided with a vis ");
+
+        //    // don't do it when the axis is part of any other visualizations that are not histograms
+        //    if(correspondingVisualizations().Count() > 1)
+        //    {
+        //        print("in Axis: can't do attribute assignment for non-histograms!");
+        //        return;
+        //    }
+        //    this.collidingVis = collidedVis;
+        //    //collidedVis.showColorPrompt();
+        //}
         //print("in AXIS: " + other.gameObject.name);
     }
 
     private void OnTriggerExit(Collider other)
     {
+        Visualization collidedVis = other.GetComponent<Visualization>();
         if (other.GetComponent<MonitorBoardInteractions>())
         {
             if (isCollidingWithMonitor && collidingMonitor != null)
@@ -821,7 +884,30 @@ public class Axis : MonoBehaviour, Grabbable {
                 print("just GOT OUT of a monitor " + other.gameObject.name);
             }
         }
+        //else if (collidedVis && this.collidingVis.transform.GetInstanceID() == collidingVis.transform.GetInstanceID())
+        //{
+        //    print("I'm getting out of a vis ");
+        //    //this.collidingVis.hideColorPrompt();
+        //    this.collidingVis = null;
+
+        //}
     }
+
+    public void setCollidedVisualizationForPrompt(Visualization collided)
+    {
+        if(!collided)
+        {
+            isCollidingWithColorPrompt = false;
+            collidingVisForPrompt = null;
+            return;
+        } else
+        {
+            isCollidingWithColorPrompt = true;
+            collidingVisForPrompt = collided;
+        }
+
+    }
+
 
     // This finds all fo the visualizations that this axis is a part of ... and yes, an axis could be a part of multiple data visualziations
     public List<Visualization> correspondingVisualizations()

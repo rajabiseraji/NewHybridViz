@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 146900, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_TagString
-      value: MainCamera
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 147176, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_IsActive
@@ -265,11 +265,11 @@ PrefabInstance:
     - target: {fileID: 2348914, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1727607097}
+      objectReference: {fileID: 620346616}
     - target: {fileID: 3380982, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1865494840}
+      objectReference: {fileID: 1862499922}
     - target: {fileID: 11417168, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: modelOverride
       value: 
@@ -1527,6 +1527,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114293978602750066, guid: 753ecaefce604a446879a8405769e204,
+        type: 3}
+      propertyPath: parentController
+      value: 
+      objectReference: {fileID: 408402969}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 753ecaefce604a446879a8405769e204, type: 3}
 --- !u!114 &453741176 stripped
@@ -1859,8 +1864,9 @@ MonoBehaviour:
   toBeActivatedZAxisId: -1
   toBeActivatedColorAxisId: -1
   toBeActivatedSizeAxisId: -1
+  extrusionWasEmpty: 0
   selectedDataAttributesIds: 
-  dataShelfPanel: {fileID: 0}
+  dataShelfPanel: {fileID: 1702000487}
   AxisPlaceholderObject: {fileID: 812231101}
 --- !u!114 &554863328
 MonoBehaviour:
@@ -1956,6 +1962,41 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &620346616
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1 &624003909
 GameObject:
   m_ObjectHideFlags: 0
@@ -3042,6 +3083,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6055c0d1c778c5f4a8a8bbe2a10a5d95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IS_DRAGGABLE_BY_CONTROLLER: 1
   dropHint: {fileID: 394335920}
   panelHighlight: {fileID: 195089516}
   ConnectedAxes: []
@@ -4362,41 +4404,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 408402969}
   placeholderCube: {fileID: 1561472952}
---- !u!21 &1727607097
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1769552667 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3159051865817095017, guid: d26597ddf0c96b24f818eb641f704580,
@@ -4446,7 +4453,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &1865494840
+--- !u!43 &1862499922
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4812,6 +4819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6055c0d1c778c5f4a8a8bbe2a10a5d95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IS_DRAGGABLE_BY_CONTROLLER: 1
   dropHint: {fileID: 624003909}
   panelHighlight: {fileID: 1971254367}
   ConnectedAxes: []
