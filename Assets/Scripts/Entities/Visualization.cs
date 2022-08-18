@@ -464,7 +464,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 // check for visualization color stuff
                 restoreVisualizationColorsFromAxis(axis);
                 // check for visualization size stuff
-                //restoreVisualizationSizesFromAxis(axis);
+                restoreVisualizationSizesFromAxis(axis);
 
                 // TODO: remove this update with a more lightweight color change!
                 //UpdateVisualizations();
@@ -1218,7 +1218,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         if (!axis.CheckIfWasInVisualization(GenerateUniqueIDForVis()))
             return;
 
-        if (visualizationSizes.Count() == 0 && axis.correspondingVisColors.Count() > 0)
+        if (visualizationSizes.Count() == 0 && axis.correspondingVisSizes.Count() > 0)
         {
             visualizationSizes = axis.correspondingVisSizes.ToArray();
             print("In Visualization " + name + " and just changes sizes of the thing with Axis " + axis.name);
@@ -2047,14 +2047,14 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         colorPromptGameObject.SetActive(false); 
     }
     
-    void showSizePrompt()
+    public void showSizePrompt()
     {
-        colorPromptGameObject.SetActive(true); 
+        sizePromptGameObject.SetActive(true); 
     }
 
     void hideSizePrompt()
     {
-        colorPromptGameObject.SetActive(false); 
+        sizePromptGameObject.SetActive(false); 
     }
 
     public int GetPriority()
