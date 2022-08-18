@@ -548,6 +548,7 @@ MonoBehaviour:
   scatterplot3DObject: {fileID: 1011408627644714}
   linkedScatterplots: {fileID: 1283988246159780}
   visualizationColors: []
+  visualizationSizes: []
   viewObjectsRoot: {fileID: 1369932025151964}
   ftl: {x: 0, y: 0, z: 0}
   ftr: {x: 0, y: 0, z: 0}
@@ -2471,7 +2472,7 @@ PrefabInstance:
     - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71f46ab4255efff46b9ab48f4e8f9976, type: 3}
@@ -2653,7 +2654,7 @@ PrefabInstance:
     - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71f46ab4255efff46b9ab48f4e8f9976, type: 3}

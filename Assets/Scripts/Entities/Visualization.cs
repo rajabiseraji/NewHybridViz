@@ -32,6 +32,50 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    public struct VisualizationIDAttributeSet
+    {
+        public int xAxisId;
+        public int yAxisId;
+        public int zAxisId;
+        public ViewType typeOfVis;
+
+        public void Clear()
+        {
+            xAxisId = -1;
+            yAxisId = -1;
+            zAxisId = -1;
+            typeOfVis = ViewType.Histogram;
+        }
+
+        public VisualizationIDAttributeSet(
+            List<Axis> axes,
+            ViewType typeOfVis
+        ) 
+        {
+
+            this.xAxisId = axes[0].gameObject.GetInstanceID();
+            this.yAxisId = axes.Count() == 2 ? axes[1].gameObject.GetInstanceID() : -1;
+            this.zAxisId = axes.Count() == 3 ? axes[2].gameObject.GetInstanceID() : -1;
+
+            this.typeOfVis = typeOfVis;
+        }
+
+        public override int GetHashCode()
+        {
+            string combinedString = "";
+            combinedString += xAxisId.ToString() + yAxisId.ToString() + zAxisId.ToString() + typeOfVis.ToString();
+            print("in hash code, the string is  " + combinedString);
+            return combinedString.GetHashCode();
+        }
+
+        public string GetCombinedString()
+        {
+            string combinedString = "";
+            combinedString += xAxisId.ToString() + yAxisId.ToString() + zAxisId.ToString() + typeOfVis.ToString();
+            return combinedString;
+        }
+    }
+
     public List<Axis> axes { get; internal set; }
     public int axesCount { get { return axes.Count; } }
 
@@ -410,14 +454,28 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             // We want to update the filters of the visualizations based on what filters each axis has!
             AddNewFilterToFilterBubbles(axis.AttributeFilters);
-            // check for visualization color stuff
-            restoreVisualizationColorsFromAxis(axis);
-            // check for visualization size stuff
-            restoreVisualizationSizesFromAxis(axis);
-
 
             UpdateViewType();//
             UpdateVisualizations();
+
+            // Handle Axis color and size backups
+            if(axes.Count() >= 2)
+            {
+                // check for visualization color stuff
+                restoreVisualizationColorsFromAxis(axis);
+                // check for visualization size stuff
+                //restoreVisualizationSizesFromAxis(axis);
+
+                // TODO: remove this update with a more lightweight color change!
+                //UpdateVisualizations();
+
+                foreach (Axis aa in axes)
+                {
+                    // Add this visualization to both of the correspondingVises field of the Axes
+                    aa.addToCorrespondingVisualizationHashes(GenerateUniqueIDForVis());
+                }
+            }
+
         }
     }
 
@@ -517,6 +575,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             Axis axisV = axes[0].IsHorizontal ? axes[1] : axes[0];
             Axis axisH = axes[0].IsHorizontal ? axes[0] : axes[1];
+
 
             referenceAxis.Clear();
             referenceAxis.horizontal = axisH;
@@ -731,6 +790,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
 
          CheckFilterBubble();
+
+        CheckPrompts();
 
         // Check to see if the visualization is falling down! 
         // If they are, then just get rid of them and destroy the whole thing
@@ -1111,11 +1172,23 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void restoreVisualizationColorsFromAxis(Axis axis)
     {
+        // Only restore the colors if the Axis was previously a part of this visualization!
+        if (!axis.CheckIfWasInVisualization(GenerateUniqueIDForVis()))
+            return;
+
         if (visualizationColors.Count() == 0 && axis.correspondingVisColors.Count() > 0)
         {
             visualizationColors = axis.correspondingVisColors.ToArray();
             print("In Visualization " + name + " and just colored the thing with Axis " + axis.name);
+
+            // TODO: make it so that it's only for scatterplot views!
+            foreach (View v in instantiatedViews)
+            {
+                if(!v.isParallelCoordsView)
+                    v.setColors(visualizationColors, false);
+            }
         }
+
     }
 
     // This is to be called when we drop an axis in the view area
@@ -1134,16 +1207,28 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // this version is just for debugging
     public void setVisualizationSizes(float[] newSizes, int attributeId = 1)
     {
+
         this.visualizationSizes = newSizes;
         OnAttributeChanged(attributeId);
     }
 
     private void restoreVisualizationSizesFromAxis(Axis axis)
     {
+        // Only restore the sizes if the Axis was previously a part of this visualization!
+        if (!axis.CheckIfWasInVisualization(GenerateUniqueIDForVis()))
+            return;
+
         if (visualizationSizes.Count() == 0 && axis.correspondingVisColors.Count() > 0)
         {
             visualizationSizes = axis.correspondingVisSizes.ToArray();
             print("In Visualization " + name + " and just changes sizes of the thing with Axis " + axis.name);
+
+            // TODO: make it so that it's only for scatterplot views!
+            foreach (View v in instantiatedViews)
+            {
+                if (!v.isParallelCoordsView)
+                    v.setSizes(visualizationSizes);
+            }
         }
     }
 
@@ -1930,6 +2015,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    private void CheckPrompts()
+    {
+        if (viewType == ViewType.Histogram)
+        {
+            hideColorPrompt();
+            hideSizePrompt();
+        } else
+        {
+            Invoke("showColorPrompt", 1f);
+            Invoke("showSizePrompt", 1f);
+        }
+
+    }
+
     public void showColorPrompt()
     {
         // if we're dealing with a histogram don't do this!
@@ -1971,4 +2070,19 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // public Sequence hideVisualizatoin() {
         
     // }
+
+
+    public string GenerateUniqueIDForVis()
+    {
+        print("in Visualization: Adding to Hash with " + name);
+        print("in Visualization: Adding to Hash axes count" + axes.Count());
+        print("in Visualization: Adding to Hash viewtype" + viewType);
+
+        VisualizationIDAttributeSet visId = new VisualizationIDAttributeSet(axes, viewType);
+
+        //return visId.GetHashCode();
+        return visId.GetCombinedString();
+    }
+
+
 }

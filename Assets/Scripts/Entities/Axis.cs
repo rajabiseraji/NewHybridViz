@@ -135,6 +135,8 @@ public class Axis : MonoBehaviour, Grabbable {
     public List<Color> correspondingVisColors = new List<Color>();
     public List<float> correspondingVisSizes = new List<float>();
 
+    public List<string> correspondingVisualizationHashes = new List<string>();
+
 
     // TODO: make the value for each tick more clear! it's now not clear what's the value when the user gets over there! 
     // This is called from the sceneManager script which basically sets up the scene that we have at the beginning
@@ -934,6 +936,20 @@ public class Axis : MonoBehaviour, Grabbable {
     public List<Visualization> correspondingVisualizations()
     {
         return GameObject.FindObjectsOfType<Visualization>().Where(x => x.axes.Contains(this)).ToList();
+    }
+
+    public void addToCorrespondingVisualizationHashes(string visToBeAddedHash)
+    {
+        if(!correspondingVisualizationHashes.Contains(visToBeAddedHash))
+        {
+            print("In Axis new visualization with Hash " + visToBeAddedHash + "and count of " + correspondingVisualizationHashes.Count());
+            correspondingVisualizationHashes.Add(visToBeAddedHash);
+        }
+    }
+
+    public bool CheckIfWasInVisualization(string visHash)
+    {
+        return correspondingVisualizationHashes.Contains(visHash);
     }
 
     public List<SPLOM3D> CorrespondingSPLOMS()
