@@ -133,7 +133,9 @@ public class Axis : MonoBehaviour, Grabbable {
     // TODO: in the future just re-write the ParseScene function to accepct individual configs
     //[SerializeField] 
     public List<Color> correspondingVisColors = new List<Color>();
+    public int correspondingVisColorAxisId = -1;
     public List<float> correspondingVisSizes = new List<float>();
+    public int correspondingVisSizeAxisId = -1;
 
     public List<string> correspondingVisualizationHashes = new List<string>();
 

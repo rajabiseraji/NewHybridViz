@@ -106,10 +106,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     GameObject linkedScatterplots;
     
     [SerializeField]
-    Color[] visualizationColors = null;
-    
+    Color[] visualizationColors = new Color[0];
+
     [SerializeField]
-    float[] visualizationSizes = null;
+    int visualizationColorAxisId = -1;
+
+    [SerializeField]
+    float[] visualizationSizes = new float[0];
+
+    [SerializeField]
+    int visualizationSizeAxisId = -1;
     // the default it gets is an empty array not null! 
 
     //[SerializeField]
@@ -226,6 +232,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public GameObject colorPromptGameObject = null;
     public GameObject sizePromptGameObject = null;
 
+    public GameObject legendGameObject = null;
+
     void Awake()
     {
         axes = new List<Axis>();
@@ -257,6 +265,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         Debug.Assert((colorPromptGameObject != null), "In Vis: The Color Prompt object cannot be null");
         Debug.Assert((sizePromptGameObject != null), "In Vis: The Size Prompt object cannot be null");
+        
+        Debug.Assert((legendGameObject != null), "In Vis: The legend game object cannot be null");
 
         //listen to menu events
         EventManager.StartListening(ApplicationConfiguration.OnSlideChangePointSize, OnChangePointSize);
@@ -1162,6 +1172,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     }
 
+
     // this version is to be called by SceneManger 
     // this version is just for debugging
     public void setVisualizationColors(Color[] newColors, int attributeId = 1)
@@ -1182,11 +1193,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             print("In Visualization " + name + " and just colored the thing with Axis " + axis.name);
 
             // TODO: make it so that it's only for scatterplot views!
-            foreach (View v in instantiatedViews)
-            {
-                if(!v.isParallelCoordsView)
-                    v.setColors(visualizationColors, false);
-            }
+            updateViewColors(axis.correspondingVisColorAxisId);
         }
 
     }
@@ -1195,12 +1202,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void setVisualizationColors(Axis a)
     {
         this.visualizationColors = GetColorMapping(a.axisId);
-        a.correspondingVisColors.AddRange(visualizationColors);
+        //a.correspondingVisColors.Clear();
+        //a.correspondingVisColors.AddRange(visualizationColors);
         foreach (Axis axis in axes)
         {
+            axis.correspondingVisColorAxisId = a.axisId;
+            axis.correspondingVisColors.Clear();
             axis.correspondingVisColors.AddRange(visualizationColors);
         }
-        OnAttributeChanged(a.axisId);
+        //OnAttributeChanged(a.axisId);
+        // TODO: make it so that it's only for scatterplot views!
+        updateViewColors(a.axisId);
+        OnAttributeChanged(1);
+
+        legendGameObject.SetActive(true);
     }
 
     // this version is to be called by SceneManger 
@@ -1224,23 +1239,83 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             print("In Visualization " + name + " and just changes sizes of the thing with Axis " + axis.name);
 
             // TODO: make it so that it's only for scatterplot views!
-            foreach (View v in instantiatedViews)
-            {
-                if (!v.isParallelCoordsView)
-                    v.setSizes(visualizationSizes);
-            }
+            updateViewSizes(axis.correspondingVisSizeAxisId);
         }
     }
 
     // This is to be called when we drop an axis in the view area
     public void setVisualizationSizes(Axis a)
     {
-        this.visualizationSizes = GetSizeMapping(a.axisId);
-        a.correspondingVisSizes.AddRange(visualizationSizes);
+        visualizationSizes = GetSizeMapping(a.axisId);
+        //a.correspondingVisSizes.Clear();
+        //a.correspondingVisSizes.AddRange(visualizationSizes);
         foreach(Axis axis in axes) {
+            axis.correspondingVisSizeAxisId = a.axisId;
+            axis.correspondingVisSizes.Clear();
             axis.correspondingVisSizes.AddRange(visualizationSizes);
         }
+
+        // why doesn't just updating the view size work??
+        // I really don't get why we need to call the OnAttributeChange here and not in the restoreVisSize function! they're basically the same code that one doesn't work and the other one does! :))
         OnAttributeChanged(a.axisId);
+        updateViewSizes(a.axisId);
+
+        legendGameObject.SetActive(true);
+    }
+
+    private void updateViewSizes(int axisId)
+    {
+        if (axisId != -1)
+            legendGameObject.SetActive(true);
+
+        legendGameObject.GetComponent<LegendInteractions>().updateSizeLegend(axisId, visualizationSizes);
+
+        foreach (View v in instantiatedViews)
+        {
+            if (!v.isParallelCoordsView)
+                v.setSizes(getVisualizationSizes());
+        }
+
+
+    }
+
+    private void updateViewColors(int axisId)
+    {
+        if (axisId != -1)
+            legendGameObject.SetActive(true);
+
+        legendGameObject.GetComponent<LegendInteractions>().updateColorLegend(axisId, visualizationColors);
+
+        foreach (View v in instantiatedViews)
+        {
+            if (!v.isParallelCoordsView)
+                v.setColors(visualizationColors, false);
+        }
+    }
+
+    public void unsetVisualizationSizes()
+    {
+        print("unset sizes clicked");
+        foreach (Axis axis in axes)
+        {
+            axis.correspondingVisSizes.Clear();
+            axis.correspondingVisSizeAxisId = -1;
+        }
+        visualizationSizes = new float[0];
+        updateViewSizes(-1);
+        //OnAttributeChanged(1);
+    }
+    
+    public void unsetVisualizationColors()
+    {
+        print("unset colors clicked");
+        visualizationColors = new Color[0];
+        foreach (Axis axis in axes)
+        {
+            axis.correspondingVisColors.Clear();
+            axis.correspondingVisColorAxisId = -1;
+        }
+        updateViewColors(-1);
     }
 
     private float[] getVisualizationSizes()
