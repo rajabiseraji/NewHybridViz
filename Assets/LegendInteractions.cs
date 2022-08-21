@@ -11,10 +11,17 @@ public class LegendInteractions : MonoBehaviour
 
     private bool colorLegendActive = false;
     private bool sizeLegendActive = false;
+
+    public Visualization parentVis = null;
     // Start is called before the first frame update
+
+    public bool shouldLookAtCamra = true;
+    public Transform VRCameraTransform;
     void Start()
     {
         uiCamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+        VRCameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
+
 
         if (uiCamera)
             GetComponent<Canvas>().worldCamera = uiCamera;
@@ -23,9 +30,12 @@ public class LegendInteractions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Assert(uiCamera != null, "UI Camera Cannot be null");
         Debug.Assert(colorLegendGameObject != null, "Color Legend Cannot be null");
-        Debug.Assert(sizeLegendGameObject != null, "Size Legend Cannot be null");
+        Debug.Assert(colorLegendGameObject != null, "Color Legend Cannot be null");
+        Debug.Assert(parentVis != null, "Parent Vis of Legened Cannot be null");
+        
+        Debug.Assert(uiCamera != null, "UI Camera Cannot be null");
+        Debug.Assert(VRCameraTransform != null, "VR Camera for Legened Cannot be null");
 
         if(!uiCamera)
         {
@@ -35,8 +45,18 @@ public class LegendInteractions : MonoBehaviour
                 GetComponent<Canvas>().worldCamera = uiCamera;
         }
 
+
         if (!colorLegendActive && !sizeLegendActive)
             gameObject.SetActive(false);
+
+
+        if(!VRCameraTransform)
+            VRCameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
+
+        if (parentVis.viewType == Visualization.ViewType.Scatterplot3D && shouldLookAtCamra && VRCameraTransform != null)
+        {
+            transform.rotation = Quaternion.LookRotation(VRCameraTransform.forward, VRCameraTransform.up);
+        }
     }
 
     public void RemoveClicked()
@@ -94,6 +114,13 @@ public class LegendInteractions : MonoBehaviour
         sizeLegendActive = false;
         sizeLegendGameObject.SetActive(false);
         sizeLegendGameObject.GetComponentInChildren<Text>().text = "Size:";
+    }
+
+
+    public void lookAtCamera()
+    {
+        shouldLookAtCamra = true;
+        VRCameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
     }
 
 }

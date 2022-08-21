@@ -17,10 +17,12 @@ public class FaceCamera : MonoBehaviour {
             Vector3 s = transform.localScale;
 
             var us = Mathf.Sign(Vector3.Dot(transform.up, Vector3.up));
+            var fs = Mathf.Sign(Vector3.Dot(transform.forward, Camera.main.transform.forward));
             s.y = us * Mathf.Abs(s.y);
             s.x = Mathf.Sign(Vector3.Dot(transform.forward, Camera.main.transform.forward * us)) * Mathf.Abs(s.x);
 
             transform.localScale = s;
+
         }
 	}
     
