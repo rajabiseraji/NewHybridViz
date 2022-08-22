@@ -234,15 +234,17 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 Transform vt = tempTransformObject.transform;
                 vt.rotation = Quaternion.LookRotation(forward, vup);
 
+                // this is always between -1 , 1
                 Vector3 positionInLocal3DSP = vt.InverseTransformPoint(worldCoordsPoint);
+                //Vector3 testPos = parentTransform.InverseTransformPoint(worldCoordsPoint);
 
-                float x = (positionInLocal3DSP.x + 1) / 2;
-                float y = (positionInLocal3DSP.y + 1) / 2;
-                float z = (positionInLocal3DSP.z + 1) / 2;
+                float x = (positionInLocal3DSP.x) / 2;
+                float y = (positionInLocal3DSP.y) / 2;
+                float z = (positionInLocal3DSP.z) / 2;
 
                 if (isFlipped)
                 {
-                    z = 1 - z;
+                    z = -1 * z;
                 }
 
                 //find the closest point in the list
@@ -284,10 +286,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 float yMaxNormaliser = parentVis.ReferenceAxis1.vertical.MaxNormaliser;
 
                 // New zero is the shift value
-                float XnewScale = (xMaxNormaliser - xMinNormaliser); 
-                float Xdispalcement = Math.Abs(xMinNormaliser + (XnewScale/2f));
-                float YnewScale = (yMaxNormaliser - yMinNormaliser);
-                float Ydispalcement = Math.Abs(yMinNormaliser + (YnewScale/2f));
+                //float XnewScale = (xMaxNormaliser - xMinNormaliser); 
+                //float Xdispalcement = Math.Abs(xMinNormaliser + (XnewScale/2f));
+                //float YnewScale = (yMaxNormaliser - yMinNormaliser);
+                //float Ydispalcement = Math.Abs(yMinNormaliser + (YnewScale/2f));
                 
                 var origParentLocalScale = parentTransform.localScale;
                 parentTransform.localScale = Vector3.one;
@@ -330,7 +332,6 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 //    (data[i].y+Ydispalcement)*(1/YnewScale)
                 //);
                  
-                Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
                 var d = Vector2.Distance(ScaledDataPoint, hitpoint2D);
                 
                 if (d < distance) {

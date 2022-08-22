@@ -13,6 +13,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
     public static float AXIS_ROD_LENGTH = 0.2660912f;
     public static float AXIS_ROD_WIDTH = 0.02059407f;
+    public static float AXIS_ROD_DEPTH = 0.02059408f;
     public static float CONTROLLER_VELOCITY_FOR_DELETION = 0.25f;
 
     [SerializeField] public TextMeshPro label;
