@@ -288,7 +288,7 @@ public class WandController : MonoBehaviour
                         }
                     }
                 }
-                // This is for when the scatterplot is not close to the controller and being controlled by the raycast
+                // This is for when the brushed thing is not in 3D! 
                 if (!detail3Dscatterplots)
                 {
                     RaycastHit hit;
@@ -316,6 +316,23 @@ public class WandController : MonoBehaviour
                         }
 
                     }
+                }
+            } else
+            {
+                // this is just to reset everything for brushing
+                // and just deactivate the brush point and all
+                if(currentDetailView != null)
+                {
+                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero, false);
+
+                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+                    //currentDetailView = null;
+                    //brushingPoint.gameObject.SetActive(false);
+                    currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
+
+                    currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    currentDetailView = null;
+                    brushingPoint.gameObject.SetActive(false);
                 }
             }
             // Checks to see if we're done with pressing the touchbar

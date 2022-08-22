@@ -272,8 +272,11 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
             }
             else
-            {   
+            {
                 // Before doing the inverse transform, make sure the scales are right!
+                const float PREV_AXIS_MIN_NORM = -0.505f;
+                const float PREV_AXIS_MAX_NORM = 0.505f;
+
 
                 float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
                 float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
@@ -291,17 +294,31 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 var localPoint = parentTransform.InverseTransformPoint(worldCoordsPoint);
                 parentTransform.localScale = origParentLocalScale;
 
+                // we don't even touch this hitpoint2D, it's as good as possible
+                // it gives us a number between -1 , 1
+                // TODO: to calculcate the distance, let's get this hitpoint scaled to be between 
+                // [data[i].min, data[i].max] which means [-0.5, 0.5]
+                // TODO: make this also dynamic, so that we can change it if we want
                 Vector2 hitpoint2D = new Vector2(
                     localPoint.x / _scale.x, 
                     localPoint.y / _scale.y);
+
+                // CALCULATE DATA[i] IN THE NEW MIN, MAX SCALE
+                // here's how we should do it:
+                // 1- first shift every point to the right by 0.505 (aka by Abs(oldMinNormalizer))
+                // 2- find out the scale by (oldMaxNorm - oldMinNorm) / (newMaxNorm - newMinNorm) 
+                // 3- find the new point in [0, 1.1] scale by (scale * (distance(dataPoint, newMinNorm))
+                // 4- shift everything back to left by subtracking the 0.505 from the scaled point
+
+                var rightShiftedDataPointX = data[i].x + Math.Abs(PREV_AXIS_MIN_NORM);
+
                 // normally the data[i] members should be between -0.5 and 0.5 (local position)
                 // We chose 2 as the multiplying factor cuz it's gonna map -0.5 to -1
                 Vector2 ScaledDataPoint = new Vector2(
                     (data[i].x+Xdispalcement)*(1/XnewScale),
                     (data[i].y+Ydispalcement)*(1/YnewScale)
                 );
-                const float PREV_MIN_NORM = -0.5f;  
-                const float PREV_MAX_NORM = 0.5f;  
+                 
                 Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
                 var d = Vector2.Distance(ScaledDataPoint, hitpoint2D);
                 

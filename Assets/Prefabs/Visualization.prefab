@@ -483,8 +483,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.35830837, y: 0.3108182, z: 0.06669265}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.35830837, y: 0.3108182, z: 0.0364213}
+  m_Center: {x: 0, y: 0, z: 0.015135676}
 --- !u!1 &1930274166508102
 GameObject:
   m_ObjectHideFlags: 0
@@ -3579,6 +3579,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3483520347362462041, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3483520347362462041, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
@@ -3602,6 +3607,11 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.80236155
       objectReference: {fileID: 0}
+    - target: {fileID: 4877667000433437133, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5970545104505887758, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
       propertyPath: m_Text
@@ -3611,6 +3621,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SizePrompt
+      objectReference: {fileID: 0}
+    - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
@@ -3761,6 +3776,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3483520347362462041, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3483520347362462041, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
@@ -3784,6 +3804,11 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.80236155
       objectReference: {fileID: 0}
+    - target: {fileID: 4877667000433437133, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5970545104505887758, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}
       propertyPath: m_Text
@@ -3793,6 +3818,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ColorPrompt
+      objectReference: {fileID: 0}
+    - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,
         type: 3}

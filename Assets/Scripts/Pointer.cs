@@ -44,6 +44,8 @@ public class Pointer : MonoBehaviour
         PointerEventData data = inputModule.Data;
         RaycastHit hit = CreateRaycast();
 
+        dot.GetComponent<Renderer>().material.color = Color.blue;
+
         // If nothing is hit, set do default length
         float colliderDistance = hit.distance == 0 ? defaultLength : hit.distance;
         float canvasDistance = data.pointerCurrentRaycast.distance == 0 ? defaultLength : data.pointerCurrentRaycast.distance;
@@ -60,6 +62,13 @@ public class Pointer : MonoBehaviour
         // Set linerenderer
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, endPosition);
+
+        // Here's a check for when we're brushing
+        // in that case just hide the dot object for a bit
+        if(hit.distance != 0 && hit.collider.gameObject.layer == LayerMask.NameToLayer("Brushable"))
+        {
+            dot.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 0);
+        }
 
         handleRemoteObjectManipulation(hit);
     }
