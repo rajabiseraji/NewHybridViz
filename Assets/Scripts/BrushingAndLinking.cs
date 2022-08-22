@@ -295,9 +295,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 parentTransform.localScale = origParentLocalScale;
 
                 // we don't even touch this hitpoint2D, it's as good as possible
-                // it gives us a number between -1 , 1
-                // TODO: to calculcate the distance, let's get this hitpoint scaled to be between 
-                // [data[i].min, data[i].max] which means [-0.5, 0.5]
+                // it gives us a number [data[i].min, data[i].max] which means [-0.5, 0.5]
                 // TODO: make this also dynamic, so that we can change it if we want
                 Vector2 hitpoint2D = new Vector2(
                     localPoint.x / _scale.x, 
@@ -310,14 +308,27 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 // 3- find the new point in [0, 1.1] scale by (scale * (distance(dataPoint, newMinNorm))
                 // 4- shift everything back to left by subtracking the 0.505 from the scaled point
 
-                var rightShiftedDataPointX = data[i].x + Math.Abs(PREV_AXIS_MIN_NORM);
+                float SHIFT_FORWARD_VALUE = Math.Abs(PREV_AXIS_MIN_NORM);
+
+                var dataXDistanceWithNewMin = shift(data[i].x, SHIFT_FORWARD_VALUE) - shift(xMinNormaliser, SHIFT_FORWARD_VALUE);
+                var dataYDistanceWithNewMin = shift(data[i].y, SHIFT_FORWARD_VALUE) - shift(yMinNormaliser, SHIFT_FORWARD_VALUE); ;
+
+                var dataXScale = (PREV_AXIS_MAX_NORM - PREV_AXIS_MIN_NORM) / (xMaxNormaliser - xMinNormaliser);
+                var dataYScale = (PREV_AXIS_MAX_NORM - PREV_AXIS_MIN_NORM) / (yMaxNormaliser - yMinNormaliser);
+
+
+                Vector2 ScaledDataPoint = new Vector2(
+                    dataXDistanceWithNewMin * dataXScale,
+                    dataYDistanceWithNewMin * dataYScale
+                ) - (SHIFT_FORWARD_VALUE * Vector2.one);
+
 
                 // normally the data[i] members should be between -0.5 and 0.5 (local position)
                 // We chose 2 as the multiplying factor cuz it's gonna map -0.5 to -1
-                Vector2 ScaledDataPoint = new Vector2(
-                    (data[i].x+Xdispalcement)*(1/XnewScale),
-                    (data[i].y+Ydispalcement)*(1/YnewScale)
-                );
+                //Vector2 ScaledDataPoint = new Vector2(
+                //    (data[i].x+Xdispalcement)*(1/XnewScale),
+                //    (data[i].y+Ydispalcement)*(1/YnewScale)
+                //);
                  
                 Vector2 dataModifiedPoint = new Vector2(data[i].x, data[i].y);
                 var d = Vector2.Distance(ScaledDataPoint, hitpoint2D);
@@ -333,6 +344,11 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             }
         }
         return brushedIndices;
+    }
+
+    private static float shift(float num, float distance)
+    {
+        return num + distance;
     }
 
     
