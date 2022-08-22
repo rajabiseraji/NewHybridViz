@@ -1927,7 +1927,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // TODO: make it work!
     public void OnBrush(WandController controller, Vector3 WorldhitPoint, bool is3D)
     {
-        // Debug.Log("I'm brushing this thing :" + hitPoint + "is 3d is" + is3D);
+         Debug.Log("I'm brushing this thing :" + WorldhitPoint + "is 3d is" + is3D);
         isBrushing = true;
         // swapToBrushing();
         BrushingAndLinking.isBrushing = isBrushing;

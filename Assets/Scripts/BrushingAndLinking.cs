@@ -7,7 +7,8 @@ using Staxes;
 
 public class BrushingAndLinking : MonoBehaviour, UIComponent
 {
-
+    const float PREV_AXIS_MIN_NORM = -0.505f;
+    const float PREV_AXIS_MAX_NORM = 0.505f;
 
     public static Vector3[] brushedIndexes;// = new List<float>();
     public static Vector3[] brushedIndexesParallelPlot;
@@ -41,7 +42,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         if (isBrushing)
         {
             GameObject[] views = GameObject.FindGameObjectsWithTag("View");
-            Debug.Log("in the update and I'm brushing!");
+            //Debug.Log("in the update and I'm brushing!");
             //link the brush to all other visualisations
             for (int i = 0; i < views.Length; i++)// (var item in activeViews)
             {
@@ -249,7 +250,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
                 //find the closest point in the list
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
-                float localDistance = Vector3.SqrMagnitude(pointerPosition3D - data[i]);
+                Vector3 scaledDataPosition = new Vector3(
+                    ScaleDataPoint(data[i].x, xMinNormaliser, xMaxNormaliser),
+                    ScaleDataPoint(data[i].y, yMinNormaliser, yMaxNormaliser),
+                    ScaleDataPoint(data[i].z, zMinNormaliser, zMaxNormaliser)
+                );
+                float localDistance = Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition);
             //     float localDistance = Vector3.Distance(ObjectToWorldDistort3d(data[i], parentTransform,
             //    _ftl,
             //    _ftr,
@@ -268,17 +274,16 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     // Do the 3D stuff here 
                     // TODO
                     Debug.Log("Haven'nt written the code yet!");
-               }
-                    //brushedIndexes.Add(i); 
+                }
                 else
+                {
                     brushedIndices[i] = new Vector3(0f, 0f, 0f);
+                }
+                //brushedIndexes.Add(i);
+                Destroy(tempTransformObject.gameObject);
             }
             else
             {
-                // Before doing the inverse transform, make sure the scales are right!
-                const float PREV_AXIS_MIN_NORM = -0.505f;
-                const float PREV_AXIS_MAX_NORM = 0.505f;
-
 
                 float xMinNormaliser = parentVis.ReferenceAxis1.horizontal.MinNormaliser;
                 float xMaxNormaliser = parentVis.ReferenceAxis1.horizontal.MaxNormaliser;
@@ -350,6 +355,17 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     private static float shift(float num, float distance)
     {
         return num + distance;
+    }
+
+    private static float ScaleDataPoint(float dataPoint, float newMinNormalizer, float newMaxNormalizer)
+    {
+        float SHIFT_FORWARD_VALUE = Math.Abs(PREV_AXIS_MIN_NORM);
+
+        var dataXDistanceWithNewMin = shift(dataPoint, SHIFT_FORWARD_VALUE) - shift(newMinNormalizer, SHIFT_FORWARD_VALUE);
+
+        var dataXScale = (PREV_AXIS_MAX_NORM - PREV_AXIS_MIN_NORM) / (newMaxNormalizer - newMinNormalizer);
+
+        return (dataXDistanceWithNewMin * dataXScale) - (SHIFT_FORWARD_VALUE);
     }
 
     

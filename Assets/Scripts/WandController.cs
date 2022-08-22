@@ -264,11 +264,13 @@ public class WandController : MonoBehaviour
                         {
                             detail3Dscatterplots = true;
                             brushingPoint.gameObject.SetActive(true);
+                            //brushingPoint.transform.localScale = new Vector3(brushingPoint.transform.localScale.x, brushingPoint.transform.localScale.y, 0.01f);
 
                             currentDetailView = listCandidatesBrush3D[i];
                             // The brushing point will be 10cm in front of the controller poisition
                             brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
-                            brushingPoint.transform.localScale = new Vector3(0.06f, 0.6f, 0.06f);
+                            brushingPoint.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
+
                             if (currentDetailView.GetComponent<Visualization>() != null)
                             {
                                 // Q: what does the world to local point translation does here? 
@@ -328,6 +330,7 @@ public class WandController : MonoBehaviour
                     //currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
                     //currentDetailView = null;
                     //brushingPoint.gameObject.SetActive(false);
+                    /////////////////////////////
                     currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
 
                     currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
