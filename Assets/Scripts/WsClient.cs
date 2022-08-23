@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 using WebSocketSharp;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 public class WsClient : MonoBehaviour
 {
     WebSocket ws;
@@ -55,6 +58,14 @@ public class WsClient : MonoBehaviour
                     SceneManager.Instance.SetXToBeCreatedAxis(xAxisName);
 
                 SceneManager.Instance.extrusionWasEmpty = false;
+
+            } else if (receivedMsg.typeOfMessage == "CODAPBRUSH")
+            {
+                if(receivedMsg.indexes.Length != 0)
+                {
+                    print("I have received one with everything " + JsonUtility.ToJson(receivedMsg));
+                    //BrushingAndLinking.ApplyDesktopBrushing(receivedMsg.indexes);
+                }
             }
         }
     }
@@ -101,6 +112,12 @@ public class WsClient : MonoBehaviour
             ws.Send(jsonString);
         }
     }
+
+    public void SendBrushingMsgToDesktop(int id, Vector3[] brushedIndexes)
+    {
+        var msg = new WebSocketMsg(id, "brushing stuff", "BRUSH", brushedIndexes);
+        SendMsgToDesktop(msg);
+    }
 }
 
 
@@ -125,6 +142,7 @@ public class WebSocketMsg
     public string text;
     public string typeOfMessage;
     public string sender;
+    public int[] indexes = new int[0];
 
     public WebSocketMsg(int id, 
         Vector2 desktopPosition, 
@@ -161,5 +179,28 @@ public class WebSocketMsg
         this.text = text;
         this.x = (int)desktopPosition.x;
         this.y = (int)desktopPosition.y;
+    }
+
+    public WebSocketMsg
+        (
+            int id,
+            string text,
+            string typeOfMessage, // BRUSH  
+            Vector3[] brushedIndexes
+        )
+    {
+        this.id = id;
+        this.text = text;
+        this.typeOfMessage = typeOfMessage;
+
+        // convert brushed indexes into normal indexes
+        var indexList = new List<int>();
+        for(int i = 0; i < brushedIndexes.Length; i++)
+        {
+            if (brushedIndexes[i].x == 1f)
+                indexList.Add(i);
+        }
+
+        indexes = indexList.ToArray();
     }
 }

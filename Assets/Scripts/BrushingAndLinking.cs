@@ -41,74 +41,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     {
         if (isBrushing)
         {
-            GameObject[] views = GameObject.FindGameObjectsWithTag("View");
-            //Debug.Log("in the update and I'm brushing!");
-            //link the brush to all other visualisations
-            for (int i = 0; i < views.Length; i++)// (var item in activeViews)
-            {
-                try
-                {
-                    Mesh m = views[i].GetComponent<MeshFilter>().mesh;
-
-                    if (brushedIndexes != null)
-                    {
-                        if (m.vertexCount < brushedIndexes.Length)
-                        {
-                            //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
-                            Debug.Log("Brushing first condition ");
-                            List<Vector3> brushScatter = new List<Vector3>();
-                            for (int k = 0; k < brushedIndexes.Length; k += 2)
-                                brushScatter.Add(brushedIndexes[k]);
-
-                            Vector3[] meshNormals = m.normals;
-                            for (int p = 0; p < meshNormals.Length; p++)
-                            {
-                               meshNormals[p] = new Vector3(brushScatter[p].x ,m.normals[p].y, m.normals[p].z); 
-                            }
-                            //Array.Resize(ref brushedIndexes, m.vertexCount);
-                            m.normals = meshNormals;
-
-                        }
-                        else if (m.vertexCount > brushedIndexes.Length)
-                        {
-                            //we brushed a 2D scatterplot we need to make twice bigger
-                            //List<Vector3> brushParrallel = new List<Vector3>();
-                            //Color[] linkedVisuColor = m.colors;
-
-                            //for (int k = 0; k < brushedIndexes.Length; k += 1)
-                            //{
-                            //    brushParrallel.Add(brushedIndexes[k]);
-                            //    brushParrallel.Add(brushedIndexes[k]);
-                            //}
-
-                            ////Vector3[] copyParallelIndices = new Vector3[brushedIndexes.Length * 2];
-                            ////brushedIndexes.CopyTo(copyParallelIndices, 0);
-                            ////brushedIndexes.CopyTo(copyParallelIndices, brushedIndexes.Length - 1);
-
-                            //m.normals = brushParrallel.ToArray();
-                            print("updating a PCP");
-                        }
-
-                        else
-                        {
-                            Vector3[] meshNormals = m.normals;
-                            for (int p = 0; p < meshNormals.Length; p++)
-                            {
-                               meshNormals[p] = new Vector3(brushedIndexes[p].x ,m.normals[p].y, m.normals[p].z); 
-                            }
-                            Debug.Log("Hey I just brushed ");
-                            //we are brushing and linking same visualisation types
-                            m.normals = meshNormals;
-                        }
-                    }
-
-                }
-                catch (MissingReferenceException)
-                {
-                    Debug.Log("exception component");
-                }
-                //                item.GetComponentInChildren<MeshFilter>().mesh = m;
-            }
+            BrushVisualization();
         }
 
         //if (brushedIndexes != null)
@@ -135,6 +68,113 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
     }
 
+    public static void BrushVisualization(Vector3[] toBeBrushedIndexes = null, bool isFromCodap = false)
+    {
+
+        if(toBeBrushedIndexes != null)
+        {
+            // first set the brushed indexes 
+            var toBebrushedIndexesList = new List<Vector3>();
+            toBebrushedIndexesList.AddRange(toBeBrushedIndexes);
+            brushedIndexes = toBebrushedIndexesList.ToArray();
+        }
+
+
+        GameObject[] views = GameObject.FindGameObjectsWithTag("View");
+        //Debug.Log("in the update and I'm brushing!");
+        //link the brush to all other visualisations
+        for (int i = 0; i < views.Length; i++)// (var item in activeViews)
+        {
+            try
+            {
+                Mesh m = views[i].GetComponent<MeshFilter>().mesh;
+
+                if (brushedIndexes != null)
+                {
+                    if (m.vertexCount < brushedIndexes.Length)
+                    {
+                        //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
+                        //Debug.Log("Brushing first condition ");
+                        List<Vector3> brushScatter = new List<Vector3>();
+                        for (int k = 0; k < brushedIndexes.Length; k += 2)
+                            brushScatter.Add(brushedIndexes[k]);
+
+                        Vector3[] meshNormals = m.normals;
+                        for (int p = 0; p < meshNormals.Length; p++)
+                        {
+                            meshNormals[p] = new Vector3(brushScatter[p].x, m.normals[p].y, m.normals[p].z);
+                        }
+                        //Array.Resize(ref brushedIndexes, m.vertexCount);
+                        m.normals = meshNormals;
+
+                    }
+                    else if (m.vertexCount > brushedIndexes.Length)
+                    {
+                        //we brushed a 2D scatterplot we need to make twice bigger
+                        //List<Vector3> brushParrallel = new List<Vector3>();
+                        //Color[] linkedVisuColor = m.colors;
+
+                        //for (int k = 0; k < brushedIndexes.Length; k += 1)
+                        //{
+                        //    brushParrallel.Add(brushedIndexes[k]);
+                        //    brushParrallel.Add(brushedIndexes[k]);
+                        //}
+
+                        ////Vector3[] copyParallelIndices = new Vector3[brushedIndexes.Length * 2];
+                        ////brushedIndexes.CopyTo(copyParallelIndices, 0);
+                        ////brushedIndexes.CopyTo(copyParallelIndices, brushedIndexes.Length - 1);
+
+                        //m.normals = brushParrallel.ToArray();
+                        print("updating a PCP");
+                    }
+
+                    else
+                    {
+                        Vector3[] meshNormals = m.normals;
+                        for (int p = 0; p < meshNormals.Length; p++)
+                        {
+                            meshNormals[p] = new Vector3(brushedIndexes[p].x, m.normals[p].y, m.normals[p].z);
+                        }
+                        //Debug.Log("Hey I just brushed ");
+                        //we are brushing and linking same visualisation types
+                        m.normals = meshNormals;
+                    }
+                }
+
+            }
+            catch (MissingReferenceException)
+            {
+                Debug.Log("exception component");
+            }
+            //                item.GetComponentInChildren<MeshFilter>().mesh = m;
+        }
+    }
+
+    public static void ApplyDesktopBrushing(int[] codapIndexes)
+    {
+        // first turn codap indexes into unity indexes
+        // codap indexes are in form of numbers, each number is the index of a row
+
+        // first we do the brushing in a replacement format
+        // meaning that the desktop brush will override the brush from Unity
+        // 1- first we get the number of indices that we need to generate from scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices or Scatterplot 3D
+        // this number is the same as the number of data points, so let's go with that! 
+        var newIndexes = new Vector3[SceneManager.Instance.dataObject.DataPoints];
+        for(int i = 0; i < newIndexes.Length; i++)
+        {
+            if (codapIndexes.Contains(i))
+                newIndexes[i] = new Vector3(1f, 0, 0);
+            else
+                newIndexes[i] = new Vector3(0, 0, 0);
+        }
+
+
+        // then call BrushVisualization with ApplyDekstopBrushing
+        // there should be a flag that we set here that shows the initiator of the brush was codap
+        // if that flag is ture, we shouldn't send a websocket msg from unity to CODAP again!
+        BrushVisualization(newIndexes, true);
+    }
+
 
 
     public static void updateBrushedIndices(Vector3[] brushed, bool isParallelPlot)
@@ -144,6 +184,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         //   brushedIndexesParallelPlot = brushed;
         //else
         brushedIndexes = brushed;
+
+        // here we should also call the Websocket client to send a selection message to CODAP
+        // this function will not be called by BrushVisualization, so we can safely send 
+        // a websocket msg without the fear of loops between codap and Unity
+        GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendBrushingMsgToDesktop(1, brushedIndexes);
+
+
+        // we should also have something to receive a selection message from CODAP's side
     }
 
 
