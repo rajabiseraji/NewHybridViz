@@ -9,8 +9,10 @@ public class Pointer : MonoBehaviour
     [SerializeField] private GameObject dot = null;
     public WandController parentController = null;
     public bool enableRaycastObjectManipulation = false;
+    public bool enableRaycastFilterBubbleManipulation = true;
 
     private Collider currentCollider = null;
+    private FilterBubbleButton currentCollidedFilterBubble = null;
 
     public Camera Camera { get; private set; } = null;
 
@@ -75,8 +77,17 @@ public class Pointer : MonoBehaviour
 
     private void handleRemoteObjectManipulation(RaycastHit hit)
     {
-        if (!enableRaycastObjectManipulation)
+
+        if (!enableRaycastObjectManipulation && !enableRaycastFilterBubbleManipulation)
             return;
+        else if(enableRaycastFilterBubbleManipulation)
+        {
+            if (hit.collider)
+            {
+                handleRaycastFilterBubbleManipulation(hit.collider.GetComponent<FilterBubbleButton>());
+            }
+            return;
+        }
 
         if (hit.collider != null) // if something was hit
         {
@@ -103,6 +114,36 @@ public class Pointer : MonoBehaviour
             }
 
             currentCollider = null;
+        }
+    }
+
+    private void handleRaycastFilterBubbleManipulation(FilterBubbleButton newCollidedFilterBubble)
+    {
+        if (newCollidedFilterBubble != null) // if something was hit
+        {
+            if (currentCollidedFilterBubble != null && newCollidedFilterBubble.GetInstanceID() != currentCollidedFilterBubble.GetInstanceID())
+                currentCollidedFilterBubble.handlePointerCollisionExit(transform);
+
+            if (currentCollidedFilterBubble != null && newCollidedFilterBubble.GetInstanceID() == currentCollidedFilterBubble.GetInstanceID())
+            {
+                // if you hit the same object just don't do anything!
+                return;
+            }
+
+            //print("dot has collided with " + hit.collider.name);
+            newCollidedFilterBubble.handlePointerCollisionEnter(transform);
+            currentCollidedFilterBubble = newCollidedFilterBubble;
+        }
+
+        if (newCollidedFilterBubble == null)
+        {
+            if (currentCollidedFilterBubble != null)
+            {
+                currentCollidedFilterBubble.handlePointerCollisionExit(transform);
+                //print("dot has exited from " + currentCollidedFilterBubble.name);
+            }
+
+            currentCollidedFilterBubble = null;
         }
     }
 

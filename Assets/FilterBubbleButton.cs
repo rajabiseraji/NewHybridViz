@@ -89,22 +89,6 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     void OnTriggerEnter(Collider other) {
         // check for the Dot from our raycasting module 
-        if(other.CompareTag("PointerDot"))
-        {
-            print("dot just entered the thing");
-            if (!isGlobalFilterBubble)
-            {
-                if (visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0)
-                    return;
-            }
-            else
-            {
-                if (SceneManager.Instance.globalFilters == null || SceneManager.Instance.globalFilters.Count == 0)
-                    return;
-            }
-
-            ExpandFilterBubble();
-        }
 
         // if the entered one is a visualization or an axis
         // Even the histograms are always visualizations so listen for visualization collapse and not axis! 
@@ -122,20 +106,37 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    public void handlePointerCollisionEnter(Transform pointer)
     {
-        if(other.CompareTag("PointerDot"))
+        print("dot just entered the thing");
+        if (!isGlobalFilterBubble)
         {
-            print("dot just entered the thing");
-            // regardless of what the controller is carrying, if we exit the filter area, reset everything
-            hasCollidedWithVis = false;
-            collidedVis = null;
-
-            OnExited.Invoke();
-            hideDropFilterHint();
-            CollapseFilterBubble();
+            if (visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0)
+                return;
+        }
+        else
+        {
+            if (SceneManager.Instance.globalFilters == null || SceneManager.Instance.globalFilters.Count == 0)
+                return;
         }
 
+        ExpandFilterBubble();
+    }
+
+    public void handlePointerCollisionExit(Transform pointer)
+    {
+        print("dot just exited the thing");
+        // regardless of what the controller is carrying, if we exit the filter area, reset everything
+        //hasCollidedWithVis = false;
+        //collidedVis = null;
+
+        OnExited.Invoke();
+        //hideDropFilterHint();
+        CollapseFilterBubble();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
 
         if(hasCollidedWithVis && collidedVis != null)
         {
