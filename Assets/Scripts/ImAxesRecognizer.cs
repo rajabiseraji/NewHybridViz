@@ -637,7 +637,8 @@ public class ImAxesRecognizer : MonoBehaviour
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
                             print("Recognizer: histogram false 2");
-                            LinkVisualisations(_name, SP[i], SP[j]);
+                            if(SceneManager.Instance.isLinkedEnabled)
+                                LinkVisualisations(_name, SP[i], SP[j]);
                         }
                     }
                     else
@@ -652,7 +653,8 @@ public class ImAxesRecognizer : MonoBehaviour
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
                             print("Recognizer: histogram false 3");
-                            LinkVisualisations(_name, SP[i], SP[j]);
+                            if(SceneManager.Instance.isLinkedEnabled)
+                                LinkVisualisations(_name, SP[i], SP[j]);
                         }
                     }
                 }

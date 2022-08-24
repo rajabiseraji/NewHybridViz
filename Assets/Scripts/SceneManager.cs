@@ -15,6 +15,9 @@ public class SceneManager : MonoBehaviour
 
     // TODO: We need to change this function in order to create our scene and its corresponding objects
 
+    public bool isLinkedEnabled = true;
+    public bool is2DBoardInteractionEnabled = true;
+
     public List<Axis> sceneAxes { get; internal set; }
 
     public DataBinding.DataObject dataObject;
@@ -195,11 +198,27 @@ public class SceneManager : MonoBehaviour
 
         TwoDimensionalPanelScript panel = (TwoDimensionalPanelScript)GameObject.FindObjectOfType(typeof(TwoDimensionalPanelScript));
 
+        // set the interaction to true no matter what for this: 
+        panel.isInteractionEnbabled = true;
+
         panel.clearConnectedAxisList();
 
         // make all of those attributes again
         makeSelectedDataAttributeAxes();
         //putThingsInFrontofCamera();
+
+        // After things are done, set the interaction to whatever the flag is with a delay
+
+        StartCoroutine(setPanelInteractionFlag(panel)); //
+
+    }
+
+    System.Collections.IEnumerator setPanelInteractionFlag(TwoDimensionalPanelScript panel)
+    {
+        yield return new WaitForSeconds(2f);
+
+        panel.isInteractionEnbabled = this.is2DBoardInteractionEnabled;
+
     }
     
     void makeSelectedDataAttributeAxes()

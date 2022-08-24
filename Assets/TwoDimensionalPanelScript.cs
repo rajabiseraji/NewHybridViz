@@ -9,6 +9,8 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     public static float COLLISION_DISTANCE_BOUNDARY = 0.35f;
     public bool IS_DRAGGABLE_BY_CONTROLLER = true;
 
+    public bool isInteractionEnbabled = true;
+
     public GameObject dropHint;
     public GameObject panelHighlight;
 
@@ -36,45 +38,53 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     // Update is called once per frame
     void Update()
     {
-        
-        
-        if(hasCollidedWithAxis && collidedAxis != null)
+        // we want to disable dragging and dropping on the monitor it this flag is false
+        if(isInteractionEnbabled)
         {
-            // if the controller that was grabbing the axis has let go while the axis is inside
-            // the 2D plane, then add the axis to the plane
-            if(collidedAxis.grabbingController == null || (collidedAxis.grabbingController != null && !collidedAxis.grabbingController.gripping))
+            if (hasCollidedWithAxis && collidedAxis != null)
             {
-                addCollidedAxisToBoard();
-                // after adding, just reset everything
-                // this one waits for a frame so that all of the effects to take place and then resets everything
-                //StartCoroutine(resetCollidersCoroutine());
-                hasCollidedWithAxis = false;
-                collidedAxis = null;
-                // hide the dropping hint after the axis got added to the board
-                hideDropHint();
-            }
-        }
-
-
-        for (int i = 0; i < ConnectedAxes.Count; i++)
-        {
-            var axis = ConnectedAxes[i];
-            var AxisRigidBody = axis.GetComponent<Rigidbody>();
-            float distanceAlongPlaneNormal = Vector3.Project(axis.transform.position - transform.position, transform.forward).magnitude;
-            if (distanceAlongPlaneNormal > COLLISION_DISTANCE_BOUNDARY) {
-                print("removing axis " + axis.name);
-                ConnectedAxes.RemoveAt(i);
-
-            } else {
-                // For all the existing axes, just freeze their movement to two degrees
-                if(AxisRigidBody.constraints == RigidbodyConstraints.FreezeAll){
-                    AxisRigidBody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
+                // if the controller that was grabbing the axis has let go while the axis is inside
+                // the 2D plane, then add the axis to the plane
+                if (collidedAxis.grabbingController == null || (collidedAxis.grabbingController != null && !collidedAxis.grabbingController.gripping))
+                {
+                    addCollidedAxisToBoard();
+                    // after adding, just reset everything
+                    // this one waits for a frame so that all of the effects to take place and then resets everything
+                    //StartCoroutine(resetCollidersCoroutine());
+                    hasCollidedWithAxis = false;
+                    collidedAxis = null;
+                    // hide the dropping hint after the axis got added to the board
+                    hideDropHint();
                 }
             }
+
+
+            for (int i = 0; i < ConnectedAxes.Count; i++)
+            {
+                var axis = ConnectedAxes[i];
+                var AxisRigidBody = axis.GetComponent<Rigidbody>();
+                float distanceAlongPlaneNormal = Vector3.Project(axis.transform.position - transform.position, transform.forward).magnitude;
+                if (distanceAlongPlaneNormal > COLLISION_DISTANCE_BOUNDARY)
+                {
+                    print("removing axis " + axis.name);
+                    ConnectedAxes.RemoveAt(i);
+
+                }
+                else
+                {
+                    // For all the existing axes, just freeze their movement to two degrees
+                    if (AxisRigidBody.constraints == RigidbodyConstraints.FreezeAll)
+                    {
+                        AxisRigidBody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
+                    }
+                }
+            }
+
         }
 
+
         // Check if the parent dataShelf is moving
-        if(MyPrevPosition.Equals(transform.position)) {
+        if (MyPrevPosition.Equals(transform.position)) {
             AmIMoving = false;
         } else 
             AmIMoving = true;
@@ -93,6 +103,10 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
     //}
 
     void OnTriggerEnter(Collider other) {
+        // do nothing if this flag is set to false
+        if (!isInteractionEnbabled)
+            return;
+
         print("on trigger enter called with " + other.name + " at " + Time.realtimeSinceStartup);
         Axis a = other.GetComponent<Axis>();
         if (a != null) {
@@ -126,6 +140,9 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
 
     private void OnTriggerExit(Collider other)
     {
+        if (!isInteractionEnbabled)
+            return;
+
         Axis a = other.GetComponent<Axis>();
         if(a != null && hasCollidedWithAxis && collidedAxis.GetInstanceID() == a.GetInstanceID())
         {
