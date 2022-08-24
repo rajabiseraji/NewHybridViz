@@ -84,6 +84,7 @@ public class Pointer : MonoBehaviour
         {
             if (hit.collider)
             {
+                //print("handling dot raycast with " + hit.collider.name);
                 handleRaycastFilterBubbleManipulation(hit.collider.GetComponent<FilterBubbleButton>());
             }
             return;
@@ -121,6 +122,7 @@ public class Pointer : MonoBehaviour
     {
         if (newCollidedFilterBubble != null) // if something was hit
         {
+            print("dot just hit a filter bubble");
             if (currentCollidedFilterBubble != null && newCollidedFilterBubble.GetInstanceID() != currentCollidedFilterBubble.GetInstanceID())
                 currentCollidedFilterBubble.handlePointerCollisionExit(transform);
 

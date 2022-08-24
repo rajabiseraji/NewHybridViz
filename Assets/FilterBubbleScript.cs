@@ -199,7 +199,7 @@ public class FilterBubbleScript : MonoBehaviour
                 if(exists) 
                     continue;
 
-                parentVisualization.AttributeFilters.Add(new AttributeFilter(filter.idx, dobj.Identifiers[filter.idx], -0.5f, 0.5f, 0f, 1f));
+                parentVisualization.AttributeFilters.Add(new AttributeFilter(filter.idx, dobj.Identifiers[filter.idx], filter.minFilter, filter.maxFilter, 0f, 1f));
                 
             }
 
@@ -241,6 +241,9 @@ public class FilterBubbleScript : MonoBehaviour
             // TODO: figure out what to do about duplicate axes
 
         }
+
+        // this is to update the text in case it hasn't beed updated yet!
+        FilterBubblebuttonGameobject.changeCompactFilterText();
     }
 
     public void removeFilter(int axisId, GameObject sliderToRemove) {

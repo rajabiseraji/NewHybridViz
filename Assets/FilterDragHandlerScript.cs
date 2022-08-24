@@ -27,9 +27,8 @@ public class FilterDragHandlerScript : MonoBehaviour
         if(controller == null && controllerTransform == null) 
             return;
 
-        // Vector3 distanceVector = controllerTransform.position - transform.position;
-        float distance = Vector3.Distance(controllerTransform.position, transform.position);
         if(controller.gripping) {
+            float distance = Vector3.Distance(controllerTransform.position, transform.position);
             if(!highlightGameobject.activeSelf)
                 highlightGameobject.SetActive(true);
             if(distance > 0.25f) {
@@ -60,17 +59,27 @@ public class FilterDragHandlerScript : MonoBehaviour
     }
 
     void OnTriggerExit(Collider other) {
-        if(other.GetComponent<WandController>() == null) {
-            controller = null;
-            controllerTransform = null;
-        } else {
-            var tempController = other.GetComponent<WandController>();
-            if(!tempController.gripping)  {
+        //if(other.GetComponent<WandController>() == null) {
+        //    controller = null;
+        //    controllerTransform = null;
+        //} else {
+        //    var tempController = other.GetComponent<WandController>();
+        //    if(!tempController.gripping)  {
+        //        controller = null;
+        //        controllerTransform = null;
+        //        highlightGameobject.SetActive(false);
+        //    }
+        //}
+        if(other.GetComponent<WandController>())
+        {
+            if(controller != null && controllerTransform.GetInstanceID() == other.transform.GetInstanceID() && !controller.gripping)
+            {
+                isCollidingWithController = false;
                 controller = null;
                 controllerTransform = null;
                 highlightGameobject.SetActive(false);
             }
         }
-        isCollidingWithController = false;
+        
     }
 }
