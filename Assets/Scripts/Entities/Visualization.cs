@@ -164,6 +164,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Is this really usesd in the actual syustsm?
     Vector3 brushPosition = Vector3.zero;
 
+    bool hasBeenBrushedByScript = false;
+
     // object-relative coordinates for the visualisation distortion
     // ftl: Front top left - btl: Back(?) top left
     // Front and back are used for depth I suppose (e.g. in the case of 3D systems and coordinates)
@@ -721,6 +723,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             linkedView.Item1.name += " linkedView";
 
         }
+
+        
+
     }
 
     void CalculateCorners1(Axis axisA, Axis axisB, Axis axisC, ref Vector3 ftl, ref Vector3 ftr, ref Vector3 fbl, ref Vector3 fbr)
@@ -1069,6 +1074,21 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     break;
             }
         }
+
+        carryOverPreviousBrushing();
+
+    }
+
+    private void carryOverPreviousBrushing()
+    {
+        // check if we have anything that is already brushed, then brush it in this new vis, too
+        if (!hasBeenBrushedByScript && viewType != ViewType.Histogram && BrushingAndLinking.brushedIndexes != null && BrushingAndLinking.brushedIndexes.Count() != 0)
+        {
+            //print("script is brushing now!");
+            hasBeenBrushedByScript = true;
+            BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
+        }
+
     }
 
     // determines if the axse of this visualization are on 2D board and are prototypes
