@@ -63,7 +63,9 @@ public class SceneManager : MonoBehaviour
 
     public List<int> selectedDataAttributesIds = new List<int>();
     public Transform dataShelfPanel;
-    public Transform AxisPlaceholderObject; 
+    public Transform AxisPlaceholderObject;
+
+    public int[] brushedIndexes = new int[0];
 
     void Start()
     {
@@ -138,6 +140,13 @@ public class SceneManager : MonoBehaviour
             int[] list = { 1, 2, 3, 4, 6, 7, 9 };
             print(list);
             setSelectedDataAttributeIds(list.ToList<int>());
+        }
+
+        if(brushedIndexes.Length > 0)
+        {
+            print("in scenemanager: asking for brushing");
+            BrushingAndLinking.ApplyDesktopBrushing(brushedIndexes);
+            brushedIndexes = new int[0];
         }
 
     }
@@ -483,6 +492,11 @@ public class SceneManager : MonoBehaviour
         }
         Debug.Log("The found index is " + foundIndex);
         toBeActivatedXAxisId = foundIndex;
+    }
+
+    public void setBrushedIndexes(int[] indexes)
+    {
+        brushedIndexes = indexes;
     }
 
     // This function is called when we are releasing the trigger after an extrusion event

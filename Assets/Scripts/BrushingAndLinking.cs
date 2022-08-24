@@ -4,6 +4,8 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Staxes;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class BrushingAndLinking : MonoBehaviour, UIComponent
 {
@@ -19,7 +21,6 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // This the brush position in the world coords
     public static Vector3 brushPosition = Vector3.zero;
 
-
     // Use this for initialization
     void Start()
     {
@@ -28,6 +29,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         //brushedTexture.Create();
 
         //VisualisationFactory.Instance.pointCloudMaterial.SetFloat("_data_size", brushedTexture.width);
+
+        //debouncedWrapper = brushingAction.Debounce<Vector3[]>();
 
     }
 
@@ -80,6 +83,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         }
 
 
+        //Debug.Log("pre view and I'm brushing!");
         GameObject[] views = GameObject.FindGameObjectsWithTag("View");
         //Debug.Log("in the update and I'm brushing!");
         //link the brush to all other visualisations
@@ -150,6 +154,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         }
     }
 
+    public void callStaticBrusher(int[] indexes)
+    {
+        // This is because of a weird behaviour when calling the static method directly from WSClient
+        ApplyDesktopBrushing(indexes);
+    }
+
     public static void ApplyDesktopBrushing(int[] codapIndexes)
     {
         // first turn codap indexes into unity indexes
@@ -188,11 +198,18 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // here we should also call the Websocket client to send a selection message to CODAP
         // this function will not be called by BrushVisualization, so we can safely send 
         // a websocket msg without the fear of loops between codap and Unity
+
+        //debouncedWrapper(brushedIndexes);
+
         GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendBrushingMsgToDesktop(1, brushedIndexes);
+
+
 
 
         // we should also have something to receive a selection message from CODAP's side
     }
+
+
 
 
     // ==============================================================================================

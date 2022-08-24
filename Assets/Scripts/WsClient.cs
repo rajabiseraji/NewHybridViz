@@ -59,13 +59,15 @@ public class WsClient : MonoBehaviour
 
                 SceneManager.Instance.extrusionWasEmpty = false;
 
-            } else if (receivedMsg.typeOfMessage == "CODAPBRUSH")
+            } else if (receivedMsg.typeOfMessage == "BRUSHTOVR")
             {
-                if(receivedMsg.indexes.Length != 0)
-                {
-                    print("I have received one with everything " + JsonUtility.ToJson(receivedMsg));
+                //if(receivedMsg.indexes != 0)
+                //{
+                    //print("I have received one with everything " + JsonUtility.ToJson(receivedMsg));
+                    // let's first find someone that has the Brushing and linking class, then call the apply method from there
                     //BrushingAndLinking.ApplyDesktopBrushing(receivedMsg.indexes);
-                }
+                    SceneManager.Instance.setBrushedIndexes(receivedMsg.indexes);
+                //}
             }
         }
     }
@@ -115,7 +117,8 @@ public class WsClient : MonoBehaviour
 
     public void SendBrushingMsgToDesktop(int id, Vector3[] brushedIndexes)
     {
-        var msg = new WebSocketMsg(id, "brushing stuff", "BRUSH", brushedIndexes);
+        print("brushing shit to dekstop!");
+        var msg = new WebSocketMsg(id, "brushing stuff", "BRUSHTODESKTOP", brushedIndexes);
         SendMsgToDesktop(msg);
     }
 }
