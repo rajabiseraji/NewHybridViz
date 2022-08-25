@@ -275,13 +275,13 @@ public class WandController : MonoBehaviour
                             {
                                 // Q: what does the world to local point translation does here? 
                                 // TODO: Change back!
-                                // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this, 
-                                //     brushingPoint.transform.position, 
-                                //     currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
-                                //     true);
-                                currentDetailView.GetComponent<Visualization>().OnBrush(this,
+                                currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this,
                                     brushingPoint.transform.position,
+                                    currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
                                     true);
+                                //currentDetailView.GetComponent<Visualization>().OnBrush(this,
+                                //    brushingPoint.transform.position,
+                                //    true);
                             }
                             else
                             {
@@ -306,15 +306,15 @@ public class WandController : MonoBehaviour
                             brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
 
                             // TODO: Turn this back into normal 
-                            // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
-                            //     this, 
-                            //     hit.point, 
-                            //     currentDetailView.transform.InverseTransformPoint(hit.point),
-                            //     false);
-                            currentDetailView.GetComponent<Visualization>().OnBrush(
-                                this,
-                                hit.point,
-                                false);
+                             currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
+                                 this, 
+                                 hit.point, 
+                                 currentDetailView.transform.InverseTransformPoint(hit.point),
+                                 false);
+                            //currentDetailView.GetComponent<Visualization>().OnBrush(
+                            //    this,
+                            //    hit.point,
+                            //    false);
                         }
 
                     }
@@ -325,15 +325,15 @@ public class WandController : MonoBehaviour
                 // and just deactivate the brush point and all
                 if(currentDetailView != null)
                 {
-                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero, false);
+                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero, false);
 
-                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
                     //currentDetailView = null;
                     //brushingPoint.gameObject.SetActive(false);
                     /////////////////////////////
-                    currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
+                    //currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
 
-                    currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+                    //currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
                     currentDetailView = null;
                     brushingPoint.gameObject.SetActive(false);
                 }

@@ -436,8 +436,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.66, y: -0.5}
-  m_SizeDelta: {x: 20, y: 5}
+  m_AnchoredPosition: {x: -5.151, y: -0.5}
+  m_SizeDelta: {x: 17.995, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &23302952236399642
 MeshRenderer:
@@ -539,8 +539,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1912,8 +1912,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.66, y: 0.5}
-  m_SizeDelta: {x: 20, y: 5}
+  m_AnchoredPosition: {x: -5.416, y: 0.5}
+  m_SizeDelta: {x: 16.912, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &23313390104479680
 MeshRenderer:
@@ -2015,8 +2015,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2866,6 +2866,9 @@ MonoBehaviour:
   isClonedByCloningWidget: 0
   isCollidingWithMonitor: 0
   collidingMonitor: {fileID: 0}
+  collidingVisForPrompt: {fileID: 0}
+  isCollidingWithColorPrompt: 0
+  isCollidingWithSizePrompt: 0
   parentIsMoving: 0
   minFilterObject: {fileID: 4741826101255928}
   maxFilterObject: {fileID: 4551393065374534}
@@ -2919,6 +2922,11 @@ MonoBehaviour:
   grabbingController: {fileID: 0}
   AttributeFilters: []
   axisScaleFactor: 1
+  correspondingVisColors: []
+  correspondingVisColorAxisId: -1
+  correspondingVisSizes: []
+  correspondingVisSizeAxisId: -1
+  correspondingVisualizationHashes: []
 --- !u!54 &54227409716071068
 Rigidbody:
   m_ObjectHideFlags: 0

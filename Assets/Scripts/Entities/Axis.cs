@@ -155,6 +155,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
         //  This basically sets the range of the data dimensions that are going to be in the file
         // SrcData is the whole of the data
+        // it's the raw range of the data attribute and it's NOT between 0 and 1
         AttributeRange = srcData.DimensionsRange[axisId];
         label.text = srcData.Identifiers[idx];
         UpdateRangeText();
@@ -197,6 +198,8 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         // TODO: we should somehow show how each of these tick marks show 5, 10, 50, or more values
         float range = AttributeRange.y - AttributeRange.x;
+        // bincount: this is initially Min(RawmaxDimension - RawminDimension + 1, 200)
+        // we can set it manually in metadataPreset.BinSizePreset by making a metadata preset
         if (srcData.Metadata[axisId].binCount > range + 2)
         {
             ticksScaleFactor = 1.0f / (srcData.Metadata[axisId].binCount / 10);
@@ -236,6 +239,11 @@ public class Axis : MonoBehaviour, Grabbable {
         // range is going to be between 0 and 1 times the attribute range 
         float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
         float scale = range / ticksScaleFactor;
+        print("in Axis " + name + "range is " + range);
+        print("in Axis " + name + "tickscaleFactor is " + ticksScaleFactor);
+        print("in Axis " + name + "scale is " + scale);
+        // whatever this scale is determines how many ticks we're showing
+        // the number of shown ticks is floor(scale * 1)
         ticksRenderer.material.mainTextureScale = new Vector3(1, scale);
     }
 
@@ -346,6 +354,7 @@ public class Axis : MonoBehaviour, Grabbable {
         GameObject clone = Instantiate(gameObject, position, rotation, null);
         clone.name = gameObject.name;
         Axis axis = clone.GetComponent<Axis>();
+        axis.Init(SceneManager.Instance.dataObject, axisId, false);
         axis.InitOrigin(position, rotation);
         axis.isClonedByCloningWidget = isClonedByCloningWidget;
         axis.isPrototype = false;

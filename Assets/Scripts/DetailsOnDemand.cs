@@ -197,9 +197,6 @@ public class DetailsOnDemand : MonoBehaviour
 
                 // IMPORANT POINT
                 // The points that are drawin in the vertex shaders are from -0.45 to 0.45
-                float x = localPointerPosition.x / Axis.AXIS_ROD_LENGTH;
-                float y = localPointerPosition.y / Axis.AXIS_ROD_LENGTH;
-                float z = localPointerPosition.z / Axis.AXIS_ROD_LENGTH;
 
                 float xMinNormaliser = visualizationReference.ReferenceAxis1.horizontal.MinNormaliser;
                 float xMaxNormaliser = visualizationReference.ReferenceAxis1.horizontal.MaxNormaliser;
@@ -209,9 +206,19 @@ public class DetailsOnDemand : MonoBehaviour
                 float XnewScale = 1/ (xMaxNormaliser - xMinNormaliser); 
                 float YnewScale = 1 / (yMaxNormaliser - yMinNormaliser);
 
-                //find the closest point in the list
-                // this value is always between 0 and 1
-                Vector2 pointerPosition2D = new Vector2(x + 0.45f, y + 0.45f);
+
+                var origParentLocalScale = parentTransform.localScale;
+                parentTransform.localScale = Vector3.one;
+                var localPoint = parentTransform.InverseTransformPoint(pointerPosition);
+                parentTransform.localScale = origParentLocalScale;
+
+                // we don't even touch this hitpoint2D, it's as good as possible
+                // it gives us a number [data[i].min, data[i].max] which means [-0.5, 0.5]
+                // TODO: make this also dynamic, so that we can change it if we want
+                Vector2 hitpoint2D = new Vector2(
+                    localPoint.x / BrushingAndLinking._scale.x,
+                    localPoint.y / BrushingAndLinking._scale.y);
+
                 List<float> distances = new List<float>();
 
                 // We need to map the min of FilteredColX to min of localPosition (which is about 0.11f) and the do the same of the max of it too.
@@ -220,14 +227,25 @@ public class DetailsOnDemand : MonoBehaviour
                 // All the filtered values are between 0 and 1 too
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
-                float minFilteredX = filteredXcol.Min();
-                float maxFilteredX = filteredXcol.Max();
-                float minFilteredY = filteredYcol.Min();
-                float maxFilteredY = filteredYcol.Max();
 
                 for (int i = 0; i < filteredXcol.Length; i++)
                 {
-                    distances.Add(Vector2.Distance(pointerPosition2D, new Vector2(filteredXcol[i] * XnewScale, filteredYcol[i] * YnewScale)));
+                    float SHIFT_FORWARD_VALUE = Math.Abs(BrushingAndLinking.PREV_AXIS_MIN_NORM);
+
+                    var dataXDistanceWithNewMin = filteredXcol[i] - BrushingAndLinking.shift(xMinNormaliser, SHIFT_FORWARD_VALUE);
+                    var dataYDistanceWithNewMin = filteredYcol[i] - BrushingAndLinking.shift(yMinNormaliser, SHIFT_FORWARD_VALUE); ;
+
+                    var dataXScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (xMaxNormaliser - xMinNormaliser);
+                    var dataYScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (yMaxNormaliser - yMinNormaliser);
+
+
+                    Vector2 ScaledDataPoint = new Vector2(
+                        dataXDistanceWithNewMin * dataXScale,
+                        dataYDistanceWithNewMin * dataYScale
+                    ) - (SHIFT_FORWARD_VALUE * Vector2.one);
+
+
+                    distances.Add(Vector2.Distance(ScaledDataPoint, hitpoint2D));
                 }
                 int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
 
@@ -245,13 +263,13 @@ public class DetailsOnDemand : MonoBehaviour
 
                
 
-                var normalisedX = UtilMath.normaliseValue(filteredXcol[index], xMinNormaliser, xMaxNormaliser, -0.5f, 0.5f);
+                //var normalisedX = UtilMath.normaliseValue(filteredXcol[index], xMinNormaliser, xMaxNormaliser, -0.5f, 0.5f);
                 
-                // filteredXcol[index] * XnewScale;
-                var normalisedY = UtilMath.normaliseValue(filteredYcol[index], yMinNormaliser, yMaxNormaliser, -0.5f, 0.5f);
+                //// filteredXcol[index] * XnewScale;
+                //var normalisedY = UtilMath.normaliseValue(filteredYcol[index], yMinNormaliser, yMaxNormaliser, -0.5f, 0.5f);
                 
 
-                var test = String.Format("Normalised x is: {0} \n Before X was: {1} Normalised x is: {2} \n Before Y was: {3}", normalisedX, SceneManager.Instance.dataObject.getDimension(xDimension)[index]-0.5f, normalisedY, SceneManager.Instance.dataObject.getDimension(yDimension)[index] - 0.5f);
+                //var test = String.Format("Normalised x is: {0} \n Before X was: {1} Normalised x is: {2} \n Before Y was: {3}", normalisedX, SceneManager.Instance.dataObject.getDimension(xDimension)[index]-0.5f, normalisedY, SceneManager.Instance.dataObject.getDimension(yDimension)[index] - 0.5f);
 
                 // Debug.Log(test);
                 // Debug.Log(xMinNormaliser);
@@ -263,12 +281,12 @@ public class DetailsOnDemand : MonoBehaviour
 
                 Vector3 worldSpacePoint = transform.TransformPoint(localPointerPosition.x,localPointerPosition.y, 0f);
 
-                if(cube == null) {
-                    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.transform.localScale = Vector3.one * 0.005f;
-                    cube.GetComponent<Renderer>().material.color = Color.red;
-                }
-                cube.transform.position = worldSpacePoint;
+                //if(cube == null) {
+                //    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                //    cube.transform.localScale = Vector3.one * 0.005f;
+                //    cube.GetComponent<Renderer>().material.color = Color.red;
+                //}
+                //cube.transform.position = worldSpacePoint;
 
                 leaderInformation.SetPosition(0, pointerPosition);
                     leaderInformation.SetPosition(1,worldSpacePoint);
@@ -322,6 +340,13 @@ public class DetailsOnDemand : MonoBehaviour
 
                 string values = "";
 
+                float xMinNormaliser = visualizationReference.ReferenceAxis1.horizontal.MinNormaliser;
+                float xMaxNormaliser = visualizationReference.ReferenceAxis1.horizontal.MaxNormaliser;
+                float yMinNormaliser = visualizationReference.ReferenceAxis1.vertical.MinNormaliser;
+                float yMaxNormaliser = visualizationReference.ReferenceAxis1.vertical.MaxNormaliser;
+                float zMinNormaliser = visualizationReference.ReferenceAxis1.depth.MinNormaliser;
+                float zMaxNormaliser = visualizationReference.ReferenceAxis1.depth.MaxNormaliser;
+
                 // create a transform for the visualisation space
                 var vup = visualizationReference.fbl - visualizationReference.ftl;
                 var right = visualizationReference.fbr - visualizationReference.fbl;
@@ -351,37 +376,40 @@ public class DetailsOnDemand : MonoBehaviour
 
                 Vector3 positionInLocal3DSP = vt.InverseTransformPoint(pointerPosition);
 
-                float x = (positionInLocal3DSP.x + 1) / 2;
-                float y = (positionInLocal3DSP.y + 1) / 2;
-                float z = (positionInLocal3DSP.z + 1) / 2;
+                float x = (positionInLocal3DSP.x) / 2;
+                float y = (positionInLocal3DSP.y) / 2;
+                float z = (positionInLocal3DSP.z) / 2;
 
                 if (isFlipped)
                 {
-                    z = 1 - z;
+                    z = -1 * z;
                 }
 
                 //find the closest point in the list
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
+
                 List<float> distances = new List<float>();
 
                 float minDistance = float.MaxValue;
-                int minIndex = -1;
-                for (int i = 0; i < SceneManager.Instance.dataObject.getDimension(0).Length; i++)
-                {
-                    var m = Vector3.SqrMagnitude(pointerPosition3D -
-                        new Vector3(
-                        SceneManager.Instance.dataObject.getDimension(xDimension)[i],
-                        SceneManager.Instance.dataObject.getDimension(yDimension)[i],
-                        SceneManager.Instance.dataObject.getDimension(zDimension)[i]));
 
-                    if (m < minDistance)
-                    {
-                        minDistance = m;
-                        minIndex = i;
-                    }
+                float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
+                float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+                float[] filteredZcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(zDimension));
+
+
+                for (int i = 0; i < filteredXcol.Length; i++)
+                {
+                    
+                    Vector3 scaledDataPosition = new Vector3(
+                        BrushingAndLinking.ScaleDataPoint(filteredXcol[i], xMinNormaliser, xMaxNormaliser),
+                        BrushingAndLinking.ScaleDataPoint(filteredYcol[i], yMinNormaliser, yMaxNormaliser),
+                        BrushingAndLinking.ScaleDataPoint(filteredZcol[i], zMinNormaliser, zMaxNormaliser)
+                    );
+
+                    distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
                 }
 
-                int index = minIndex;
+                int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
 
                 var dataObj = SceneManager.Instance.dataObject;
 
@@ -402,16 +430,32 @@ public class DetailsOnDemand : MonoBehaviour
 
                 if (isFlipped)
                 {
-                    zd = 1 - zd;
+                    zd = -1 * zd;
                 }
 
+                Vector3 targetDataPointLocalLocation = new Vector3(
+                    BrushingAndLinking.ScaleDataPoint(xd, xMinNormaliser, xMaxNormaliser),
+                    BrushingAndLinking.ScaleDataPoint(yd, yMinNormaliser, yMaxNormaliser),
+                    BrushingAndLinking.ScaleDataPoint(zd, zMinNormaliser, zMaxNormaliser)
+                );
+
+                
+
+                Vector3 worldSpacePoint = vt.TransformPoint(targetDataPointLocalLocation.x, targetDataPointLocalLocation.y, targetDataPointLocalLocation.z);
+
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.localScale = Vector3.one * 0.005f;
+                cube.transform.position = worldSpacePoint;
+                cube.GetComponent<Renderer>().material.color = Color.red;
+
                 leaderInformation.SetPosition(0, pointerPosition);
-                leaderInformation.SetPosition(1,
-               (vt.TransformPoint(
-                (xd - 0.5f) / vt.localScale.x * 0.2660914f,
-                (yd - 0.5f) / vt.localScale.y * 0.2660914f,
-                (zd - 0.5f) / vt.localScale.z * 0.2660914f
-                )));
+                leaderInformation.SetPosition(1, worldSpacePoint);
+               // leaderInformation.SetPosition(1,
+               //(vt.TransformPoint(
+               // (xd - 0.5f) / vt.localScale.x * 0.2660914f,
+               // (yd - 0.5f) / vt.localScale.y * 0.2660914f,
+               // (zd - 0.5f) / vt.localScale.z * 0.2660914f
+               // )));
                 leaderInformation.widthCurve = AnimationCurve.Linear(0, 0.0015f, 1, 0.0015f);
 
                 textMesh.GetComponentInChildren<TextMesh>().text = values;

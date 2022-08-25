@@ -2023,7 +2023,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             {
                 DetailsOnDemandComponent.setPointerPosition(worldPosition);
                 DetailsOnDemandComponent.setLocalPointerPosition(localPosition);
-                if (is3D) DetailsOnDemandComponent.OnDetailOnDemand3D(); else DetailsOnDemandComponent.OnDetailOnDemand2D();
+                if (is3D) 
+                    DetailsOnDemandComponent.OnDetailOnDemand3D(); 
+                else 
+                    DetailsOnDemandComponent.OnDetailOnDemand2D();
             }
             detailOnDemandPosition = worldPosition;// sphereWandPostion;
         }

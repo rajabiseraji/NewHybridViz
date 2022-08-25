@@ -547,13 +547,13 @@ namespace DataBinding
         /// <param name="matrix"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        public T[] GetRow<T>(T[,] matrix, int row)
+        public float[] GetRow(List<List<float>> matrix, int row)
         {
-            var rowLength = matrix.GetLength(1);
-            var rowVector = new T[rowLength];
+            var rowLength = matrix.Count;
+            var rowVector = new float[rowLength];
 
             for (var i = 0; i < rowLength; i++)
-                rowVector[i] = matrix[row, i];
+                rowVector[i] = matrix[row][i];
 
             return rowVector;
         }
@@ -766,20 +766,37 @@ namespace DataBinding
         }
 
         public float[] getFilteredDimensionForIndexSearch(int colIndex, List<AttributeFilter> filters) {
-            List<float> filteredMatrix = GetCol(dataArray, colIndex).ToList();
-            // this list thingy might be very memory consuming
-            foreach (var filter in filters)
+            float[] filteredMatrix = GetCol(dataArray, colIndex);
+            if (filters.Count() == 0)
             {
-                filteredMatrix = filteredMatrix.Select(item => {
-                    if(item > filter.minFilter + 0.5f && item <= filter.maxFilter + 0.5f)
-                        return item;
-                    else
-                        return 900f;
-                    }).ToList();
+                return filteredMatrix;
             }
 
+            List<int> rowIndexes = new List<int>();
+
+            foreach (var filter in filters)
+            {
+                rowIndexes.AddRange(dataArray.Select((rowArray, index) =>
+                    {
+                        if (rowArray[filter.idx] > filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)
+                        {
+                            return index;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }).ToList()
+                );
+            }
+
+            for(int i = 0; i < filteredMatrix.Length; i++)
+            {
+                if (!rowIndexes.Contains(i))
+                    filteredMatrix[i] = 900;
+            }
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
-            return filteredMatrix.ToArray();
+            return filteredMatrix;
         }
     }
 }

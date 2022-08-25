@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 public class BrushingAndLinking : MonoBehaviour, UIComponent
 {
-    const float PREV_AXIS_MIN_NORM = -0.505f;
-    const float PREV_AXIS_MAX_NORM = 0.505f;
+    public const float PREV_AXIS_MIN_NORM = -0.505f;
+    public const float PREV_AXIS_MAX_NORM = 0.505f;
 
     public static Vector3[] brushedIndexes;// = new List<float>();
     public static Vector3[] brushedIndexesParallelPlot;
@@ -321,24 +321,11 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     ScaleDataPoint(data[i].z, zMinNormaliser, zMaxNormaliser)
                 );
                 float localDistance = Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition);
-            //     float localDistance = Vector3.Distance(ObjectToWorldDistort3d(data[i], parentTransform,
-            //    _ftl,
-            //    _ftr,
-            //    _fbl,
-            //    _fbr,
-            //    _btl,
-            //    _btr,
-            //    _bbl,
-            //    _bbr), worldCoordsPoint);
 
                 // Debug.Log("I'm in brush 3d and the local distance is " + localDistance);
                 if (localDistance < distance) {
                     brushedIndices[i] = new Vector3(1f, 0f, 0f);
                     
-
-                    // Do the 3D stuff here 
-                    // TODO
-                    Debug.Log("Haven'nt written the code yet!");
                 }
                 else
                 {
@@ -417,12 +404,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         return brushedIndices;
     }
 
-    private static float shift(float num, float distance)
+    public static float shift(float num, float distance)
     {
         return num + distance;
     }
 
-    private static float ScaleDataPoint(float dataPoint, float newMinNormalizer, float newMaxNormalizer)
+    public static float ScaleDataPoint(float dataPoint, float newMinNormalizer, float newMaxNormalizer)
     {
         float SHIFT_FORWARD_VALUE = Math.Abs(PREV_AXIS_MIN_NORM);
 
