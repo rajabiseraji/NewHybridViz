@@ -196,6 +196,10 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void CalculateTicksScale(DataBinding.DataObject srcData)
     {
+        // first update the attributeRange from DataObject
+        AttributeRange = SceneManager.Instance.dataObject.DimensionsRange[axisId];
+
+
         // TODO: we should somehow show how each of these tick marks show 5, 10, 50, or more values
         float range = AttributeRange.y - AttributeRange.x;
         // bincount: this is initially Min(RawmaxDimension - RawminDimension + 1, 200)
@@ -237,7 +241,8 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         // Lerp is used for tweening between the min value of the AttributeRange and the max value of it
         // range is going to be between 0 and 1 times the attribute range 
-        float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
+        // because we have already calculated the proper range in aTtrRange, we don't need to get min and max norms involved here
+        float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, 1f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, 0f);
         float scale = range / ticksScaleFactor;
         print("in Axis " + name + "range is " + range);
         print("in Axis " + name + "tickscaleFactor is " + ticksScaleFactor);
@@ -325,6 +330,7 @@ public class Axis : MonoBehaviour, Grabbable {
         MinNormaliser = Mathf.Clamp(val, -0.505f, 0.505f);
         UpdateRangeText();
         OnNormalized.Invoke(MinNormaliser, MaxNormaliser);
+        CalculateTicksScale(SceneManager.Instance.dataObject);
         UpdateTicks();
     }
 
@@ -333,6 +339,7 @@ public class Axis : MonoBehaviour, Grabbable {
         MaxNormaliser = Mathf.Clamp(val, -0.505f, 0.505f);
         UpdateRangeText();
         OnNormalized.Invoke(MinNormaliser, MaxNormaliser);
+        CalculateTicksScale(SceneManager.Instance.dataObject);
         UpdateTicks();
     }
 

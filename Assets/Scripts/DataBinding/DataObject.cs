@@ -746,6 +746,8 @@ namespace DataBinding
             return values;
         }
 
+        // this function both returns the array of the filtered normalised values 
+        // and also updates the DimensionRange for that specific colIndex
         public float[] getFilteredCol(List<List<float>> matrix, int colIndex, List<AttributeFilter> filters) {
             // Matrix.Count in this case would be the number of data items in that column
             int rowLength = matrix[0].Count;
@@ -756,11 +758,19 @@ namespace DataBinding
             // this list thingy might be very memory consuming
             foreach (var filter in filters)
             {
-                filteredMatrix = filteredMatrix.Where(rowArray => (rowArray[filter.idx] > filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)).ToList();
+                filteredMatrix = filteredMatrix.Where(rowArray => (rowArray[filter.idx] >= filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)).ToList();
             }
 
+
+            var result = GetCol(filteredMatrix, colIndex);
+
+            // here I want to also update the attributeRange for this col
+
+            updateDimensionsRangeWithFilters(colIndex, result.ToList());
+            calculateBinCountWithFilters(colIndex);
+
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
-            return GetCol(filteredMatrix, colIndex);
+            return result;
 
              
         }
@@ -797,6 +807,60 @@ namespace DataBinding
             }
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
             return filteredMatrix;
+        }
+
+        //public float[] getFilteredDimensionValueAndIndex(int colIndex, List<AttributeFilter> filters)
+        //{
+            
+        //}
+
+        private void updateDimensionsRangeWithFilters(int colIndex, List<float> filteredData)
+        {
+            var colData = GetCol(dataArray, colIndex);
+
+            var minIndex = colData.ToList().FindIndex(val => val == filteredData.Min());
+            var maxIndex = colData.ToList().FindLastIndex(val => val == filteredData.Max());
+
+            float[] realDataCol = GetCol(originalDataValues, colIndex);
+
+            float minRealData = realDataCol[minIndex];
+            float maxRealData = realDataCol[maxIndex];
+
+            // we update the dimensinos range here
+            dimensionsRange[colIndex] = new Vector2(minRealData, maxRealData);
+
+
+        }
+
+        // colIndex is the same as AxisId, it's just the number of column of that data attribute in the array
+        public float calculateRangeWithFilters(int colIndex)
+        {
+            // get a filtered column 
+
+
+            return -1;
+        }
+
+        public void calculateBinCountWithFilters(int colIndex)
+        {
+            var dimensionMetadata = metadata[colIndex];
+            dimensionMetadata.minValue = dimensionsRange[colIndex].x;
+            dimensionMetadata.maxValue = dimensionsRange[colIndex].y;
+            dimensionMetadata.binCount = (int)Mathf.Min(dimensionsRange[colIndex].y - dimensionsRange[colIndex].x + 1, 200);
+            // TODO: add some automated bin size calculations
+
+            if (metadataPreset != null)
+            {
+                foreach (var binSizePreset in metadataPreset.BinSizePreset)
+                {
+                    if (binSizePreset.index == colIndex)
+                    {
+                        dimensionMetadata.binCount = binSizePreset.binCount;
+                    }
+                }
+            }
+
+            metadata[colIndex] = dimensionMetadata;
         }
     }
 }
