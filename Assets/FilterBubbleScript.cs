@@ -115,6 +115,8 @@ public class FilterBubbleScript : MonoBehaviour
             string axisName = SceneManager.Instance.dataObject.Identifiers[axisId];
             float axisAttributeRangeMin = axis.AttributeRange.x;
             float axisAttributeRangeMax = axis.AttributeRange.y;
+            var axisMinNormaliser = axis.MinNormaliser;
+            var axisMaxNormaliser = axis.MaxNormaliser;
             
             
             // destory the axis and its visualization just in case!
@@ -152,8 +154,8 @@ public class FilterBubbleScript : MonoBehaviour
             GameObject clonedSlider = Instantiate(sliderPrefab, sliderPrefab.transform.position, sliderPrefab.transform.rotation, controlGameobject);
             clonedSlider.SetActive(true);
             // UnityEngine.UI.Slider sliderComponent = clonedSlider.GetComponent<UnityEngine.UI.Slider>();
-            float minLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axis.MinNormaliser + 0.5f);
-            float maxLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axis.MaxNormaliser + 0.5f);
+            float minLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axisMinNormaliser + 0.5f);
+            float maxLimit = Mathf.Lerp(axisAttributeRangeMin, axisAttributeRangeMax, axisMaxNormaliser + 0.5f);
 
             // Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
             // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
