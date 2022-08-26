@@ -352,5 +352,34 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
     }
 
+    public void ParseComponentListIntoCubes(ComponentListItem[] componentLists)
+    {
+
+        var texture = GetComponent<uDesktopDuplication.Texture>();
+        // turn each compnent's position into a local position for the monitor and then draw it!
+        foreach (var codapComponent in componentLists)
+        {
+            // this is the world position of the top left of this component on desktop converted to Unity world
+            Vector3 componentWorldPosition = texture.GetWorldPositionFromCoord(
+                new Vector2(codapComponent.position.x, codapComponent.position.y)
+            );
+
+            // this is the bottom right of the component in desktop, converted to Unity world
+            Vector3 componentEndsWorldPosition = texture.GetWorldPositionFromCoord(
+                new Vector2(codapComponent.position.endX, codapComponent.position.endY)
+            );
+
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.localScale = Vector3.one * 0.005f;
+            cube.GetComponent<Renderer>().material.color = Color.red;
+            cube.transform.position = componentWorldPosition;
+            
+            GameObject cubeEnd = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cubeEnd.transform.localScale = Vector3.one * 0.005f;
+            cubeEnd.GetComponent<Renderer>().material.color = Color.blue;
+            cubeEnd.transform.position = componentEndsWorldPosition;
+        }
+    }
+
 
 }

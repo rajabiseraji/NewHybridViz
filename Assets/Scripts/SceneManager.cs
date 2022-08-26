@@ -70,10 +70,21 @@ public class SceneManager : MonoBehaviour
 
     public int[] brushedIndexes = new int[0];
 
+    public ComponentListItem[] componentList = new ComponentListItem[0];
+
+    public MonitorBoardInteractions mainMonitor;
+
     void Start()
     {
         // Init the monitorboards list 
         //GameObject.FindGameObjectsWithTag("MonitorBoard");
+        if (GameObject.FindGameObjectsWithTag("MonitorBoard").Count() != 0)
+        {
+            mainMonitor = GameObject.FindGameObjectsWithTag("MonitorBoard")[0].GetComponent<MonitorBoardInteractions>();
+            print("found the monitor");
+        }
+        else
+            print("didn't find the monitor");
 
         Debug.Assert(AxisPlaceholderObject != null, "Axis Placeholder shouldnb't be null");
         Debug.Assert(dataShelfPanel != null, "Data Shelf panel shouldnb't be null");
@@ -145,11 +156,29 @@ public class SceneManager : MonoBehaviour
             setSelectedDataAttributeIds(list.ToList<int>());
         }
 
+        //////////////////////// Unity limit with main thread
         if(brushedIndexes.Length > 0)
         {
             print("in scenemanager: asking for brushing");
             BrushingAndLinking.ApplyDesktopBrushing(brushedIndexes);
             brushedIndexes = new int[0];
+        }
+
+        if(componentList.Length > 0)
+        {
+            print("in scenemanager: asking for components");
+
+            // here we should call the monitorboard interaction thingy to then create the cubes!
+            if (mainMonitor == null)
+            {
+                mainMonitor = GameObject.FindGameObjectsWithTag("MonitorBoard")[0].GetComponent<MonitorBoardInteractions>();
+            }
+
+            // Ask the main monitor to read the component list and draw them all 
+            mainMonitor.ParseComponentListIntoCubes(componentList);
+
+
+            componentList = new ComponentListItem[0];
         }
 
     }
@@ -516,6 +545,18 @@ public class SceneManager : MonoBehaviour
     public void setBrushedIndexes(int[] indexes)
     {
         brushedIndexes = indexes;
+    }
+
+    public void setComponetList(ComponentListItem[] componentList)
+    {
+        // Massive problem! we shouldn't call this function from the wsThread, it doesn't run, 
+
+        // ////////////////////////////////// TODO ////////////////////////////
+        // we need to seomthig like we did with the brushing thingy
+
+        this.componentList = componentList;
+
+
     }
 
     // This function is called when we are releasing the trigger after an extrusion event

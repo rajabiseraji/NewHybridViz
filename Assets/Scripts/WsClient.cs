@@ -27,6 +27,8 @@ public class WsClient : MonoBehaviour
         Debug.Log(receivedMsg.sender);
         if (receivedMsg.sender == "codap")
         {
+            // this is the msg that codap sends when it wants to send us data about the thing we're extruding 
+            // from desktop to VR
             if(receivedMsg.typeOfMessage == "CODAPINFO")
             {
 
@@ -68,6 +70,10 @@ public class WsClient : MonoBehaviour
                     //BrushingAndLinking.ApplyDesktopBrushing(receivedMsg.indexes);
                     SceneManager.Instance.setBrushedIndexes(receivedMsg.indexes);
                 //}
+            } else if (receivedMsg.typeOfMessage == "COMPONENTLISTUPDATE")
+            {
+                print("I got a component msg that is " + JsonUtility.ToJson(receivedMsg.componentList));
+                SceneManager.Instance.setComponetList(receivedMsg.componentList);
             }
         }
     }
@@ -133,6 +139,22 @@ public class MouseEvent
 }
 
 [Serializable]
+public class CodapPosition
+{
+    public int x;
+    public int y;
+    public int endX;
+    public int endY;
+}
+
+[Serializable]
+public class ComponentListItem
+{
+    public int id;
+    public CodapPosition position;
+}
+
+[Serializable]
 public class WebSocketMsg
 {
     public int id;
@@ -146,6 +168,7 @@ public class WebSocketMsg
     public string typeOfMessage;
     public string sender;
     public int[] indexes = new int[0];
+    public ComponentListItem[] componentList = new ComponentListItem[0];
 
     public WebSocketMsg(int id, 
         Vector2 desktopPosition, 
