@@ -325,9 +325,11 @@ public class WandController : MonoBehaviour
                 // and just deactivate the brush point and all
                 if(currentDetailView != null)
                 {
-                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero, false);
-
                     currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+
+
+                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.negativeInfinity, Vector3.zero, false);
+
                     //currentDetailView = null;
                     //brushingPoint.gameObject.SetActive(false);
                     /////////////////////////////

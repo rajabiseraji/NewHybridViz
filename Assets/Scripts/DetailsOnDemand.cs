@@ -281,15 +281,51 @@ public class DetailsOnDemand : MonoBehaviour
 
                 Vector3 worldSpacePoint = transform.TransformPoint(localPointerPosition.x,localPointerPosition.y, 0f);
 
-                //if(cube == null) {
-                //    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                //    cube.transform.localScale = Vector3.one * 0.005f;
-                //    cube.GetComponent<Renderer>().material.color = Color.red;
-                //}
-                //cube.transform.position = worldSpacePoint;
+                // get the vertex that pertains to the found index
+                // this index is between -.5 and 0.5
+                var foundVertex = visualizationReference.getScatterplot2DGameobject().GetComponentInChildren<MeshFilter>().mesh.vertices[index];
+
+                // this just works flawlessly for points that have not been filtered and scaled
+                var localPointForVertex = new Vector2(
+                    foundVertex.x * (BrushingAndLinking._scale.x - 0.0266091f),
+                    foundVertex.y * (BrushingAndLinking._scale.y - 0.0266091f)
+                );
+
+                parentTransform.localScale = Vector3.one;
+                var worldPointForVertex = parentTransform.TransformPoint(localPointForVertex);
+                parentTransform.localScale = origParentLocalScale;
+
+                ///////////////////////// For when we have scaling
+                ///
+
+                // this will get us a point between -.5 and 0.5
+                var newVertexPointForFiltering = new Vector2(
+                    BrushingAndLinking.ScaleDataPoint(foundVertex.x, xMinNormaliser, xMaxNormaliser),
+                    BrushingAndLinking.ScaleDataPoint(foundVertex.y, yMinNormaliser, yMaxNormaliser)
+                );
+
+                var localPointForVertexForFiltering = new Vector2(
+                    newVertexPointForFiltering.x * (BrushingAndLinking._scale.x - 0.0266091f),
+                    newVertexPointForFiltering.y * (BrushingAndLinking._scale.y - 0.0266091f)
+                );
+
+                parentTransform.localScale = Vector3.one;
+                var worldPointForVertexForFiltering = parentTransform.TransformPoint(localPointForVertexForFiltering);
+                parentTransform.localScale = origParentLocalScale;
+
+
+
+                if (cube == null)
+                {
+                    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.transform.localScale = Vector3.one * 0.005f;
+                    cube.transform.parent = transform;
+                    cube.GetComponent<Renderer>().material.color = Color.red;
+                }
+                cube.transform.localPosition = localPointForVertexForFiltering;
 
                 leaderInformation.SetPosition(0, pointerPosition);
-                    leaderInformation.SetPosition(1,worldSpacePoint);
+                    leaderInformation.SetPosition(1, worldPointForVertexForFiltering);
                     leaderInformation.widthCurve = AnimationCurve.Linear(0, 0.0015f, 1, 0.0015f);
 
             }
@@ -309,12 +345,13 @@ public class DetailsOnDemand : MonoBehaviour
             textMesh.transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward,
             Camera.main.transform.rotation * Vector3.up);
 
-            labelDetails.transform.Translate(labelDetails.transform.localScale.x / 2f,
-                                                  -labelDetails.transform.localScale.y / 2f, 0.005f);
+            labelDetails.transform.Translate(labelDetails.transform.localScale.x / 2f + 0.5f,
+                                                  -labelDetails.transform.localScale.y / 2f + 0.5f, 0.005f);
         }
     }
     
     GameObject tempTransformObject = null;
+    GameObject dod3DCube = null;
 
     public void OnDetailOnDemand3D()
     {
@@ -325,18 +362,18 @@ public class DetailsOnDemand : MonoBehaviour
         yDimension = dimensionVisualisation[1];
         zDimension = dimensionVisualisation[2];
         zDimension = zDimension.Split(' ')[0];
-        
-        labelDetails.SetActive(true);
-        
+
         Vector2 rangeX = SceneManager.Instance.dataObject.DimensionsRange[SceneManager.Instance.dataObject.dimensionToIndex(xDimension)];
         Vector2 rangeY = SceneManager.Instance.dataObject.DimensionsRange[SceneManager.Instance.dataObject.dimensionToIndex(yDimension)];
         Vector2 rangeZ = SceneManager.Instance.dataObject.DimensionsRange[SceneManager.Instance.dataObject.dimensionToIndex(zDimension)];
 
+        labelDetails.SetActive(true);
+        
         if (pointerPosition != null && labelDetails != null && textMesh != null)
         {
             if (!isParallelView)
             {
-                textMesh.transform.position = (pointerPosition);
+                textMesh.transform.position = (pointerPosition) + (textMesh.transform.right * 0.05f);
 
                 string values = "";
 
@@ -374,6 +411,7 @@ public class DetailsOnDemand : MonoBehaviour
                 Transform vt = tempTransformObject.transform;
                 vt.rotation = Quaternion.LookRotation(forward, vup);
 
+                // this is always between -1 , 1
                 Vector3 positionInLocal3DSP = vt.InverseTransformPoint(pointerPosition);
 
                 float x = (positionInLocal3DSP.x) / 2;
@@ -385,13 +423,14 @@ public class DetailsOnDemand : MonoBehaviour
                     z = -1 * z;
                 }
 
-                //find the closest point in the list
+                //find the closest point in the list 
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
 
                 List<float> distances = new List<float>();
 
                 float minDistance = float.MaxValue;
 
+                // these are between 0 and 1 and for our calcs they should be between -.5 and 0.5
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
                 float[] filteredZcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(zDimension));
@@ -401,9 +440,9 @@ public class DetailsOnDemand : MonoBehaviour
                 {
                     
                     Vector3 scaledDataPosition = new Vector3(
-                        BrushingAndLinking.ScaleDataPoint(filteredXcol[i], xMinNormaliser, xMaxNormaliser),
-                        BrushingAndLinking.ScaleDataPoint(filteredYcol[i], yMinNormaliser, yMaxNormaliser),
-                        BrushingAndLinking.ScaleDataPoint(filteredZcol[i], zMinNormaliser, zMaxNormaliser)
+                        BrushingAndLinking.ScaleDataPoint(filteredXcol[i] - 0.5f, xMinNormaliser, xMaxNormaliser),
+                        BrushingAndLinking.ScaleDataPoint(filteredYcol[i] - 0.5f, yMinNormaliser, yMaxNormaliser),
+                        BrushingAndLinking.ScaleDataPoint(filteredZcol[i] - 0.5f, zMinNormaliser, zMaxNormaliser)
                     );
 
                     distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
@@ -424,38 +463,46 @@ public class DetailsOnDemand : MonoBehaviour
                     Environment.NewLine,
                     zDimension, zvalstr);
 
-                float xd = dataObj.getDimension(xDimension)[index];
-                float yd = dataObj.getDimension(yDimension)[index];
-                float zd = dataObj.getDimension(zDimension)[index];
+                // this is between -.5 and 0.5
+                var foundVertex = visualizationReference.getScatterplot3DGameobject().GetComponentInChildren<MeshFilter>().mesh.vertices[index];
+
+                //if (isFlipped)
+                //{
+                //    foundVertex.z = -1 * foundVertex.z;
+                //}
+
+
+                Vector3 newVertexPointForFiltering = new Vector3(
+                    BrushingAndLinking.ScaleDataPoint(foundVertex.x, xMinNormaliser, xMaxNormaliser),
+                    BrushingAndLinking.ScaleDataPoint(foundVertex.y, yMinNormaliser, yMaxNormaliser),
+                    BrushingAndLinking.ScaleDataPoint(foundVertex.z, zMinNormaliser, zMaxNormaliser)
+                );
 
                 if (isFlipped)
                 {
-                    zd = -1 * zd;
+                    newVertexPointForFiltering.z = -1 * newVertexPointForFiltering.z;
                 }
 
-                Vector3 targetDataPointLocalLocation = new Vector3(
-                    BrushingAndLinking.ScaleDataPoint(xd, xMinNormaliser, xMaxNormaliser),
-                    BrushingAndLinking.ScaleDataPoint(yd, yMinNormaliser, yMaxNormaliser),
-                    BrushingAndLinking.ScaleDataPoint(zd, zMinNormaliser, zMaxNormaliser)
+                var localPointForVertexForFiltering = new Vector3(
+                    newVertexPointForFiltering.x * (2f - 0.2f),
+                    newVertexPointForFiltering.y * (2f - 0.2f),
+                    newVertexPointForFiltering.z * (2f - 0.2f)
                 );
 
-                
 
-                Vector3 worldSpacePoint = vt.TransformPoint(targetDataPointLocalLocation.x, targetDataPointLocalLocation.y, targetDataPointLocalLocation.z);
+                Vector3 worldPointForVertexForFiltering = vt.TransformPoint(localPointForVertexForFiltering);
 
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.localScale = Vector3.one * 0.005f;
-                cube.transform.position = worldSpacePoint;
-                cube.GetComponent<Renderer>().material.color = Color.red;
+                if (dod3DCube == null)
+                {
+                    dod3DCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    dod3DCube.transform.localScale = Vector3.one * 0.005f;
+                    dod3DCube.transform.parent = vt;
+                    dod3DCube.GetComponent<Renderer>().material.color = Color.yellow;
+                }
+                dod3DCube.transform.localPosition = localPointForVertexForFiltering;
 
                 leaderInformation.SetPosition(0, pointerPosition);
-                leaderInformation.SetPosition(1, worldSpacePoint);
-               // leaderInformation.SetPosition(1,
-               //(vt.TransformPoint(
-               // (xd - 0.5f) / vt.localScale.x * 0.2660914f,
-               // (yd - 0.5f) / vt.localScale.y * 0.2660914f,
-               // (zd - 0.5f) / vt.localScale.z * 0.2660914f
-               // )));
+                leaderInformation.SetPosition(1, worldPointForVertexForFiltering);
                 leaderInformation.widthCurve = AnimationCurve.Linear(0, 0.0015f, 1, 0.0015f);
 
                 textMesh.GetComponentInChildren<TextMesh>().text = values;
@@ -476,8 +523,10 @@ public class DetailsOnDemand : MonoBehaviour
                 }
             }
 
-            labelDetails.transform.Translate(labelDetails.transform.localScale.x / 2f,
-                                                  -labelDetails.transform.localScale.y / 2f, 0.005f);
+            labelDetails.transform.Translate(
+                (labelDetails.transform.localScale.x / 2f) ,
+                (-labelDetails.transform.localScale.y / 2f ), 
+                0.005f);
         }
     }
 

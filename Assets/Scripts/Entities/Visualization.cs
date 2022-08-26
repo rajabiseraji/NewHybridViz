@@ -236,6 +236,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     public GameObject legendGameObject = null;
 
+    public GameObject getScatterplot2DGameobject()
+    {
+        return scatterplot2DObject;
+    }
+    
+    public GameObject getScatterplot3DGameobject()
+    {
+        return scatterplot3DObject;
+    }
+
     void Awake()
     {
         axes = new List<Axis>();
