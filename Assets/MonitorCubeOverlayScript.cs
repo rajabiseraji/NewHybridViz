@@ -97,8 +97,8 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
             Vector3 cameraAngles = VRCamera.transform.eulerAngles;
 
             //dotCube.transform.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
-            dotCube.transform.LookAt(dotCube.transform.position + Camera.main.transform.rotation * Vector3.forward,
-            Camera.main.transform.rotation * Vector3.up);
+            //dotCube.transform.LookAt(dotCube.transform.position + Camera.main.transform.rotation * Vector3.forward,
+            //Camera.main.transform.rotation * Vector3.up);
 
             print("telling the scene manager to create vis now");
             // This function works in this way: if there are two active Axes under the dekstop cursor, it will create a scatterplot, else it will just make a simple histogram
@@ -107,7 +107,8 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
                 dotCube.transform.rotation,
                 dotCube.transform.forward,
                 dotCube.transform.right,
-                dotCube.transform.up
+                dotCube.transform.up,
+                dotCube.transform
             );
         }
 

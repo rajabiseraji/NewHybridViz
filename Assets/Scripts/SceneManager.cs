@@ -479,39 +479,69 @@ public class SceneManager : MonoBehaviour
         Quaternion XAxisplacementRotation, 
         Vector3 XAxisForwardVector, 
         Vector3 XAxisRightVector,
-        Vector3 xAxisUpVector)
+        Vector3 xAxisUpVector,
+        Transform dotCube
+        )
     {
-        if(toBeActivatedXAxisId != -1)
+        Transform originalDotCubeTransform = Instantiate(dotCube, dotCube.position, dotCube.rotation);
+        originalDotCubeTransform.GetComponent<Renderer>().material.color = Color.yellow;
+
+        int facingSign = Vector3.Dot(mainCamera.transform.forward, dotCube.forward) > 0 ? 1 : -1;
+
+        ///////////////////////// VERY IMPORTANT NOTE ///////////////////////
+        /// THE ANGLES OF THE EXTRUDED OBJECT IS DIRECTY RELATED TO THE ANGLE
+        /// BETWEEN THE FORWARD VECTOR OF CAMERA, WORLD, AND ALSO DOTCUBE
+        /// IN A SITUATION WHEN WE FACE AWAY FROM THE LIGHTHOUSE (AKA NEGATIVE 
+        /// COORDS), THE SCRIPT WORKS FINE. 
+        /// I DON'T HAVE THE TIME TO FIX IT JUST YET, SOME OTHER TIME I'LL COME 
+        /// AND FIGURE IT OUT
+        ///////////////////////////////////////////////////////////////////////
+
+        if (toBeActivatedYAxisId != -1)
         {
+
+            dotCube.Translate(dotCube.transform.right * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
+            if(facingSign == -1)
+                dotCube.Rotate(dotCube.transform.up, -180f);
+
+            //Quaternion yAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-180f, xAxisUpVector);
+            ////yAxisRotation *= Quaternion.AngleAxis(90f, XAxisForwardVector);
+
+            //// If we had already created an XAxis, then make the YAxis a little bit to the right of where we release the controller
+            //Vector3 yAxisPosition = toBeActivatedXAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * 0.5f * XAxisRightVector) + XAxisplacementPosition : XAxisplacementPosition;
+
+            // This will create Y Axis
+            CreateHistogram(toBeActivatedYAxisId, dotCube.position, dotCube.rotation);
+        }
+
+
+        if (toBeActivatedXAxisId != -1)
+        {
+            originalDotCubeTransform.Translate(originalDotCubeTransform.up * Axis.AXIS_ROD_LENGTH * -0.5f);
+            originalDotCubeTransform.Rotate(originalDotCubeTransform.forward, -90f * facingSign);
+            //originalDotCubeTransform.Rotate(originalDotCubeTransform., 90f);
+            //originalDotCubeTransform.Rotate(originalDotCubeTransform.forward, 90f);
+
+
             // if the YAxis has also been called for activation, we need to move the X axis a little bit to the bottom so that it can make a 2D scatterplot
-            Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
+            //Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
 
-            Quaternion xAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-90f, XAxisForwardVector);
+            //Quaternion xAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-90f, XAxisForwardVector);
 
-            xAxisRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
-            xAxisRotation *= Quaternion.AngleAxis(180f, XAxisRightVector);
+            //xAxisRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
+            //xAxisRotation *= Quaternion.AngleAxis(180f, XAxisRightVector);
 
-            // This will create X Axis
+            //// This will create X Axis
 
-            // We need to move XAxis to the right by 1.5 * AXIS_ROD_LENGTH 
-            // this is to prevent flipping
-            xAxisPosition = toBeActivatedYAxisId != -1 ? xAxisPosition + (Axis.AXIS_ROD_LENGTH * 1f * XAxisRightVector) : xAxisPosition;
+            //// We need to move XAxis to the right by 1.5 * AXIS_ROD_LENGTH 
+            //// this is to prevent flipping
+            //xAxisPosition = toBeActivatedYAxisId != -1 ? xAxisPosition + (Axis.AXIS_ROD_LENGTH * 1f * XAxisRightVector) : xAxisPosition;
 
-            CreateHistogram(toBeActivatedXAxisId ,xAxisPosition, xAxisRotation);
+            CreateHistogram(toBeActivatedXAxisId ,originalDotCubeTransform.position, originalDotCubeTransform.rotation);
             
         }
 
-        if(toBeActivatedYAxisId != -1)
-        {
-            Quaternion yAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-180f, xAxisUpVector);
-            //yAxisRotation *= Quaternion.AngleAxis(90f, XAxisForwardVector);
-
-            // If we had already created an XAxis, then make the YAxis a little bit to the right of where we release the controller
-            Vector3 yAxisPosition = toBeActivatedXAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * 0.5f * XAxisRightVector) + XAxisplacementPosition : XAxisplacementPosition;
-
-            // This will create Y Axis
-            CreateHistogram(toBeActivatedYAxisId ,yAxisPosition, yAxisRotation);
-        }
+        
 
         // in the end again reset these vars so that we can create visualizations again ...>
         // <... after this call

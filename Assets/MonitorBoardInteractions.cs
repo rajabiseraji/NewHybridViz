@@ -409,7 +409,9 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
                 0.005f
             );
 
-            Vector3 widthVector = (-width/2) * transform.right;
+            int facingSign = Vector3.Dot(VRCamera.transform.forward, transform.forward) > 0 ? 1 : -1;
+
+            Vector3 widthVector = facingSign * (width/2) * transform.right;
             Vector3 heightVector = (-height/2) * transform.up;
 
             
