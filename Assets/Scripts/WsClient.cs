@@ -8,6 +8,9 @@ public class WsClient : MonoBehaviour
 {
     WebSocket ws;
     string jsonString;
+
+    public delegate void UpdateComponentListAction(ComponentListItem[] componentList);
+    public static event UpdateComponentListAction OnUpdateComponentListAction;
     private void Start()
     {
         
@@ -152,6 +155,9 @@ public class ComponentListItem
 {
     public int id;
     public CodapPosition position;
+    public string xAttributeName;
+    public string yAttributeName;
+    public string legendAttributeName;
 }
 
 [Serializable]

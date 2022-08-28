@@ -118,6 +118,8 @@ MonoBehaviour:
   dotCube: {fileID: 0}
   VRCamera: {fileID: 0}
   positionToCreateExtrudedVis: {x: 0, y: 0, z: 0}
+  monitorCubePrefab: {fileID: 8925966765351523124, guid: 4be0cf5af1f723c41a93ea460c44734b,
+    type: 3}
   isBeingGrabbed: 0
   isControllerInsideMonitor: 0
   DropPromptPrefab: {fileID: 7911982338749991069, guid: 71f46ab4255efff46b9ab48f4e8f9976,

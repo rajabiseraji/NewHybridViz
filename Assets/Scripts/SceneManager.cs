@@ -17,6 +17,7 @@ public class SceneManager : MonoBehaviour
 
     public bool isLinkedEnabled = true;
     public bool is2DBoardInteractionEnabled = true;
+    //public bool isMonitorCubesEnabled = true;
 
     public List<Axis> sceneAxes { get; internal set; }
 
@@ -156,7 +157,12 @@ public class SceneManager : MonoBehaviour
             setSelectedDataAttributeIds(list.ToList<int>());
         }
 
-        //////////////////////// Unity limit with main thread
+        //////////////////////// 
+        /// this is because we cannot call stuff directly from Websocket 
+        /// onMessage thread, so I just set a flag, the better way to do 
+        /// this would have been through a simple event system kind of thing.
+        /// Unity limit with main thread
+       
         if(brushedIndexes.Length > 0)
         {
             print("in scenemanager: asking for brushing");
@@ -164,7 +170,13 @@ public class SceneManager : MonoBehaviour
             brushedIndexes = new int[0];
         }
 
-        if(componentList.Length > 0)
+        handleComponentListChange();
+
+    }
+
+    private void handleComponentListChange()
+    {
+        if (componentList.Length > 0)
         {
             print("in scenemanager: asking for components");
 
@@ -180,7 +192,6 @@ public class SceneManager : MonoBehaviour
 
             componentList = new ComponentListItem[0];
         }
-
     }
 
     void makeAllDataAttributeAxes()
@@ -472,12 +483,14 @@ public class SceneManager : MonoBehaviour
     {
         if(toBeActivatedXAxisId != -1)
         {
+            // if the YAxis has also been called for activation, we need to move the X axis a little bit to the bottom so that it can make a 2D scatterplot
+            Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
+
             Quaternion xAxisRotation = XAxisplacementRotation * Quaternion.AngleAxis(-90f, XAxisForwardVector);
+
             xAxisRotation *= Quaternion.AngleAxis(180f, xAxisUpVector);
             xAxisRotation *= Quaternion.AngleAxis(180f, XAxisRightVector);
 
-            // if the YAxis has also been called for activation, we need to move the X axis a little bit to the bottom so that it can make a 2D scatterplot
-            Vector3 xAxisPosition = toBeActivatedYAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * -0.5f * xAxisUpVector) + XAxisplacementPosition : XAxisplacementPosition;
             // This will create X Axis
 
             // We need to move XAxis to the right by 1.5 * AXIS_ROD_LENGTH 
@@ -553,10 +566,13 @@ public class SceneManager : MonoBehaviour
 
         // ////////////////////////////////// TODO ////////////////////////////
         // we need to seomthig like we did with the brushing thingy
-
+        //print("hey I'm here and I found the monitor count : " + GameObject.FindGameObjectsWithTag("MonitorBoard").Count());
         this.componentList = componentList;
+    }
 
-
+    public void setMonitorBoard(MonitorBoardInteractions monitor)
+    {
+        this.mainMonitor = monitor;
     }
 
     // This function is called when we are releasing the trigger after an extrusion event
