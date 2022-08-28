@@ -1,14 +1,14 @@
-[uDD::Log][2022-08-28 00:18:59] Start
-[uDD::Log][2022-08-28 00:18:59] OS Version    : 10.0
-[uDD::Log][2022-08-28 00:18:59] Build Number  : 19044
-[uDD::Log][2022-08-28 00:18:59] Service Pack  : 
-[uDD::Log][2022-08-28 00:18:59] Graphics Card [0] : NVIDIA GeForce RTX 3080
-[uDD::Log][2022-08-28 00:18:59]   > Monitor[0] : \\.\DISPLAY1
-[uDD::Log][2022-08-28 00:18:59] Graphics Card [1] : Microsoft Basic Render Driver
-[uDD::Log][2022-08-28 00:18:59] Monitor::Initialized() =>
-[uDD::Log][2022-08-28 00:18:59]     ID    : 0
-[uDD::Log][2022-08-28 00:18:59]     Size  : (1920, 1080)
-[uDD::Log][2022-08-28 00:18:59]     DPI   : (101, 101)
-[uDD::Log][2022-08-28 00:18:59]     Rot   : Landscape
-[uDD::Log][2022-08-28 00:18:59] Duplicator::Initialize() => OK.
-[uDD::Log][2022-08-28 00:20:19] Stop
+[uDD::Log][2022-08-28 02:04:47] Start
+[uDD::Log][2022-08-28 02:04:47] OS Version    : 10.0
+[uDD::Log][2022-08-28 02:04:47] Build Number  : 19044
+[uDD::Log][2022-08-28 02:04:47] Service Pack  : 
+[uDD::Log][2022-08-28 02:04:47] Graphics Card [0] : NVIDIA GeForce RTX 3080
+[uDD::Log][2022-08-28 02:04:47]   > Monitor[0] : \\.\DISPLAY1
+[uDD::Log][2022-08-28 02:04:47] Graphics Card [1] : Microsoft Basic Render Driver
+[uDD::Log][2022-08-28 02:04:47] Monitor::Initialized() =>
+[uDD::Log][2022-08-28 02:04:47]     ID    : 0
+[uDD::Log][2022-08-28 02:04:47]     Size  : (1920, 1080)
+[uDD::Log][2022-08-28 02:04:47]     DPI   : (101, 101)
+[uDD::Log][2022-08-28 02:04:47]     Rot   : Landscape
+[uDD::Log][2022-08-28 02:04:48] Duplicator::Initialize() => OK.
+[uDD::Log][2022-08-28 02:05:48] Stop

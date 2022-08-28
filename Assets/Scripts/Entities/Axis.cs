@@ -11,14 +11,25 @@ using System.IO;
 
 public class Axis : MonoBehaviour, Grabbable {
 
-    public static float AXIS_ROD_LENGTH = 0.2660912f;
-    public static float AXIS_ROD_WIDTH = 0.02059407f;
-    public static float AXIS_ROD_DEPTH = 0.02059408f;
+    public const float AXIS_ROD_LENGTH = 0.2660912f;
+    public const float AXIS_ROD_WIDTH = 0.02059407f;
+    public const float AXIS_ROD_DEPTH = 0.02059408f;
+    // for some stupid reason, the designers went with a box for the rod that is scaled as
+    // such: localScale = (1, 0.5, 1) this is the size of axis mesh gameobject
+    // this means that normally, the axis is split into 10 ticks and that 
+    // the first tick label gameobject would be at local Y of -0.4
+    // so if we want to do labels for this, we can simply place these labels at 
+    // -Axis_rod_box_length + (scale * Axis_rod_box_length * i)
+    // in the normal mode, ticksRenderer.material.mainTextureScale = (1, 10) 
+    // this is good for showing 11 points including the min and max.
+    public const float AXIS_ROD_BOX_LENGTH = AXIS_ROD_LENGTH / 2;
     public static float CONTROLLER_VELOCITY_FOR_DELETION = 0.25f;
 
     [SerializeField] public TextMeshPro label;
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
     [SerializeField] TextMeshPro maximumValueDimensionLabel;
+
+    public GameObject tickTextLabelPrefab = null;
 
     // The Id is useful for ID in the data panels (aka protoytpes   )
     public int axisId;
@@ -243,6 +254,9 @@ public class Axis : MonoBehaviour, Grabbable {
         // range is going to be between 0 and 1 times the attribute range 
         // because we have already calculated the proper range in aTtrRange, we don't need to get min and max norms involved here
         float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, 1f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, 0f);
+
+        // this variable is basically the number of ticks on the Axis
+        // if we have 10 ticks, we can show 11 data points
         float scale = range / ticksScaleFactor;
         print("in Axis " + name + "range is " + range);
         print("in Axis " + name + "tickscaleFactor is " + ticksScaleFactor);
@@ -250,6 +264,45 @@ public class Axis : MonoBehaviour, Grabbable {
         // whatever this scale is determines how many ticks we're showing
         // the number of shown ticks is floor(scale * 1)
         ticksRenderer.material.mainTextureScale = new Vector3(1, scale);
+
+        UpdateTickLabels(scale);
+    }
+
+    void UpdateTickLabels(float numberOfTicksScale)
+    {
+        // destroy all the previous tickmarks before making new ones
+        var parentTextMesh = tickTextLabelPrefab.transform.parent;
+        int prevTexts = parentTextMesh.childCount;
+        for (int i = prevTexts - 1; i > 0; i--)
+        {
+            if(parentTextMesh.GetChild(i) && parentTextMesh.GetChild(i).GetComponent<TextMeshPro>())
+            {
+                if (!string.IsNullOrEmpty(parentTextMesh.GetChild(i).GetComponent<TextMeshPro>().text))
+                    Destroy(parentTextMesh.GetChild(i).gameObject);
+            }
+        }
+
+        // then figure out the placement of eac of the labels using the scale 
+        // we need to floor or ceiling numberofTicks first
+        int numberOfShownTicks = Mathf.CeilToInt(numberOfTicksScale);
+
+        Vector3 baseLocalPosition = tickTextLabelPrefab.transform.localPosition;
+        baseLocalPosition.y = -0.5f;
+
+        // max - min
+        float range = AttributeRange.y - AttributeRange.x;
+        for(int i = 1; i < numberOfShownTicks; i++)
+        {
+            GameObject newTickLabel = Instantiate(tickTextLabelPrefab, tickTextLabelPrefab.transform.parent);
+            newTickLabel.transform.localPosition = new Vector3(
+                baseLocalPosition.x,
+                baseLocalPosition.y + (i * 1 / numberOfTicksScale),
+                baseLocalPosition.z
+            );
+            // range time the porition of the data we're moving at plus min
+            float tickValue = ((i * 1 / numberOfTicksScale) * range) + AttributeRange.x;
+            newTickLabel.GetComponent<TextMeshPro>().text = tickValue.ToString();
+        }
     }
 
     public void setDebug(string dbg)
@@ -273,6 +326,7 @@ public class Axis : MonoBehaviour, Grabbable {
     void Start()
     {
         Debug.Assert(ghostCube != null, "The ghost Axis game object cannot be null");
+        Debug.Assert(tickTextLabelPrefab != null, "The tickTextLabelPrefab game object cannot be null");
         //all colliders from this object should ignore raycast
         // TODO: Maybe remove the non-raycast collider thingy from this object! 
         Collider[] colliders = GetComponentsInChildren<Collider>();

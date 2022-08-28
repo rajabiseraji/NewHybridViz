@@ -34,6 +34,7 @@ TagManager:
   - AxisPlaceHolder
   - AxisGhost
   - PromptCanvas
+  - TickText
   layers:
   - Default
   - TransparentFX
