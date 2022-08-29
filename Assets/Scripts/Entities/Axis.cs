@@ -265,6 +265,8 @@ public class Axis : MonoBehaviour, Grabbable {
         // the number of shown ticks is floor(scale * 1)
         ticksRenderer.material.mainTextureScale = new Vector3(1, scale);
 
+        // this has a major performance impact on the system, something in scale of 
+        // 40fps
         UpdateTickLabels(scale);
     }
 

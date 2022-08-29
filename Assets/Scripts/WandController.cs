@@ -198,7 +198,9 @@ public class WandController : MonoBehaviour
     )
     {
         Debug.Log("Touchpad Up is released!");
-        padPressUp = true;
+        padPressUp = false;
+
+        resetDetailsOnDemandOrBrushing(BrushingOrDoDMode.Brushing);
     }
 
     public void handleTouchpadDownDirectionDown(
@@ -216,6 +218,9 @@ public class WandController : MonoBehaviour
     {
         Debug.Log("Touchpad down is released!");
         padPressDown = false;
+
+        resetDetailsOnDemandOrBrushing(BrushingOrDoDMode.DetailsOnDemand);
+
     }
 
 
@@ -255,110 +260,17 @@ public class WandController : MonoBehaviour
         {
             if (padPressDown)
             {
-                bool detail3Dscatterplots = false;
-                GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
-                for (int i = 0; i < listCandidatesBrush3D.Length; i++)
-                {
-                    {
-                        if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
-                        {
-                            detail3Dscatterplots = true;
-                            brushingPoint.gameObject.SetActive(true);
-                            //brushingPoint.transform.localScale = new Vector3(brushingPoint.transform.localScale.x, brushingPoint.transform.localScale.y, 0.01f);
 
-                            currentDetailView = listCandidatesBrush3D[i];
-                            // The brushing point will be 10cm in front of the controller poisition
-                            brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
-                            brushingPoint.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
-
-                            if (currentDetailView.GetComponent<Visualization>() != null)
-                            {
-                                // Q: what does the world to local point translation does here? 
-                                // TODO: Change back!
-                                currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this,
-                                    brushingPoint.transform.position,
-                                    currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
-                                    true);
-                                //currentDetailView.GetComponent<Visualization>().OnBrush(this,
-                                //    brushingPoint.transform.position,
-                                //    true);
-                            }
-                            else
-                            {
-                                Debug.Log("the object is null/...");
-                            }
-                        }
-                    }
-                }
-                // This is for when the brushed thing is not in 3D! 
-                if (!detail3Dscatterplots)
-                {
-                    RaycastHit hit;
-                    Ray downRay = new Ray(transform.position, transform.forward);
-                    if (Physics.Raycast(downRay, out hit))
-                    {
-                        if (hit.transform.gameObject.GetComponent<Brushable>() != null)
-                        {
-                            brushingPoint.gameObject.SetActive(true);
-                            currentDetailView = hit.transform.gameObject;
-                            brushingPoint.transform.position = hit.point;
-                            brushingPoint.transform.rotation = currentDetailView.transform.rotation;
-                            brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
-
-                            // TODO: Turn this back into normal 
-                             currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
-                                 this, 
-                                 hit.point, 
-                                 currentDetailView.transform.InverseTransformPoint(hit.point),
-                                 false);
-                            //currentDetailView.GetComponent<Visualization>().OnBrush(
-                            //    this,
-                            //    hit.point,
-                            //    false);
-                        }
-
-                    }
-                }
-            } else
-            {
-                // this is just to reset everything for brushing
-                // and just deactivate the brush point and all
-                if(currentDetailView != null)
-                {
-                    currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
-
-
-                    //currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.negativeInfinity, Vector3.zero, false);
-
-                    //currentDetailView = null;
-                    //brushingPoint.gameObject.SetActive(false);
-                    /////////////////////////////
-                    //currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
-
-                    //currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
-                    currentDetailView = null;
-                    brushingPoint.gameObject.SetActive(false);
-                }
-            }
+                print("i'm in the press down in updatea thingy!");
+                createDetailsOnDemandOrBrushing(BrushingOrDoDMode.DetailsOnDemand);
+            } 
             // Checks to see if we're done with pressing the touchbar
             //TODO: fix the naming of this from Up to release or sth
             if (padPressUp)
             {
-                if (currentDetailView != null)
-                {
-                    Debug.Log("i'm in the press up in update thingy!");
-                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.zero, Vector3.zero,false);
 
-                    // currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
-                    // currentDetailView = null;
-                    // brushingPoint.gameObject.SetActive(false);
-                    //currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
-
-                    //currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
-                    //currentDetailView = null;
-                    //brushingPoint.gameObject.SetActive(false);
-
-                }
+                print("i'm in the press up in updatea thingy!");
+                createDetailsOnDemandOrBrushing(BrushingOrDoDMode.Brushing);
             }
         }
 #endregion
@@ -366,6 +278,116 @@ public class WandController : MonoBehaviour
         tracking.RemoveAt(0);
         tracking.Add(transform.TransformPoint(new Vector3(0, -0.04f, 0)));
 
+    }
+
+    private enum BrushingOrDoDMode
+    {
+        DetailsOnDemand, 
+        Brushing
+    }
+
+
+    private void createDetailsOnDemandOrBrushing(BrushingOrDoDMode mode)
+    {
+        bool detail3Dscatterplots = false;
+        GameObject[] listCandidatesBrush3D = GameObject.FindGameObjectsWithTag("Scatterplot3D");
+        for (int i = 0; i < listCandidatesBrush3D.Length; i++)
+        {
+            {
+                if (Vector3.Distance(listCandidatesBrush3D[i].transform.position, transform.position) < 0.3f)
+                {
+                    detail3Dscatterplots = true;
+                    brushingPoint.gameObject.SetActive(true);
+                    //brushingPoint.transform.localScale = new Vector3(brushingPoint.transform.localScale.x, brushingPoint.transform.localScale.y, 0.01f);
+
+                    currentDetailView = listCandidatesBrush3D[i];
+                    // The brushing point will be 10cm in front of the controller poisition
+                    brushingPoint.transform.position = transform.position + transform.forward * 0.05f;
+                    brushingPoint.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
+
+                    if (currentDetailView.GetComponent<Visualization>() != null)
+                    {
+                        if(mode == BrushingOrDoDMode.DetailsOnDemand)
+                        {
+                            currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(this,
+                                brushingPoint.transform.position,
+                                currentDetailView.transform.InverseTransformPoint(brushingPoint.transform.position),
+                                true);
+                        } else if (mode == BrushingOrDoDMode.Brushing)
+                        {
+                            currentDetailView.GetComponent<Visualization>().OnBrush(this,
+                                brushingPoint.transform.position,
+                                true);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("In brushing: visualization object is null/...");
+                    }
+                }
+            }
+        }
+        // This is for when the brushed thing is not in 3D! 
+        if (!detail3Dscatterplots)
+        {
+            RaycastHit hit;
+            Ray downRay = new Ray(transform.position, transform.forward);
+            if (Physics.Raycast(downRay, out hit))
+            {
+                if (hit.transform.gameObject.GetComponent<Brushable>() != null)
+                {
+                    brushingPoint.gameObject.SetActive(true);
+                    currentDetailView = hit.transform.gameObject;
+                    brushingPoint.transform.position = hit.point;
+                    brushingPoint.transform.rotation = currentDetailView.transform.rotation;
+                    brushingPoint.transform.localScale = new Vector3(0.01f, 0.01f, 0.0f);
+
+                    if (mode == BrushingOrDoDMode.DetailsOnDemand)
+                    {
+                        currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(
+                        this,
+                        hit.point,
+                        currentDetailView.transform.InverseTransformPoint(hit.point),
+                        false);
+                    } else if (mode == BrushingOrDoDMode.Brushing)
+                    {
+                        currentDetailView.GetComponent<Visualization>().OnBrush(
+                            this,
+                            hit.point,
+                            false);
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    void resetDetailsOnDemandOrBrushing(BrushingOrDoDMode mode)
+    {
+        // this is just to reset everything for brushing
+        // and just deactivate the brush point and all
+        if (currentDetailView != null)
+        {
+            if(mode == BrushingOrDoDMode.DetailsOnDemand)
+            {
+                currentDetailView.GetComponent<Visualization>().OnDetailOnDemandRelease(this);
+            } else if(mode == BrushingOrDoDMode.Brushing)
+            {
+                //currentDetailView.GetComponent<Visualization>().OnBrush(null, Vector3.zero, false);
+
+                currentDetailView.GetComponent<Visualization>().OnBrushRelease(this);
+            }
+
+            currentDetailView = null;
+            brushingPoint.gameObject.SetActive(false);
+
+            //currentDetailView.GetComponent<Visualization>().OnDetailOnDemand(null, Vector3.negativeInfinity, Vector3.zero, false);
+
+            //currentDetailView = null;
+            //brushingPoint.gameObject.SetActive(false);
+            /////////////////////////////
+        }
     }
 
     // this method gets active when another collider hits the controller
