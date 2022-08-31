@@ -254,6 +254,7 @@ namespace DataBinding
             dimensionMetadata.minValue = minDimension;
             dimensionMetadata.maxValue = maxDimension;
             dimensionMetadata.binCount = (int)Mathf.Min(maxDimension - minDimension + 1, 200);
+            //dimensionMetadata.binCount = GetBinCountWithIQR(nbDimensions - 1, maxDimension - minDimension, dataPoints);
             // TODO: add some automated bin size calculations
 
             if (metadataPreset != null)
@@ -842,12 +843,9 @@ namespace DataBinding
             return -1;
         }
 
-        public DimensionMetadata GetCalculatedBinCountWithFilters(int colIndex)
+        public int GetCalculatedBinCountWithFilters(int colIndex, float range)
         {
-            var dimensionMetadata = metadata[colIndex];
-            dimensionMetadata.minValue = dimensionsRange[colIndex].x;
-            dimensionMetadata.maxValue = dimensionsRange[colIndex].y;
-            dimensionMetadata.binCount = (int)Mathf.Min(dimensionsRange[colIndex].y - dimensionsRange[colIndex].x + 1, 200);
+            var binCount = (int)Mathf.Min(range + 1, 200);
             // TODO: add some automated bin size calculations
 
             if (metadataPreset != null)
@@ -856,12 +854,58 @@ namespace DataBinding
                 {
                     if (binSizePreset.index == colIndex)
                     {
-                        dimensionMetadata.binCount = binSizePreset.binCount;
+                        binCount = binSizePreset.binCount;
                     }
                 }
             }
 
-            return dimensionMetadata;
+            return binCount;
+        }
+
+        public int GetBinCountWithIQR(int colIndex, float range, int numberOfRows)
+        {
+            float[] sortedDataCol = GetCol(originalDataValues, colIndex);
+            // it would be great if I can get the data sorted before the fact! so that we don't have to do 
+            // this every time
+            Array.Sort(sortedDataCol);
+
+            float IQR = (percentile(sortedDataCol, 75f) - percentile(sortedDataCol, 25f));
+            var binWidth = (2 * IQR) / Math.Pow(numberOfRows, (1f / 3f));
+
+
+            return (int)(range / binWidth);
+        }
+
+
+        // gives the index of the median in a sorted dataset
+        internal static float percentile(float[] sortedData, float p)
+        {
+            // algo derived from Aczel pg 15 bottom
+            if (p >= 100.0d) return sortedData[sortedData.Length - 1];
+
+            double position = (double)(sortedData.Length + 1) * p / 100.0;
+            double leftNumber = 0.0d, rightNumber = 0.0d;
+
+            double n = p / 100.0d * (sortedData.Length - 1) + 1.0d;
+
+            if (position >= 1)
+            {
+                leftNumber = sortedData[(int)System.Math.Floor(n) - 1];
+                rightNumber = sortedData[(int)System.Math.Floor(n)];
+            }
+            else
+            {
+                leftNumber = sortedData[0]; // first data
+                rightNumber = sortedData[1]; // first data
+            }
+
+            if (leftNumber == rightNumber)
+                return (float)leftNumber;
+            else
+            {
+                double part = n - System.Math.Floor(n);
+                return (float)(leftNumber + part * (rightNumber - leftNumber));
+            }
         }
     }
 }

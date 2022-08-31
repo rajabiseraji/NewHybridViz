@@ -213,11 +213,18 @@ public class Axis : MonoBehaviour, Grabbable {
 
         // TODO: we should somehow show how each of these tick marks show 5, 10, 50, or more values
         float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
+
+        //int numberOfFilteredDataPoints = SceneManager.Instance.dataObject.getFilteredCol(SceneManager.Instance.dataObject.DataArray, axisId, AttributeFilters).Length;
+
+        // I shhould update the bincount in here before continuing
+        var binCount = SceneManager.Instance.dataObject.GetCalculatedBinCountWithFilters(axisId, range);
+        //var binCount = SceneManager.Instance.dataObject.GetBinCountWithIQR(axisId, range, SceneManager.Instance.dataObject.DataPoints);
+
         // bincount: this is initially Min(RawmaxDimension - RawminDimension + 1, 200)
         // we can set it manually in metadataPreset.BinSizePreset by making a metadata preset
-        if (srcData.Metadata[axisId].binCount > range + 2)
+        if (binCount > range + 2)
         {
-            ticksScaleFactor = 1.0f / (srcData.Metadata[axisId].binCount / 10);
+            ticksScaleFactor = 1.0f / (binCount / 10);
         }
         else if (range < 20)
         {
