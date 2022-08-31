@@ -108,7 +108,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     public void handlePointerCollisionEnter(Transform pointer)
     {
-        print("dot just entered the thing");
+        //print("dot just entered the thing");
         if (!isGlobalFilterBubble)
         {
             if (visReference.AttributeFilters == null || visReference.AttributeFilters.Count == 0)
@@ -125,7 +125,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
 
     public void handlePointerCollisionExit(Transform pointer)
     {
-        print("dot just exited the thing");
+        //print("dot just exited the thing");
         // regardless of what the controller is carrying, if we exit the filter area, reset everything
         //hasCollidedWithVis = false;
         //collidedVis = null;

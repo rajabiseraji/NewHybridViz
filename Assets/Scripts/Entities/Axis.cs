@@ -29,7 +29,7 @@ public class Axis : MonoBehaviour, Grabbable {
     [SerializeField] TextMeshPro minimumValueDimensionLabel;
     [SerializeField] TextMeshPro maximumValueDimensionLabel;
 
-    public GameObject tickTextLabelPrefab = null;
+    public GameObject tickTextLabelPrefab;
 
     // The Id is useful for ID in the data panels (aka protoytpes   )
     public int axisId;
@@ -212,7 +212,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
 
         // TODO: we should somehow show how each of these tick marks show 5, 10, 50, or more values
-        float range = AttributeRange.y - AttributeRange.x;
+        float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
         // bincount: this is initially Min(RawmaxDimension - RawminDimension + 1, 200)
         // we can set it manually in metadataPreset.BinSizePreset by making a metadata preset
         if (srcData.Metadata[axisId].binCount > range + 2)
@@ -253,20 +253,18 @@ public class Axis : MonoBehaviour, Grabbable {
         // Lerp is used for tweening between the min value of the AttributeRange and the max value of it
         // range is going to be between 0 and 1 times the attribute range 
         // because we have already calculated the proper range in aTtrRange, we don't need to get min and max norms involved here
-        float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, 1f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, 0f);
+        float range = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f) - Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
 
         // this variable is basically the number of ticks on the Axis
         // if we have 10 ticks, we can show 11 data points
         float scale = range / ticksScaleFactor;
-        print("in Axis " + name + "range is " + range);
-        print("in Axis " + name + "tickscaleFactor is " + ticksScaleFactor);
-        print("in Axis " + name + "scale is " + scale);
+        //print("in Axis " + name + "range is " + range);
+        //print("in Axis " + name + "tickscaleFactor is " + ticksScaleFactor);
+        //print("in Axis " + name + "scale is " + scale);
         // whatever this scale is determines how many ticks we're showing
         // the number of shown ticks is floor(scale * 1)
         ticksRenderer.material.mainTextureScale = new Vector3(1, scale);
 
-        // this has a major performance impact on the system, something in scale of 
-        // 40fps
         UpdateTickLabels(scale);
     }
 
@@ -277,9 +275,9 @@ public class Axis : MonoBehaviour, Grabbable {
         int prevTexts = parentTextMesh.childCount;
         for (int i = prevTexts - 1; i > 0; i--)
         {
-            if(parentTextMesh.GetChild(i) && parentTextMesh.GetChild(i).GetComponent<TextMeshPro>())
+            if(parentTextMesh.GetChild(i) && parentTextMesh.GetChild(i).GetComponent<TextMesh>())
             {
-                if (!string.IsNullOrEmpty(parentTextMesh.GetChild(i).GetComponent<TextMeshPro>().text))
+                if (!string.IsNullOrEmpty(parentTextMesh.GetChild(i).GetComponent<TextMesh>().text))
                     Destroy(parentTextMesh.GetChild(i).gameObject);
             }
         }
@@ -293,7 +291,11 @@ public class Axis : MonoBehaviour, Grabbable {
 
         // max - min
         float range = AttributeRange.y - AttributeRange.x;
-        for(int i = 1; i < numberOfShownTicks; i++)
+
+        float minValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
+        float maxValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f);
+
+        for (int i = 1; i < numberOfShownTicks; i++)
         {
             GameObject newTickLabel = Instantiate(tickTextLabelPrefab, tickTextLabelPrefab.transform.parent);
             newTickLabel.transform.localPosition = new Vector3(
@@ -302,8 +304,9 @@ public class Axis : MonoBehaviour, Grabbable {
                 baseLocalPosition.z
             );
             // range time the porition of the data we're moving at plus min
-            float tickValue = ((i * 1 / numberOfTicksScale) * range) + AttributeRange.x;
-            newTickLabel.GetComponent<TextMeshPro>().text = tickValue.ToString();
+            //float tickValue = ((i * 1 / numberOfTicksScale) * range) + AttributeRange.x;
+            int tickValue = Mathf.CeilToInt(Mathf.Lerp(minValue, maxValue, (i * 1 / numberOfTicksScale)));
+            newTickLabel.GetComponent<TextMesh>().text = tickValue.ToString();
         }
     }
 

@@ -139,7 +139,7 @@ public class View
         float[] isFiltered = new float[SceneManager.Instance.dataObject.DataArray.Count];
 
 
-        Debug.Log("In DOfILTER: The position count is: " + isFiltered.Length);
+        //Debug.Log("In DOfILTER: The position count is: " + isFiltered.Length);
         for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
         {
             foreach (AttributeFilter attrFilter in filters)
@@ -314,7 +314,7 @@ public class View
         const int CHANNEL = 2; 
         Vector3[] myMeshNormals = myMesh.normals;
 
-        Debug.Log("In" + visualizationReference.name + " updateFilterChannel now with meshnormal length of: " + myMesh.normals.Length + "vertex count of " + myMesh.vertexCount);
+        //Debug.Log("In" + visualizationReference.name + " updateFilterChannel now with meshnormal length of: " + myMesh.normals.Length + "vertex count of " + myMesh.vertexCount);
 
         if (myMeshNormals == null) myMeshNormals = new Vector3[myMesh.vertexCount];
         for(int i=0; i<myMeshNormals.Length;i++)
@@ -324,7 +324,7 @@ public class View
             myMeshNormals[i] = v;
         }
         myMesh.normals= myMeshNormals;
-        Debug.Log("FROM updateFilterChannel: I'm putting the filtered data in here! ");
+        //Debug.Log("FROM updateFilterChannel: I'm putting the filtered data in here! ");
     }
 
     public void debugVector3List(List<Vector3> list)

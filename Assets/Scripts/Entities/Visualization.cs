@@ -415,7 +415,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     public void DoFilter(List<AttributeFilter> filters) {
-        Debug.Log("I'm filtering with all filters count of" + filters.Count);
+        //Debug.Log("I'm filtering with all filters count of" + filters.Count);
         instantiatedViews.ForEach(view => {
             // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here!
             if(!view.isParallelCoordsView) // TODO: find a way to filter histograms and parallel coords
@@ -1880,7 +1880,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         // We should also update the normalizers and then call the onAxisNormalize to take care of the thing!
         if((int)visualizationId != GetInstanceID())
             return;
-        Debug.Log("OnlocalfilterChaned + " + AttributeFilters.Count);
+        //Debug.Log("OnlocalfilterChaned + " + AttributeFilters.Count);
         filterAndNormalise(axes);
         
         if(axes.Count == 1) {
@@ -1914,7 +1914,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
             float newMinNormaliser = UtilMath.normaliseValue(filteredValues.Min(), 0, 1f, -0.505f, 0.505f);
             float newMaxNormaliser = UtilMath.normaliseValue(filteredValues.Max(), 0, 1f, -0.505f, 0.505f);
-            if(newMaxNormaliser - newMinNormaliser < 0.005f)
+            if(Mathf.Abs(newMaxNormaliser - newMinNormaliser) < 0.005f)
                 newMaxNormaliser = newMinNormaliser + 0.005f;
             // Debug.Log("min VAL value was: " + minVal);
             // Debug.Log("max VAL normaliser value was: " + maxVal);

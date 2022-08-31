@@ -122,7 +122,7 @@ public class Pointer : MonoBehaviour
     {
         if (newCollidedFilterBubble != null) // if something was hit
         {
-            print("dot just hit a filter bubble");
+            //print("dot just hit a filter bubble");
             if (currentCollidedFilterBubble != null && newCollidedFilterBubble.GetInstanceID() != currentCollidedFilterBubble.GetInstanceID())
                 currentCollidedFilterBubble.handlePointerCollisionExit(transform);
 

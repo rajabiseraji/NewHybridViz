@@ -534,7 +534,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -2862,7 +2862,7 @@ MonoBehaviour:
   label: {fileID: 114645806824626946}
   minimumValueDimensionLabel: {fileID: 114568362315786988}
   maximumValueDimensionLabel: {fileID: 114259537137711672}
-  tickTextLabelPrefab: {fileID: 2354789170613408669}
+  tickTextLabelPrefab: {fileID: 811350600603549737}
   axisId: 0
   isPrototype: 0
   isOn2DPanel: 0
@@ -3098,9 +3098,10 @@ GameObject:
   - component: {fileID: 6414354775890169456}
   - component: {fileID: 2599300076823144059}
   - component: {fileID: 2387621645126228053}
+  - component: {fileID: 1168234412498980958}
   m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
+  m_Name: TickText
+  m_TagString: TickText
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3121,7 +3122,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3, y: -0.5}
+  m_AnchoredPosition: {x: -2.61, y: -0.483}
   m_SizeDelta: {x: 17.995, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &2599300076823144059
@@ -3132,8 +3133,8 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 811350600603549737}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -3173,7 +3174,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 811350600603549737}
-  m_Text: test
+  m_Text: 
   m_OffsetZ: 0
   m_CharacterSize: 1
   m_LineSpacing: 1
@@ -3183,10 +3184,22 @@ TextMesh:
   m_FontSize: 10
   m_FontStyle: 0
   m_RichText: 1
-  m_Font: {fileID: 0}
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_Color:
     serializedVersion: 2
     rgba: 4294967295
+--- !u!114 &1168234412498980958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 811350600603549737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08e33b70cbe971a4286310c9c57daf97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2354789170613408669
 GameObject:
   m_ObjectHideFlags: 0
@@ -3205,7 +3218,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7011007458592538612
 RectTransform:
   m_ObjectHideFlags: 0

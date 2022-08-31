@@ -107,7 +107,7 @@ public class TwoDimensionalPanelScript : MonoBehaviour, Grabbable
         if (!isInteractionEnbabled)
             return;
 
-        print("on trigger enter called with " + other.name + " at " + Time.realtimeSinceStartup);
+        //print("on trigger enter called with " + other.name + " at " + Time.realtimeSinceStartup);
         Axis a = other.GetComponent<Axis>();
         if (a != null) {
             //List<Axis> visAxes = other.GetComponent<Visualization>().axes;

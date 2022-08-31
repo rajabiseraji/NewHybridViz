@@ -765,9 +765,11 @@ namespace DataBinding
             var result = GetCol(filteredMatrix, colIndex);
 
             // here I want to also update the attributeRange for this col
+            // not a good idea! remove it 
 
-            updateDimensionsRangeWithFilters(colIndex, result.ToList());
-            calculateBinCountWithFilters(colIndex);
+            // we shouldn't call it here, it should be called from within each visualization when it gets filtered!
+            //updateDimensionsRangeWithFilters(colIndex, result.ToList());
+            //calculateBinCountWithFilters(colIndex);
 
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
             return result;
@@ -814,7 +816,7 @@ namespace DataBinding
             
         //}
 
-        private void updateDimensionsRangeWithFilters(int colIndex, List<float> filteredData)
+        public Vector2 updateDimensionsRangeWithFilters(int colIndex, List<float> filteredData)
         {
             var colData = GetCol(dataArray, colIndex);
 
@@ -826,10 +828,9 @@ namespace DataBinding
             float minRealData = realDataCol[minIndex];
             float maxRealData = realDataCol[maxIndex];
 
-            // we update the dimensinos range here
-            dimensionsRange[colIndex] = new Vector2(minRealData, maxRealData);
+            //dimensionsRange[colIndex] = new Vector2(minRealData, maxRealData);
 
-
+            return new Vector2(minRealData, maxRealData);
         }
 
         // colIndex is the same as AxisId, it's just the number of column of that data attribute in the array
@@ -841,7 +842,7 @@ namespace DataBinding
             return -1;
         }
 
-        public void calculateBinCountWithFilters(int colIndex)
+        public DimensionMetadata GetCalculatedBinCountWithFilters(int colIndex)
         {
             var dimensionMetadata = metadata[colIndex];
             dimensionMetadata.minValue = dimensionsRange[colIndex].x;
@@ -860,7 +861,7 @@ namespace DataBinding
                 }
             }
 
-            metadata[colIndex] = dimensionMetadata;
+            return dimensionMetadata;
         }
     }
 }
