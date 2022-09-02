@@ -1246,6 +1246,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         OnAttributeChanged(1);
 
         legendGameObject.SetActive(true);
+
     }
 
     // this version is to be called by SceneManger 
@@ -1296,7 +1297,15 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     private void updateViewSizes(int axisId)
     {
         if (axisId != -1)
+        {
             legendGameObject.SetActive(true);
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisSizeAttrAdded", gameObject);
+        } else
+        {
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisSizeAttrRemoved", gameObject);
+        }
 
         legendGameObject.GetComponent<LegendInteractions>().updateSizeLegend(axisId, visualizationSizes);
 
@@ -1312,7 +1321,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     private void updateViewColors(int axisId)
     {
         if (axisId != -1)
+        {
             legendGameObject.SetActive(true);
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisColorAttrAdded", gameObject);
+        }
+        else
+        {
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisColorAttrRemoved", gameObject);
+        }
 
         legendGameObject.GetComponent<LegendInteractions>().updateColorLegend(axisId, visualizationColors);
 
@@ -1843,12 +1861,24 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void AddNewFilterToFilterBubbles(List<Axis> axes) {
         filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(axes);
         updateAxesAttributeFilters();
+
+        if(axes.Count() > 0)
+        {
+            // register action for logger
+            DataLogger.Instance.LogActionData("FilterAdded", gameObject);
+        }
     }
 
     // This one will be called from the Axes and the visualization
     public void AddNewFilterToFilterBubbles(List<AttributeFilter> filters) {
         filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(filters);
         updateAxesAttributeFilters();
+
+        if(filters.Count() > 0)
+        {
+            // register action for logger
+            DataLogger.Instance.LogActionData("FilterAdded", gameObject);
+        }
     }
 
     private void OnGlobalFilterChanged(float filterAxisId) {
@@ -1874,6 +1904,11 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             DoFilter(AddandSortRange(AttributeFilters, GlobalFiltersInstance));
         }
         updateAxesAttributeFilters();
+
+
+
+        // register action for logger
+        DataLogger.Instance.LogActionData("VisGlobalFiltered", gameObject);
     }
     private void OnLocalFilterChanged(float visualizationId)
     {  
@@ -1890,6 +1925,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             DoFilter(AttributeFilters);
         }
         updateAxesAttributeFilters();
+
+        // register action for logger
+        DataLogger.Instance.LogActionData("VisLocalFiltered", gameObject);
     }
 
     private void updateAxesAttributeFilters(){
@@ -1964,12 +2002,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         // Hit point is in the local space of the parent transform of that view
         BrushingAndLinking.brushPosition = WorldhitPoint;
+
+        DataLogger.Instance.LogActionData("Brush", gameObject);
     }
 
     public void OnBrushRelease(WandController controller)
     {
         isBrushing = false;
         BrushingAndLinking.isBrushing = isBrushing;
+
+        DataLogger.Instance.LogActionData("BrushEnd", gameObject);
 
         //  swapToNotBrushing();
     }
@@ -1980,6 +2022,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             // Debug.Log("splom grabbed inside if");
             // Debug.Log(theSPLOMReference);
+            //DataLogger.Instance.LogActionData("VisGrab")
+
             foreach (var axis in axes)
             {
                 controller.PropergateOnGrab(axis.gameObject);
@@ -1989,7 +2033,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             Debug.Log("splom grabbed inside ELSE");
             Debug.Log(theSPLOMReference);
-            // EventManager.TriggerVisualizationEvent(ApplicationConfiguration.OnVisualizationGrabbed, this);
+             EventManager.TriggerVisualizationEvent(ApplicationConfiguration.OnVisualizationGrabbed, this);
             controller.PropergateOnGrab(theSPLOMReference.gameObject);
         }
 
@@ -1998,7 +2042,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     public void OnRelease(WandController controller)
     {
-        // EventManager.TriggerVisualizationEvent(ApplicationConfiguration.OnVisualizationReleased, this);
+         EventManager.TriggerVisualizationEvent(ApplicationConfiguration.OnVisualizationReleased, this);
         if (OnStaxesAction != null)
             fireOnStaxesEvent("RELEASED");
         isDirty = true;
@@ -2013,6 +2057,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             axis.OnEnter(controller);
         }
+
+        DataLogger.Instance.LogActionData("VisEntered", gameObject);
     }
 
     public void OnExit(WandController controller)
@@ -2021,6 +2067,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             axis.OnExit(controller);
         }
+
+        DataLogger.Instance.LogActionData("VisExited", gameObject);
     }
 
     // TODO: fix the visualization of this part
@@ -2039,6 +2087,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     DetailsOnDemandComponent.OnDetailOnDemand2D();
             }
             detailOnDemandPosition = worldPosition;// sphereWandPostion;
+
         }
         else
         {
@@ -2056,8 +2105,11 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         
         DetailsOnDemandComponent.OnDetailOnDemandEnd();
 
-                /////////////////////////////////////////TEMP TEMP TEMP TEMP TEMP///////////////////////////////
+        /////////////////////////////////////////TEMP TEMP TEMP TEMP TEMP///////////////////////////////
         ////////////////////////////////////////TODO: uncomment after fixing redo///////////////////////////////
+        ///
+
+        DataLogger.Instance.LogActionData("DoDEnd", gameObject);
 
     }
 

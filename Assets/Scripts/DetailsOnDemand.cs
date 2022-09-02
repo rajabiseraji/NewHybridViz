@@ -186,6 +186,10 @@ public class DetailsOnDemand : MonoBehaviour
 
         if (pointerPosition != null && labelDetails != null && textMesh != null)
         {
+            // register action for logger
+            DataLogger.Instance.LogActionData("DoD2D", visualizationReference.gameObject, gameObject);
+
+
             if (!isParallelView)
             {
                 textMesh.transform.position = (pointerPosition);
@@ -371,6 +375,11 @@ public class DetailsOnDemand : MonoBehaviour
         
         if (pointerPosition != null && labelDetails != null && textMesh != null)
         {
+
+            // register action for logger
+            DataLogger.Instance.LogActionData("DoD3D", visualizationReference.gameObject, gameObject);
+
+
             if (!isParallelView)
             {
                 textMesh.transform.position = (pointerPosition) + (textMesh.transform.right * 0.05f);

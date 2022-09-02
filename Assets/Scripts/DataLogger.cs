@@ -26,7 +26,11 @@ public class DataLogger: MonoBehaviour
         public string workDescription;
     }
 
-    public static DataLogger Instance { get; private set; }
+    static DataLogger _instance;
+    public static DataLogger Instance
+    {
+        get { return _instance ?? (_instance = FindObjectOfType<DataLogger>()); }
+    }
 
     [SerializeField]
     public float timeBetweenLogs = 0.050f;
@@ -215,8 +219,20 @@ public class DataLogger: MonoBehaviour
             path = string.Format("{0}Group{1}_Task{2}_Participant{3}_ActionData.txt", filePath, groupID, tasks[taskID].workName, participantID);
             actionsStreamWriter = new StreamWriter(path, true);
 
+            /**
+             * Time.realtimeSinceStartup.ToString("F3"),
+                actionName,
+                sourceObj.GetType(),
+                sourceObj.name,
+                sourceObj.GetInstanceID(),
+                targetObj.GetType(),
+                targetObj.name,
+                targetObj.GetInstanceID()
+             * 
+             * **/
+
             // Write header for action data
-            actionsStreamWriter.WriteLine("Timestamp\tObjectType\tOriginalOwner\tOwner\tName\tTargetID\tDescription");
+            actionsStreamWriter.WriteLine("Timestamp\tActionName\tActionSourceObj\tActionSourceObjName\tActionSourceObjID\tActionTargetObj\tActionTargetObjName\tActionTargetObjID");
 
             // Save references of logged entities
             // I assign this in inspector! 
@@ -230,8 +246,15 @@ public class DataLogger: MonoBehaviour
         //startTime = info.SentServerTime;
         //textMesh.text = string.Format("<b>{0}</b>\n{1}", taskName, taskDescription.Replace("\\n", "\n"));
 
+        startEventListening();
+
         Debug.Log("Logging started");
 
+    }
+
+    private void startEventListening()
+    {
+        //EventManager.StartListening("ControllerGrab", (float v) => LogActionData();
     }
 
 
@@ -253,7 +276,14 @@ public class DataLogger: MonoBehaviour
 
         //textMesh.text = "";
 
+        stopEventListening();
+
         Debug.Log("Logging stopped");
+    }
+
+    private void stopEventListening()
+    {
+        //EventManager.StopListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisGrabbed);
     }
 
     private void FixedUpdate()
@@ -599,10 +629,12 @@ public class DataLogger: MonoBehaviour
         if (filterBubble == null) filterBubble = hitObj.GetComponentInParent<FilterBubbleButton>();
         if (filterBubble != null)
         {
+            var objID = filterBubble.visReference != null ? filterBubble.visReference.name + filterBubble.visReference.GenerateUniqueIDForVis().GetHashCode().ToString() + filterBubble.GetInstanceID() : "global";
+
             info.ObjectName = "Filter Bubble";
             info.OriginalObjectOwner = "1";
             info.ObjectOwner = "1";
-            info.ObjectID = filterBubble.visReference.name + filterBubble.visReference.GenerateUniqueIDForVis().GetHashCode().ToString() + filterBubble.GetInstanceID();
+            info.ObjectID = objID;
 
             return info;
         }
@@ -651,22 +683,137 @@ public class DataLogger: MonoBehaviour
         return new ObjectInfo();
     }
 
-    //public void LogActionData(object obj, Photon.Realtime.Player originalOwner, Photon.Realtime.Player currentOwner, string description, string targetID = "", string name = "")
-    //{
-    //    if (isLogging && actionsStreamWriter != null)
-    //    {
-    //        actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}",
-    //            (PhotonNetwork.Time - startTime).ToString("F3"),
-    //            obj.GetType(),
-    //            photonToParticipantDictionary[originalOwner.ActorNumber],
-    //            photonToParticipantDictionary[currentOwner.ActorNumber],
-    //            name,
-    //            targetID,
-    //            description);
+    bool isDodActive = false;
+    bool isBrushingActive = false;
+    public void LogActionData(string actionName, GameObject sourceObj = null, GameObject targetObj = null)
+    {
+        if (isLogging && actionsStreamWriter != null)
+        {
+            var targetObjType = "";
+            var targetObjName = "";
+            var targetObjInstanceId = "";
+            if(targetObj != null)
+            {
+                targetObjType = targetObj.GetType().ToString();
+                targetObjName = targetObj.name;
+                targetObjInstanceId = targetObj.GetInstanceID().ToString();
+            }
 
-    //        actionsStreamWriter.Flush();
-    //    }
-    //}
+            #region Details on Demand Logging
+            if (actionName == "DoD2D" || actionName == "DoD3D")
+            {
+                // This is for when we start with DoD
+               if(!isDodActive)
+                {
+                    isDodActive = true;
+
+                    actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+                        Time.realtimeSinceStartup.ToString("F3"),
+                        actionName + "Started",
+                        sourceObj.GetType(),
+                        sourceObj.name,
+                        sourceObj.GetInstanceID(),
+                        targetObjType,
+                        targetObjName,
+                        targetObjInstanceId
+                    );
+
+                    actionsStreamWriter.Flush();
+                } else
+                {
+                    return;
+                }
+            } else if(actionName == "DoDEnd")
+            {
+                // this is for writing the stuff when we're finished with DoD
+                if(isDodActive)
+                {
+                    actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+                        Time.realtimeSinceStartup.ToString("F3"),
+                        actionName,
+                        sourceObj.GetType(),
+                        sourceObj.name,
+                        sourceObj.GetInstanceID(),
+                        targetObjType,
+                        targetObjName,
+                        targetObjInstanceId
+                    );
+
+                    actionsStreamWriter.Flush();
+
+                    isDodActive = false;
+
+                    return;
+                }
+            }
+            #endregion
+
+
+            #region Brushing Logging
+            if (actionName == "Brush")
+            {
+                // This is for when we start with DoD
+                if (!isBrushingActive)
+                {
+                    isBrushingActive = true;
+
+                    actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+                        Time.realtimeSinceStartup.ToString("F3"),
+                        actionName + "Started",
+                        sourceObj.GetType(),
+                        sourceObj.name,
+                        sourceObj.GetInstanceID(),
+                        targetObjType,
+                        targetObjName,
+                        targetObjInstanceId
+                    );
+
+                    actionsStreamWriter.Flush();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else if(actionName == "BrushEnd")
+            {
+                // this is for writing the stuff when we're finished with DoD
+                if (isBrushingActive)
+                {
+                    actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+                        Time.realtimeSinceStartup.ToString("F3"),
+                        actionName,
+                        sourceObj.GetType(),
+                        sourceObj.name,
+                        sourceObj.GetInstanceID(),
+                        targetObjType,
+                        targetObjName,
+                        targetObjInstanceId
+                    );
+
+                    actionsStreamWriter.Flush();
+
+                    isDodActive = false;
+
+                    return;
+                }
+            }
+            #endregion
+
+            actionsStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}",
+                Time.realtimeSinceStartup.ToString("F3"),
+                actionName,
+                sourceObj.GetType(),
+                sourceObj.name,
+                sourceObj.GetInstanceID(),
+                targetObjType,
+                targetObjName,
+                targetObjInstanceId
+            );
+
+            actionsStreamWriter.Flush();
+        }
+    }
 
     public bool IsLogging()
     {

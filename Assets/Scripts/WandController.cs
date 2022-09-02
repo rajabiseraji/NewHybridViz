@@ -139,6 +139,10 @@ public class WandController : MonoBehaviour
     )
     {
         //Debug.Log("Trigger is down pressed");
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("triggerPress", gameObject);
+
         gripping = true;
         if (intersectingGrabbables.Any(x => x != null) && draggingObjects.Count == 0)
         {
@@ -157,6 +161,10 @@ public class WandController : MonoBehaviour
     )
     {
         Debug.Log("Trigger is up pressed " + Time.realtimeSinceStartup + " count is " + draggingObjects.Count);
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("triggerRelease", gameObject);
+
         if (draggingObjects.Count > 0)
         {
             draggingObjects.Where(x => x != null).ForEach(x => x.GetComponent<Grabbable>().OnRelease(this));
@@ -171,6 +179,9 @@ public class WandController : MonoBehaviour
     )
     {
         Debug.Log("Touchpad left is pressed");
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("TouchpadLeftPress", gameObject);
 
         // Do this: 
         // OnLeftPadPressed.Invoke();
@@ -188,6 +199,9 @@ public class WandController : MonoBehaviour
     )
     {
         Debug.Log("Touchpad right is pressed");
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("touchpadRightPress", gameObject);
+
     }
     public void handleTouchpadUpDirectionDown(
         SteamVR_Action_Boolean fromAction,
@@ -195,7 +209,10 @@ public class WandController : MonoBehaviour
     )
     {
         Debug.Log("Touchpad Up is pressed");
+        // fire events for logging 
         padPressUp = true;
+
+        DataLogger.Instance.LogActionData("touchpadUpPress", gameObject);
     }
     public void handleTouchpadUpDirectionUp(
         SteamVR_Action_Boolean fromAction,
@@ -204,6 +221,9 @@ public class WandController : MonoBehaviour
     {
         Debug.Log("Touchpad Up is released!");
         padPressUp = false;
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("touchpadUpRelease", gameObject);
 
         resetDetailsOnDemandOrBrushing(BrushingOrDoDMode.Brushing);
     }
@@ -215,6 +235,9 @@ public class WandController : MonoBehaviour
     {
         Debug.Log("Touchpad down is down pressed");
         padPressDown = true;
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("touchpadDownPress", gameObject); ;
     }
     public void handleTouchpadDownDirectionUp(
         SteamVR_Action_Boolean fromAction,
@@ -223,6 +246,9 @@ public class WandController : MonoBehaviour
     {
         Debug.Log("Touchpad down is released!");
         padPressDown = false;
+
+        // fire events for logging 
+        DataLogger.Instance.LogActionData("touchpadDownRelease", gameObject);
 
         resetDetailsOnDemandOrBrushing(BrushingOrDoDMode.DetailsOnDemand);
 

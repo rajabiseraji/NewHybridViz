@@ -566,6 +566,7 @@ public class Axis : MonoBehaviour, Grabbable {
         if(isPrototype)
         {
             // This part is for registering the action for undo and redo stuff
+            // this should be inside the ghost axis part, too
             EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisCloned, this);
 
             // if it's not on the 2D panel, switch it back to non-proto as soon as 
@@ -882,11 +883,15 @@ public class Axis : MonoBehaviour, Grabbable {
     public void OnEnter(WandController controller)
     {
         OnEntered.Invoke();
+
+        DataLogger.Instance.LogActionData("AxisEntered", gameObject);
     }
 
     public void OnExit(WandController controller)
     {
         OnExited.Invoke();
+
+        DataLogger.Instance.LogActionData("AxisExited", gameObject);
     }
 
     public void MoveOutOf2DBoard(WandController controller)

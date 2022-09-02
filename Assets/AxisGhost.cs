@@ -56,7 +56,9 @@ public class AxisGhost : MonoBehaviour, Grabbable
         //cube.transform.localScale = transform.localScale;
         //cube.transform.rotation = transform.rotation;
         //cube.GetComponent<Renderer>().material.color = Color.red;
-        makeNewAxis();
+        var newAxis = makeNewAxis();
+
+        EventManager.TriggerAxisEvent(ApplicationConfiguration.OnAxisClonedSuccess, newAxis);
 
         // after making a clone, destroy the whole ghost
         Destroy(gameObject);
@@ -111,12 +113,14 @@ public class AxisGhost : MonoBehaviour, Grabbable
         seq.AppendCallback(() => Destroy(gameObject));
     }
 
-    private void makeNewAxis()
+    private Axis makeNewAxis()
     {
         GameObject clone = parentAxis.Clone(transform.position, transform.rotation);
         clone.transform.DOScaleZ(Axis.AXIS_ROD_WIDTH/2, 0.4f).SetEase(Ease.OutElastic);
         clone.GetComponent<Axis>().cloningWidgetGameObject.SetActive(true);
         SceneManager.Instance.AddAxis(clone.GetComponent<Axis>());
+
+        return clone.GetComponent<Axis>();
     }
 
     private void OnDestroy()

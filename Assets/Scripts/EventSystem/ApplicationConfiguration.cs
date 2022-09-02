@@ -19,6 +19,7 @@ public class ApplicationConfiguration {
 
     public static string OnLinkedTransparencyChanged = "OnLinkedTransparencyChanged";
     public static string OnAxisCloned = "OnAxisCloned";
+    public static string OnAxisClonedSuccess = "OnAxisClonedSuccess";
     public static string OnAxisGrabbed = "OnAxisGrabbed";
     public static string OnAxisReleased = "OnAxisReleased";
     public static string OnAxisReleasedInVis = "OnAxisReleasedInVis";

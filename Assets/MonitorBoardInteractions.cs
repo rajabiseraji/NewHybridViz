@@ -307,8 +307,12 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
     public void DropVisInDesktop(List<Visualization> droppedVisualizations)
     {
+
         droppedVisualizations.ForEach((collidedVis) =>
         {
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisDroppedInDesktop", collidedVis.gameObject, gameObject);
+
             // If it was already going to be sent to desktop by another Axis collision, set this dirty flag to not duplicate it
             print("is vis " + collidedVis.name  + " " + collidedVis.GetInstanceID());
             print("is duplicate vis" + collidedVis.isGoingToBeSentToDesktop + " " + collidedVis.GetInstanceID());

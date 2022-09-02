@@ -56,6 +56,9 @@ public class FilterDragHandlerScript : MonoBehaviour
         controllerTransform = other.transform;
         isCollidingWithController = true;
 
+        // register action for logger
+        DataLogger.Instance.LogActionData("FilterSliderEntered", gameObject, other.gameObject);
+
     }
 
     void OnTriggerExit(Collider other) {
@@ -79,7 +82,11 @@ public class FilterDragHandlerScript : MonoBehaviour
                 controllerTransform = null;
                 highlightGameobject.SetActive(false);
             }
+            
+            // register action for logger
+            DataLogger.Instance.LogActionData("FilterSliderEntered", gameObject, other.gameObject);
         }
-        
+
+
     }
 }

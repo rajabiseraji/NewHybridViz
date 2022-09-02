@@ -282,6 +282,9 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             seq.Append(filterBubbleCompactMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
         }
+
+        // register action for logger
+        DataLogger.Instance.LogActionData("FilterBubbleExpanded", visReference.gameObject, gameObject);
     }
 
     private void CollapseFilterBubble()
@@ -292,6 +295,12 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             Sequence seq = DOTween.Sequence();
             seq.Append(filterBubbleMenuCanvas.DOFade(0f, 0.5f).SetEase(Ease.OutSine));
             seq.Join(filterBubbleCompactMenuCanvas.DOFade(1f, 0.5f).SetEase(Ease.InSine));
+        }
+
+        if(visReference != null)
+        {
+            // register action for logger
+            DataLogger.Instance.LogActionData("FilterBubbleCollapsed", visReference.gameObject, gameObject);
         }
     }
 

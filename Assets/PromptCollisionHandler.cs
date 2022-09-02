@@ -56,6 +56,10 @@ public class PromptCollisionHandler : MonoBehaviour
             collidedVis.axes[0].setCollidedVisualizationForPrompt(parentVisualization, promptType);
 
             showDropHint();
+
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisHintAreaEntered", gameObject, other.gameObject);
+
         }
     }
     
@@ -73,6 +77,9 @@ public class PromptCollisionHandler : MonoBehaviour
             collidedVis.axes[0].setCollidedVisualizationForPrompt(null, promptType);
 
             hideDropHint();
+
+            // register action for logger
+            DataLogger.Instance.LogActionData("VisHintAreaExited", gameObject, other.gameObject);
         }
     }
 

@@ -47,6 +47,10 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
 
     public bool OnGrab(WandController controller)
     {
+        // register action for logger
+        DataLogger.Instance.LogActionData("ExtrusionFromDesktopStarted", gameObject, controller.gameObject);
+
+
         if (_component != null)
         {
             print("here's the component: " + JsonUtility.ToJson(_component));
@@ -80,6 +84,10 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
                 GetComponent<Renderer>().material.color = defaultColor;
                 grabbingController = null;
 
+                // register action for logger
+                DataLogger.Instance.LogActionData("ExtrusionFromDesktopReleasedInvalidArea", gameObject, controller.gameObject);
+
+
                 return;
             }
             else
@@ -87,8 +95,11 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
                 print("NORMAL distance is " + distanceAlongNormal);
             }
 
+            // register action for logger
+            DataLogger.Instance.LogActionData("ExtrusionFromDesktopFinishedSuccess", gameObject, controller.gameObject);
 
-            if(_component.xAttributeName != null)
+
+            if (_component.xAttributeName != null)
                 SceneManager.Instance.SetXToBeCreatedAxis(_component.xAttributeName);
 
             if(_component.yAttributeName != null)
@@ -110,6 +121,7 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
                 dotCube.transform.up,
                 dotCube.transform
             );
+
         }
 
 

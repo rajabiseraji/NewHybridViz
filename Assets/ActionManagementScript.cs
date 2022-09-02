@@ -10,6 +10,16 @@ public class ActionManagementScript : MonoBehaviour
 {
     private static readonly int MAX_HISTORY_SIZE = 20;
 
+    /*
+     * Actions possible in the system: 
+     * Grab Axis
+     * Release Axis
+     * 
+     * 
+     * *
+     * *
+     */
+
     public struct RestorableAction
     {
         public Axis sourceAxis;
@@ -98,10 +108,16 @@ public class ActionManagementScript : MonoBehaviour
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisGrabbed, registerAxisReleased);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisReleasedInVis, registerAxisInVisReleased);
         EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisCloned, registerCloningAction);
+        EventManager.StartListeningToAxisEvent(ApplicationConfiguration.OnAxisClonedSuccess, registerCloningFinishedAction);
 
         // Visualization event listeners
         EventManager.StartListeningToVisuailzationEvent(ApplicationConfiguration.OnVisualizationGrabbed, registerVisualizationGrabbed);
         EventManager.StartListeningToVisuailzationEvent(ApplicationConfiguration.OnVisualizationReleased, registerVisualizationReleased);
+
+        // Filtering Events
+        EventManager.StartListening(ApplicationConfiguration.OnFilterSliderChanged, registerGlobalFilterChanged);
+        // this is for local filtering
+        EventManager.StartListening(ApplicationConfiguration.OnLocalFilterSliderChanged, registerLocalFilterChanged);
     }
 
      /* 
@@ -119,10 +135,30 @@ public class ActionManagementScript : MonoBehaviour
         // After clearing out the max cap, push the new action in there
         // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
+
+        DataLogger.Instance.LogActionData("AxisCloningInitiated", sourceAxis.gameObject);
     }
+
+    private void registerCloningFinishedAction(Axis sourceAxis)
+    {
+        // Debug.Log(sourceAxis.name + " CLONED! " +  sourceAxis.transform.position);
+        RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.CLONE, sourceAxis, sourceAxis.transform.position, sourceAxis.transform.position, sourceAxis.transform.rotation, sourceAxis.transform.rotation);
+
+        // First check if the action stack is not at max capacity
+        EnsureStackCapacity(actionStack);
+
+        // After clearing out the max cap, push the new action in there
+        // Debug.Log("New action is : " + newAction);
+        actionStack.Push(newAction);
+
+        DataLogger.Instance.LogActionData("AxisCloned", sourceAxis.gameObject);
+    }
+
     private void registerAxisGrabbed(Axis sourceAxis) {
         tempPosition = sourceAxis.transform.position;
         tempRotation = sourceAxis.transform.rotation;
+
+        DataLogger.Instance.LogActionData("AxisGrab", sourceAxis.gameObject);
 
         // Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.x);
         // Debug.Log(sourceAxis.name + " Grabbed " +  tempPosition.y);
@@ -133,6 +169,7 @@ public class ActionManagementScript : MonoBehaviour
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.z);
 
+
         RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE, sourceAxis, tempPosition, sourceAxis.transform.position, tempRotation, sourceAxis.transform.rotation);
 
         // First check if the action stack is not at max capacity
@@ -142,7 +179,12 @@ public class ActionManagementScript : MonoBehaviour
         // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
         Debug.Log("AXIS RELEASE - Stack size is now: " + actionStack.Count);
+
+
+        DataLogger.Instance.LogActionData("AxisRelease", sourceAxis.gameObject);
     }
+
+    // This event happens if the axis is part of a visualization
     private void registerAxisInVisReleased(Axis sourceAxis) {
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.x);
         // Debug.Log(sourceAxis.name + " Released " +  sourceAxis.transform.position.y);
@@ -157,6 +199,8 @@ public class ActionManagementScript : MonoBehaviour
         // Debug.Log("New action is : " + newAction);
         actionStack.Push(newAction);
         Debug.Log("AXIS RELEASE In vis - Stack size is now: " + actionStack.Count);
+
+        DataLogger.Instance.LogActionData("AxisReleasedInVis", sourceAxis.gameObject);
     }
 
     #endregion 
@@ -171,25 +215,43 @@ public class ActionManagementScript : MonoBehaviour
         Debug.Log(src.name + " VIS GRABBED " +  src.transform.position);
         tempPosition = src.transform.position;
         tempRotation = src.transform.rotation;
-        
+
+        DataLogger.Instance.LogActionData("VisGrabbed", src.gameObject);
+
+
     }
 
     private void registerVisualizationReleased(Visualization src) {
-        Debug.Log(src.name + " Released " +  src.transform.position.z);
+        Debug.Log(src.name + "Viz Released " +  src.transform.position.z);
         
-        RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE_VISUALIZATION, src.axes[0], tempPosition, src.transform.position, tempRotation, src.transform.rotation);
+        //RestorableAction newAction = new RestorableAction(RestorableAction.ActionType.MOVE_VISUALIZATION, src.axes[0], tempPosition, src.transform.position, tempRotation, src.transform.rotation);
 
-        newAction.sourceVis = src;
+        //newAction.sourceVis = src;
 
         // First check if the action stack is not at max capacity
-        EnsureStackCapacity(actionStack);
+        //EnsureStackCapacity(actionStack);
 
-        // After clearing out the max cap, push the new action in there
-        // Debug.Log("New action is : " + newAction);
-        actionStack.Push(newAction);
-        lastMovedVis = src;
-        Debug.Log("VIS RELEASE - Stack size is now: " + actionStack.Count);
-        Debug.Log("VIS RELEASE - New action is : " + newAction);
+        //// After clearing out the max cap, push the new action in there
+        //// Debug.Log("New action is : " + newAction);
+        //actionStack.Push(newAction);
+        //lastMovedVis = src;
+        //Debug.Log("VIS RELEASE - Stack size is now: " + actionStack.Count);
+        //Debug.Log("VIS RELEASE - New action is : " + newAction);
+
+        DataLogger.Instance.LogActionData("visReleased", src.gameObject);
+    }
+
+    private void registerLocalFilterChanged(float filterAxisId)
+    {
+        // TODO
+        // put it stack and all
+
+    }
+    
+    private void registerGlobalFilterChanged(float filterAxisId)
+    {
+        // TODO
+        // put it in stack and all 
     }
 
     public void UndoAction() {

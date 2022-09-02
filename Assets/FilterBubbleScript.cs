@@ -303,6 +303,9 @@ public class FilterBubbleScript : MonoBehaviour
         {
             seq.Join(visualisation.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutElastic));
         }
+
+        // register action for logger
+        DataLogger.Instance.LogActionData("FilterRemoved", parentVisualization.gameObject);
     }
 
     public void OnTestSliderChanged(Min_Max_Slider.MinMaxSlider slider, int axisAsFilterId)
