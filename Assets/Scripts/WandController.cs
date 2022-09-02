@@ -88,6 +88,11 @@ public class WandController : MonoBehaviour
 
     public Material theBrushingMaterial;
 
+    public GameObject getDraggingGameobject()
+    {
+        return draggingObjects != null && draggingObjects.Count() > 0 ? draggingObjects[0] : null;
+    }
+
     public Vector3 Velocity
     {
         get

@@ -76,6 +76,8 @@ public class DataLogger: MonoBehaviour
     private ObjectInfo gazeInfo;
     private ObjectInfo leftInfo;
     private ObjectInfo rightInfo;
+    private ObjectInfo rightGrabbedObjectInfo;
+    private ObjectInfo leftGrabbedObjectInfo;
 
     public void StartLogging()
     {
@@ -101,9 +103,71 @@ public class DataLogger: MonoBehaviour
             string path = string.Format("{0}Group{1}_Task{2}_ObjectData.txt", filePath, groupID, tasks[taskID].workName);
             objectStreamWriter = new StreamWriter(path, true);
 
+            /**
+             
+             SceneManager.Instance.globalFilters.Count(),
+                    JsonUtility.ToJson(SceneManager.Instance.globalFilters),
+                    vis.axesCount,
+                    vis.ReferenceAxis1.horizontal,
+                    vis.ReferenceAxis1.vertical,
+                    vis.ReferenceAxis1.horizontal2,
+                    vis.ReferenceAxis1.vertical2,
+                    vis.ReferenceAxis1.depth2,
+                    vis.viewType
+
+
+            timestamp,
+                    "Axis",
+                    axis.name,
+                    axis.axisId,
+                    axis.GetInstanceID().ToString(),
+                    axis.transform.position.x.ToString(format),
+                    axis.transform.position.y.ToString(format),
+                    axis.transform.position.z.ToString(format),
+                    axis.transform.rotation.x.ToString(format),
+                    axis.transform.rotation.y.ToString(format),
+                    axis.transform.rotation.z.ToString(format),
+                    axis.transform.rotation.w.ToString(format),
+                    axis.AttributeFilters.Count(),
+                    JsonUtility.ToJson(axis.AttributeFilters),
+                    axis.correspondingVisColorAxisId,
+                    axis.correspondingVisSizeAxisId,
+                    axis.MinNormaliser,
+                    axis.MaxNormaliser
+             
+             */
+
             // Write header for object data
-            objectStreamWriter.WriteLine("Timestamp\tObjectType\tOriginalOwner\tOwner\tPosition.x\tPosition.y\tPosition.z\tRotation.x\tRotation.y\tRotation.z\tRotation.w\tWidth\tHeight\tDepth" +
-                "\tID\txDimension\tyDimension\tzDimension\tSize\tSizeDimension\tColor\tColorDimension\tFacetDimension\tFacetSize\txNormaliser\tyNormaliser\tzNormaliser");
+            objectStreamWriter.WriteLine(
+                "Timestamp" + 
+                "\tObjectType" + 
+                "\tObjectGameName" + 
+                "\tObjectId" + 
+                "\tObjectGameInstanceId" + 
+                "\tPosition.x" + 
+                "\tPosition.y" + 
+                "\tPosition.z" + 
+                "\tRotation.x" + 
+                "\tRotation.y" + 
+                "\tRotation.z" + 
+                "\tRotation.w" + 
+                "\tlocalFiltersCount" + 
+                "\tlocalFiltersJson" + 
+                "\tcolorAxisId" +
+                "\tsizeAxisId" + 
+                "\taxisOnlyMinNormaliser" + 
+                "\taxisOnlyMaxNormaliser" + 
+                "\tvisOnlyGlobalFilterCount" + 
+                "\tvisOnlyGlobalFilterJson" + 
+                "\tvisOnlyAxesCount" + 
+                "\tvisOnlyHorizontalAxis" + 
+                "\tvisOnlyVerticalAxis" + 
+                "\tvisOnlyDepthAxis" + 
+                "\tvisOnlyHorizontal2Axis" + 
+                "\tvisOnlyVertical2Axis" + 
+                "\tvisOnlyDepth2Axis" + 
+                "\tvisOnlyViewType"
+            );
 
             // Save references of logged entities
             //dashboards = FindObjectsOfType<Panel>().ToList();
@@ -126,18 +190,27 @@ public class DataLogger: MonoBehaviour
             playerStreamWriter = new StreamWriter(path, true);
 
             // Write header for player data
-            playerStreamWriter.WriteLine("Timestamp\t" +
-                                         "HeadPosition.x\tHeadPosition.y\tHeadPosition.z\t" +
-                                         "HeadRotation.x\tHeadRotation.y\tHeadRotation.z\tHeadRotation.w\t" +
-                                         "LeftPosition.x\tLeftPosition.y\tLeftPosition.z\t" +
-                                         "LeftRotation.x\tLeftRotation.y\tLeftRotation.z\tLeftRotation.w\t" +
-                                         "LeftTrigger\tLeftGrip\tLeftTouchpad\tLeftTouchpadAngle\t" +
-                                         "RightPosition.x\tRightPosition.y\tRightPosition.z\t" +
-                                         "RightRotation.x\tRightRotation.y\tRightRotation.z\tRightRotation.w\t" +
-                                         "RightTrigger\tRightGrip\tRightTouchpad\tRightTouchpadAngle\t" +
-                                         "GazeObject\tGazeObjectOriginalOwner\tGazeObjectOwner\tGazeObjectID\t" +
-                                         "LeftPointObject\tLeftPointObjectOriginalOwner\tLeftPointObjectOwner\tLeftPointObjectID\t" + "LeftPointObjectDistanceFromLeftController\t" +
-                                         "RightPointObject\tRightPointObjectOriginalOwner\tRightPointObjectOwner\tRightPointObjectID" + "\tRightPointObjectDistanceFromRightController");
+            playerStreamWriter.WriteLine(
+                "Timestamp\t" +
+                "HeadPosition.x\tHeadPosition.y\tHeadPosition.z\t" +
+                "HeadRotation.x\tHeadRotation.y\tHeadRotation.z\tHeadRotation.w\t" +
+                "LeftPosition.x\tLeftPosition.y\tLeftPosition.z\t" +
+                "LeftRotation.x\tLeftRotation.y\tLeftRotation.z\tLeftRotation.w\t" +
+                "LeftTrigger\tLeftGrip\tLeftTouchpad\tLeftTouchpadAngle\t" +
+                "RightPosition.x\tRightPosition.y\tRightPosition.z\t" +
+                "RightRotation.x\tRightRotation.y\tRightRotation.z\tRightRotation.w\t" +
+                "RightTrigger\tRightGrip\tRightTouchpad\tRightTouchpadAngle\t" +
+                "GazeObject\tGazeObjectOriginalOwner\tGazeObjectOwner\tGazeObjectID\t" +
+                "LeftPointObject\tLeftPointObjectOriginalOwner\tLeftPointObjectOwner\t" + 
+                "LeftPointObjectID\tLeftPointObjectDistanceFromLeftController\t" +
+                "LeftGrabbedObject\tLeftGrabbedObjectOriginalOwner\tLeftGrabbedObjectOwner\t" +
+                "LeftGrabbedObjectID\tLeftGrabbedObjectDistanceFromLeftController\t" +
+                "RightPointObject\tRightPointObjectOriginalOwner\tRightPointObjectOwner\t" +
+                "RightPointObjectID\tRightPointObjectDistanceFromRightController" +
+                "RightGrabbedObject\tRightGrabbedObjectOriginalOwner" +
+                "RightGrabbedObjectOwner\tRightGrabbedObjectID" +
+                "RightGrabbedObjectDistanceFromRightController"
+            );
 
             path = string.Format("{0}Group{1}_Task{2}_Participant{3}_ActionData.txt", filePath, groupID, tasks[taskID].workName, participantID);
             actionsStreamWriter = new StreamWriter(path, true);
@@ -199,7 +272,8 @@ public class DataLogger: MonoBehaviour
 
                 //string t = (PhotonNetwork.Time - startTime).ToString("F3");
 
-                //LogObjectData(t);
+                // this is a very heavy one, we can choose not to do it! it's mostly useful for reconstructing the scene
+                LogObjectData(Time.realtimeSinceStartup.ToString());
                 //LogAnnotationData(t);
             }
         }
@@ -225,8 +299,12 @@ public class DataLogger: MonoBehaviour
             leftInfo = GetRaycastInfo(leftHit, leftRaycast, leftInfo);
             rightInfo = GetRaycastInfo(rightHit, rightRaycast, rightInfo);
 
+            rightGrabbedObjectInfo = GetGrabbedObjectByController(rightWand, rightGrabbedObjectInfo);
+            leftGrabbedObjectInfo = GetGrabbedObjectByController(leftWand, leftGrabbedObjectInfo);
+
             playerStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}\t{27}\t{28}\t{29}" +
-                "\t{30}\t{31}\t{32}\t{33}\t{34}\t{35}\t{36}\t{37}\t{38}\t{39}\t{40}\t{41}\t{42}\t{43}",
+                "\t{30}\t{31}\t{32}\t{33}\t{34}\t{35}\t{36}\t{37}\t{38}\t{39}\t{40}\t{41}\t{42}\t{43}" +
+                "\t{44}\t{45}\t{46}\t{47}\t{48}\t{49}\t{50}\t{51}\t{52}\t{53}",
                 Time.realtimeSinceStartup,
                 // Head position
                 headPos.x.ToString(format),
@@ -275,189 +353,199 @@ public class DataLogger: MonoBehaviour
                 leftInfo.ObjectOwner,
                 leftInfo.ObjectID,
                 leftInfo.DistanceFromLeftController,
+                leftGrabbedObjectInfo.ObjectName,
+                leftGrabbedObjectInfo.OriginalObjectOwner,
+                leftGrabbedObjectInfo.ObjectOwner,
+                leftGrabbedObjectInfo.ObjectID,
+                leftGrabbedObjectInfo.DistanceFromLeftController,
                 rightInfo.ObjectName,
                 rightInfo.OriginalObjectOwner,
                 rightInfo.ObjectOwner,
                 rightInfo.ObjectID,
-                rightInfo.DistanceFromRightController
+                rightInfo.DistanceFromRightController,
+                rightGrabbedObjectInfo.ObjectName,
+                rightGrabbedObjectInfo.OriginalObjectOwner,
+                rightGrabbedObjectInfo.ObjectOwner,
+                rightGrabbedObjectInfo.ObjectID,
+                rightGrabbedObjectInfo.DistanceFromRightController
             );
 
             playerStreamWriter.Flush();
         }
     }
 
-    //private void LogObjectData(string timestamp)
-    //{
-    //    if (isLogging && objectStreamWriter != null)
-    //    {
-    //        foreach (var dashboard in dashboards)
-    //        {
-    //            objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
-    //                timestamp,
-    //                "Panel",
-    //                photonToParticipantDictionary[dashboard.OriginalOwner.ActorNumber],
-    //                photonToParticipantDictionary[dashboard.photonView.OwnerActorNr],
-    //                dashboard.transform.position.x.ToString(format),
-    //                dashboard.transform.position.y.ToString(format),
-    //                dashboard.transform.position.z.ToString(format),
-    //                dashboard.transform.rotation.x.ToString(format),
-    //                dashboard.transform.rotation.y.ToString(format),
-    //                dashboard.transform.rotation.z.ToString(format),
-    //                dashboard.transform.rotation.w.ToString(format),
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                ""
-    //            );
-    //        }
+    private void LogObjectData(string timestamp)
+    {
+        // here are the important bits for me to measure: 
+        /**
+         * Axis: 
+         *  pos
+         *  rotation
+         *  parentVisualization1
+         *  parentVisualization2
+         *  name
+         *  axisId
+         *  minFilter
+         *  maxFilter
+         *  minNormalizer
+         *  maxNormalizer
+         *  AttributeFilters[]
+         *      {
+         *          filterAxisId,
+         *          min,
+         *          max,
+         *          localOrGlobal
+         *      }
+         *  VizColorAxisId
+         *  VizSizeAxisId
+         *  uniqueId (like a hash or something)
+         *  
+         * Visualization
+         *  pos
+         *  rotation
+         *  xDimAxisId
+         *  yDimAxisId
+         *  zDimAxisId
+         *  sizeDimAxisId
+         *  colorDimAxisId
+         *  AttributeFilters[]
+         *      {
+         *          filterAxisId,
+         *          min,
+         *          max,
+         *          localOrGlobal
+         *      }
+         * uniqueID (hash)
+         * 
+         * Datashelf
+         *  pos
+         *  rotation
+         *  
+         * MonitorPanel is going to be fixed so we don't need that
+         * 
+         * **/
 
-    //        foreach (var chart in ChartManager.Instance.Charts)
-    //        {
-    //            objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
-    //                timestamp,
-    //                "Visualisation",
-    //                photonToParticipantDictionary[chart.OriginalOwner.ActorNumber],
-    //                photonToParticipantDictionary[chart.photonView.OwnerActorNr],
-    //                chart.transform.position.x.ToString(format),
-    //                chart.transform.position.y.ToString(format),
-    //                chart.transform.position.z.ToString(format),
-    //                chart.transform.rotation.x.ToString(format),
-    //                chart.transform.rotation.y.ToString(format),
-    //                chart.transform.rotation.z.ToString(format),
-    //                chart.transform.rotation.w.ToString(format),
-    //                chart.Width.ToString(format),
-    //                chart.Height.ToString(format),
-    //                chart.Depth.ToString(format),
-    //                chart.ID,
-    //                chart.XDimension,
-    //                chart.YDimension,
-    //                chart.ZDimension,
-    //                chart.Size,
-    //                chart.SizeDimension,
-    //                chart.Color,
-    //                chart.ColorDimension,
-    //                chart.FacetDimension,
-    //                chart.FacetSize,
-    //                chart.XNormaliser.ToString(format),
-    //                chart.YNormaliser.ToString(format),
-    //                chart.ZNormaliser.ToString(format)
-    //            );
-    //        }
+        if (isLogging && objectStreamWriter != null)
+        {
+            foreach (var axis in SceneManager.Instance.sceneAxes)
+            {
+                objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}",
+                    timestamp,
+                    "Axis",
+                    axis.name,
+                    axis.axisId,
+                    axis.GetInstanceID().ToString(),
+                    axis.transform.position.x.ToString(format),
+                    axis.transform.position.y.ToString(format),
+                    axis.transform.position.z.ToString(format),
+                    axis.transform.rotation.x.ToString(format),
+                    axis.transform.rotation.y.ToString(format),
+                    axis.transform.rotation.z.ToString(format),
+                    axis.transform.rotation.w.ToString(format),
+                    axis.AttributeFilters.Count(),
+                    JsonUtility.ToJson(axis.AttributeFilters),
+                    axis.correspondingVisColorAxisId,
+                    axis.correspondingVisSizeAxisId,
+                    axis.MinNormaliser,
+                    axis.MaxNormaliser
+                );
 
-    //        if (observer != null)
-    //        {
-    //            objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
-    //                timestamp,
-    //                "Observer",
-    //                -1,
-    //                -1,
-    //                observer.position.x.ToString(format),
-    //                observer.position.y.ToString(format),
-    //                observer.position.z.ToString(format),
-    //                observer.rotation.x.ToString(format),
-    //                observer.rotation.y.ToString(format),
-    //                observer.rotation.z.ToString(format),
-    //                observer.rotation.w.ToString(format),
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                ""
-    //                );
-    //        }
+            }
 
-    //        foreach (var marker in markers)
-    //        {
-    //            objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
-    //                timestamp,
-    //                "Marker",
-    //                photonToParticipantDictionary[marker.OriginalOwner.ActorNumber],
-    //                photonToParticipantDictionary[marker.photonView.OwnerActorNr],
-    //                marker.transform.position.x.ToString(format),
-    //                marker.transform.position.y.ToString(format),
-    //                marker.transform.position.z.ToString(format),
-    //                marker.transform.rotation.x.ToString(format),
-    //                marker.transform.rotation.y.ToString(format),
-    //                marker.transform.rotation.z.ToString(format),
-    //                marker.transform.rotation.w.ToString(format),
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                ""
-    //            );
-    //        }
 
-    //        foreach (var eraser in erasers)
-    //        {
-    //            objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
-    //                timestamp,
-    //                "Eraser",
-    //                photonToParticipantDictionary[eraser.OriginalOwner.ActorNumber],
-    //                photonToParticipantDictionary[eraser.photonView.OwnerActorNr],
-    //                eraser.transform.position.x.ToString(format),
-    //                eraser.transform.position.y.ToString(format),
-    //                eraser.transform.position.z.ToString(format),
-    //                eraser.transform.rotation.x.ToString(format),
-    //                eraser.transform.rotation.y.ToString(format),
-    //                eraser.transform.rotation.z.ToString(format),
-    //                eraser.transform.rotation.w.ToString(format),
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                "",
-    //                ""
-    //            );
-    //        }
+            foreach (var vis in ImAxesRecognizer.GetVisList())
+            {
+                objectStreamWriter.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\t{20}\t{21}\t{22}\t{23}\t{24}\t{25}\t{26}",
+                    timestamp,
+                    "Chart",
+                    vis.name,
+                    vis.GenerateUniqueIDForVis(),
+                    vis.GetInstanceID().ToString(),
+                    vis.transform.position.x.ToString(format),
+                    vis.transform.position.y.ToString(format),
+                    vis.transform.position.z.ToString(format),
+                    vis.transform.rotation.x.ToString(format),
+                    vis.transform.rotation.y.ToString(format),
+                    vis.transform.rotation.z.ToString(format),
+                    vis.transform.rotation.w.ToString(format),
+                    vis.AttributeFilters.Count(),
+                    JsonUtility.ToJson(vis.AttributeFilters),
+                    vis.visualizationColorAxisId,
+                    vis.visualizationSizeAxisId,
+                    "",
+                    "",
+                    SceneManager.Instance.globalFilters.Count(),
+                    JsonUtility.ToJson(SceneManager.Instance.globalFilters),
+                    vis.axesCount,
+                    vis.ReferenceAxis1.horizontal,
+                    vis.ReferenceAxis1.vertical,
+                    vis.ReferenceAxis1.horizontal2,
+                    vis.ReferenceAxis1.vertical2,
+                    vis.ReferenceAxis1.depth2,
+                    vis.viewType
+                );
 
-    //        objectStreamWriter.Flush();
-    //    }
-    //}
+            }
+
+
+            objectStreamWriter.Flush();
+        }
+    }
+
+    private ObjectInfo GetGrabbedObjectByController(WandController controller, ObjectInfo info)
+    {
+        if (!controller.gripping)
+            return new ObjectInfo();
+
+        GameObject grabbedObject = controller.getDraggingGameobject();
+
+        if(!grabbedObject)
+            return new ObjectInfo();
+
+        info.DistanceFromLeftController = Vector3.Distance(leftController.position, grabbedObject.transform.position).ToString();
+        info.DistanceFromRightController = Vector3.Distance(rightController.position, grabbedObject.transform.position).ToString();
+
+        Axis axis = grabbedObject.GetComponent<Axis>();
+        if (axis == null) axis = grabbedObject.GetComponentInParent<Axis>();
+        if (axis != null)
+        {
+            info.ObjectName = "Axis";
+            info.OriginalObjectOwner = "1";
+            info.ObjectOwner = "1";
+            info.ObjectID = axis.axisId + " " + axis.GetInstanceID().ToString();
+
+            return info;
+        }
+
+
+        Visualization chart = grabbedObject.GetComponent<Visualization>();
+        if (chart == null) chart = grabbedObject.GetComponentInParent<Visualization>();
+        if (chart != null)
+        {
+            info.ObjectName = "Chart";
+            info.OriginalObjectOwner = "1";
+            info.ObjectOwner = "1";
+            info.ObjectID = chart.name + chart.GenerateUniqueIDForVis().GetHashCode().ToString();
+
+            return info;
+        }
+
+
+        MonitorBoardInteractions monitor = grabbedObject.GetComponent<MonitorBoardInteractions>();
+        if (monitor == null) monitor = grabbedObject.GetComponentInParent<MonitorBoardInteractions>();
+        if (monitor != null)
+        {
+            info.ObjectName = "Monitor";
+            info.OriginalObjectOwner = "1";
+            info.ObjectOwner = "1";
+            info.ObjectID = monitor.GetInstanceID().ToString();
+
+            return info;
+        }
+
+        return new ObjectInfo();
+
+    }
 
     private ObjectInfo GetRaycastInfo(bool isHit, RaycastHit hit, ObjectInfo info)
     {

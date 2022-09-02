@@ -22,7 +22,7 @@ public class ImAxesRecognizer : MonoBehaviour
     List<Axis> A = new List<Axis>();
 
     // Seems to be just to hold scatterplots
-    public List<Visualization> SP = new List<Visualization>();
+    public static List<Visualization> SP = new List<Visualization>();
     // Seesm to be for PCP visualizations
     List<Visualization> PCP = new List<Visualization>();
 
@@ -36,6 +36,11 @@ public class ImAxesRecognizer : MonoBehaviour
     public float SP_DISTANCE_SQR = 0.05f * 0.05f;
     public float PCP_DISTANCE = 0.00001f;
     public float SP_MIDPOINT_DISTANCE = 0.25f;
+
+    public static List<Visualization> GetVisList()
+    {
+        return SP;
+    }
 
     void Start()
     {

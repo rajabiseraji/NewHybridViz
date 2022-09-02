@@ -109,13 +109,13 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     Color[] visualizationColors = new Color[0];
 
     [SerializeField]
-    int visualizationColorAxisId = -1;
+    public int visualizationColorAxisId = -1;
 
     [SerializeField]
     float[] visualizationSizes = new float[0];
 
     [SerializeField]
-    int visualizationSizeAxisId = -1;
+    public int visualizationSizeAxisId = -1;
     // the default it gets is an empty array not null! 
 
     //[SerializeField]
@@ -2182,9 +2182,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     public string GenerateUniqueIDForVis()
     {
-        print("in Visualization: Adding to Hash with " + name);
-        print("in Visualization: Adding to Hash axes count" + axes.Count());
-        print("in Visualization: Adding to Hash viewtype" + viewType);
+        //print("in Visualization: Adding to Hash with " + name);
+        //print("in Visualization: Adding to Hash axes count" + axes.Count());
+        //print("in Visualization: Adding to Hash viewtype" + viewType);
 
         VisualizationIDAttributeSet visId = new VisualizationIDAttributeSet(axes, viewType);
 
