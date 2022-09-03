@@ -117,10 +117,13 @@ public class FilterBubbleScript : MonoBehaviour
             float axisAttributeRangeMax = axis.AttributeRange.y;
             var axisMinNormaliser = axis.MinNormaliser;
             var axisMaxNormaliser = axis.MaxNormaliser;
-            
-            
+
+
             // destory the axis and its visualization just in case!
-            GameObject.Destroy(axis);
+            // this would destroy it without the need to manually go and kill it
+            axis.transform.Translate(new Vector3(0, -10000.0f, 0));
+
+            //GameObject.Destroy(axis);
 
 
              // Check if it's global or local

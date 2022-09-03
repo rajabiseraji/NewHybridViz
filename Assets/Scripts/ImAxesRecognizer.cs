@@ -39,7 +39,7 @@ public class ImAxesRecognizer : MonoBehaviour
 
     public static List<Visualization> GetVisList()
     {
-        return SP;
+        return SP.Where((vis) => vis.gameObject.activeSelf && vis.axes[0] && vis.axes.Count() != 0).ToList();
     }
 
     void Start()
@@ -609,6 +609,13 @@ public class ImAxesRecognizer : MonoBehaviour
             {
                 if (i != j)
                 {
+                    if (SP[i].axes.Count() == 0 || !SP[i].axes[0])
+                        break;
+
+                    if (SP[j].axes.Count() == 0 || !SP[j].axes[0])
+                        break;
+
+
                     string _name = SP[i] + "-" + SP[j];
                     string _nameReverse = SP[j] + "-" + SP[i];
 
@@ -624,7 +631,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             SP[i].ShowHistogram(false);
                             SP[j].ShowHistogram(false);
-                            print("Recognizer: histogram false 1");
+                            //print("Recognizer: histogram false 1");
                             LinkVisualisations(_name, SP[i], SP[j]);
                         }
                      
@@ -641,7 +648,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
-                            print("Recognizer: histogram false 2");
+                            //print("Recognizer: histogram false 2");
                             if(SceneManager.Instance.isLinkedEnabled)
                                 LinkVisualisations(_name, SP[i], SP[j]);
                         }
@@ -657,7 +664,7 @@ public class ImAxesRecognizer : MonoBehaviour
                         {
                             if (SP[i].viewType == Visualization.ViewType.Histogram) SP[i].ShowHistogram(false);
                             if (SP[j].viewType == Visualization.ViewType.Histogram) SP[j].ShowHistogram(false);
-                            print("Recognizer: histogram false 3");
+                            //print("Recognizer: histogram false 3");
                             if(SceneManager.Instance.isLinkedEnabled)
                                 LinkVisualisations(_name, SP[i], SP[j]);
                         }
@@ -672,7 +679,7 @@ public class ImAxesRecognizer : MonoBehaviour
             if (item.viewType == Visualization.ViewType.Histogram && AxisInScatterplotMaxtrix(item.axes[0]))
             {
                 item.ShowHistogram(false);
-                print("Recognizer: histogram false 4");
+                //print("Recognizer: histogram false 4");
             }
 
         }

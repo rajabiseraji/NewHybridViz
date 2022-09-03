@@ -813,6 +813,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
+        if (isSetForDestruction)
+            return;
 
          CheckFilterBubble();
 
@@ -822,6 +824,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         // If they are, then just get rid of them and destroy the whole thing
         if(transform.position.y < -30f) {
             DestroyVisualization();
+            return;
         }
 
         UpdateViewType();
@@ -1112,7 +1115,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         // This is of course very bad for the performance! so maybe do something about it! 
         // TODO: performance fix in here
         // Check if the parent visualization's axes are on the proto then just hide the whole thing at the beginning
-        
+
+        if (axes == null || axes.Count() < 1)
+            return;
             
         // if(axes.Any(axis => axis.isPrototype || axis.parentIsMoving)) {
         if(axes.Any(axis => axis.transform.parent != null && axis.transform.parent.tag == "DataShelfPanel")) {
@@ -1129,9 +1134,18 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
+    bool isSetForDestruction = false;
     public void DestroyVisualization()
     {
+        if (isSetForDestruction)
+            return;
+        else
+            isSetForDestruction = true;
+
+
         var axesNewCount = axes.Count;
+        
+
         print("im destroying " + axesNewCount);
         Sequence seq = DOTween.Sequence();
         gameObject.layer = LayerMask.NameToLayer("TransparentFX");
@@ -1142,11 +1156,21 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
             
             seq.Join(axes[i].transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            Destroy(axes[i].gameObject);
-            SceneManager.Instance.sceneAxes.Remove(axes[i]);
+            seq.Join(transform.DOMoveY(-1000.0f, 0.5f).SetEase(Ease.InBack));
+            seq.AppendInterval(5f);
+            seq.AppendCallback(() => {
+                Destroy(axes[i].gameObject);
+                SceneManager.Instance.sceneAxes.Remove(axes[i]);
+            });
         }
         //axes.Clear();
-        Destroy(gameObject);
+        // The ImAxis Recognizer script probably takes care of it
+
+        seq.AppendCallback(() =>
+        {
+            axes.Clear();
+            //Destroy(gameObject);
+        });
     }
 
     public GameObject GetVisualizationObject(ViewType viewtype)
@@ -1296,6 +1320,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void updateViewSizes(int axisId)
     {
+        this.visualizationSizeAxisId = axisId;
+
         if (axisId != -1)
         {
             legendGameObject.SetActive(true);
@@ -1320,6 +1346,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void updateViewColors(int axisId)
     {
+        this.visualizationColorAxisId = axisId;
+
         if (axisId != -1)
         {
             legendGameObject.SetActive(true);
@@ -1344,6 +1372,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public void unsetVisualizationSizes()
     {
         print("unset sizes clicked");
+        this.visualizationSizeAxisId = -1;
         foreach (Axis axis in axes)
         {
             axis.correspondingVisSizes.Clear();
@@ -1358,6 +1387,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         print("unset colors clicked");
         visualizationColors = new Color[0];
+        this.visualizationColorAxisId = -1;
         foreach (Axis axis in axes)
         {
             axis.correspondingVisColors.Clear();
