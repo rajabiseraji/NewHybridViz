@@ -73,6 +73,8 @@ public class SceneManager : MonoBehaviour
 
     public ComponentListItem[] componentList = new ComponentListItem[0];
 
+    public string toBeLoggedData = "";
+
     public MonitorBoardInteractions mainMonitor;
 
     void Start()
@@ -172,6 +174,8 @@ public class SceneManager : MonoBehaviour
 
         handleComponentListChange();
 
+        handleCodapLoggingData();
+
     }
 
     private void handleComponentListChange()
@@ -191,6 +195,19 @@ public class SceneManager : MonoBehaviour
 
 
             componentList = new ComponentListItem[0];
+        }
+    }
+
+    private void handleCodapLoggingData()
+    {
+        // we can alternatively handle this by queuing the data in a list, not just a single string!
+
+        if (toBeLoggedData != "")
+        {
+            print("in scenemanger: logging data for codap");
+            DataLogger.Instance.LogCodapData(toBeLoggedData);
+
+            toBeLoggedData = "";
         }
     }
 
@@ -598,6 +615,11 @@ public class SceneManager : MonoBehaviour
         // we need to seomthig like we did with the brushing thingy
         //print("hey I'm here and I found the monitor count : " + GameObject.FindGameObjectsWithTag("MonitorBoard").Count());
         this.componentList = componentList;
+    }
+
+    public void setToBeLoggedCodapData(string codapLoad)
+    {
+        this.toBeLoggedData = codapLoad;
     }
 
     public void setMonitorBoard(MonitorBoardInteractions monitor)

@@ -77,6 +77,13 @@ public class WsClient : MonoBehaviour
             {
                 print("I got a component msg that is " + JsonUtility.ToJson(receivedMsg.componentList));
                 SceneManager.Instance.setComponetList(receivedMsg.componentList);
+            } else if (receivedMsg.typeOfMessage == "CODAPLOGGING")
+            {
+                print("I'm logging for codap");
+                // call the data logger to output the result of the action from codap's side
+                //DataLogger.Instance.LogCodapData(e.Data);
+                SceneManager.Instance.setToBeLoggedCodapData(e.Data);
+                //print(e.Data);
             }
         }
     }

@@ -51,6 +51,7 @@ public class DataLogger: MonoBehaviour
     private StreamWriter playerStreamWriter;
     private StreamWriter actionsStreamWriter;
     private StreamWriter objectStreamWriter;
+    private StreamWriter codapStreamWriter;
 
     private bool isLogging = false;
     private float time;
@@ -234,13 +235,14 @@ public class DataLogger: MonoBehaviour
             // Write header for action data
             actionsStreamWriter.WriteLine("Timestamp\tActionName\tActionSourceObj\tActionSourceObjName\tActionSourceObjID\tActionTargetObj\tActionTargetObjName\tActionTargetObjID");
 
-            // Save references of logged entities
-            // I assign this in inspector! 
-            //headset = VRTK_DeviceFinder.HeadsetTransform();
-            //leftController = VRTK_DeviceFinder.GetControllerLeftHand().transform;
-            //rightController = VRTK_DeviceFinder.GetControllerRightHand().transform;
-            //leftControllerEvents = leftController.GetComponent<VRTK_ControllerEvents>();
-            //rightControllerEvents = rightController.GetComponent<VRTK_ControllerEvents>();
+
+            ////////////////////// CODAP logging
+            ///
+            path = string.Format("{0}Group{1}_Task{2}_Participant{3}_CodapData.txt", filePath, groupID, tasks[taskID].workName, participantID);
+            codapStreamWriter = new StreamWriter(path, true);
+
+            codapStreamWriter.WriteLine("Timestamp\tcodapJsonLoad");
+
         }
 
         //startTime = info.SentServerTime;
@@ -274,6 +276,7 @@ public class DataLogger: MonoBehaviour
             actionsStreamWriter.Close();
         }
 
+        codapStreamWriter.Close();
         //textMesh.text = "";
 
         stopEventListening();
@@ -815,6 +818,17 @@ public class DataLogger: MonoBehaviour
         }
     }
 
+
+    public void LogCodapData(string codapLoad)
+    {
+        if (isLogging && codapStreamWriter != null)
+        {
+            print("logging Codap stuff");
+            codapStreamWriter.WriteLine("{0}\t{1}", Time.realtimeSinceStartup.ToString("F3"), codapLoad);
+
+            codapStreamWriter.Flush();
+        }
+    }
     public bool IsLogging()
     {
         return isLogging;
