@@ -277,6 +277,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
     void UpdateTickLabels(float numberOfTicksScale)
     {
+        string type = SceneManager.Instance.dataObject.TypeDimensionDictionary1[SourceIndex];
+
         // destroy all the previous tickmarks before making new ones
         var parentTextMesh = tickTextLabelPrefab.transform.parent;
         int prevTexts = parentTextMesh.childCount;
@@ -313,7 +315,17 @@ public class Axis : MonoBehaviour, Grabbable {
             // range time the porition of the data we're moving at plus min
             //float tickValue = ((i * 1 / numberOfTicksScale) * range) + AttributeRange.x;
             int tickValue = Mathf.CeilToInt(Mathf.Lerp(minValue, maxValue, (i * 1 / numberOfTicksScale)));
-            newTickLabel.GetComponent<TextMesh>().text = tickValue.ToString();
+            if(type == "string")
+            {
+                float nearestValue = UtilMath.ClosestTo(SceneManager.Instance.dataObject.TextualDimensions.Keys.ToList(), tickValue);
+
+                newTickLabel.GetComponent<TextMesh>().text = SceneManager.Instance.dataObject.TextualDimensions[nearestValue].ToString();
+
+
+            } else
+            {
+                newTickLabel.GetComponent<TextMesh>().text = tickValue.ToString();
+            }
         }
     }
 
@@ -352,7 +364,10 @@ public class Axis : MonoBehaviour, Grabbable {
     void OnDestroy()
     {
         print("on destroy is called on " + axisId + " " + Time.realtimeSinceStartup);
-        SceneManager.Instance.sceneAxes.Remove(this);
+        if(this && SceneManager.Instance.sceneAxes.Contains(this))
+        {
+            SceneManager.Instance.sceneAxes.Remove(this);
+        }
         if (ghostSourceAxis != null)
         {
             ghostSourceAxis.OnFiltered.RemoveListener(Ghost_OnFiltered);
