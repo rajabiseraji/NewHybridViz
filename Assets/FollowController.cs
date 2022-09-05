@@ -7,7 +7,11 @@ public class FollowController : MonoBehaviour
 {
     public WandController controller;
     public GameObject placeholderCube;
+
+    public Vector3 optionalOffset = Vector3.zero;
+
     private Vector3 offset;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +23,10 @@ public class FollowController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = placeholderCube.transform.position;
-        transform.eulerAngles = placeholderCube.transform.eulerAngles;
+        //transform.position = placeholderCube.transform.position + optionalOffset;
+        //transform.eulerAngles = placeholderCube.transform.eulerAngles;
+
+        this.transform.position = controller.transform.position + this.optionalOffset;
+        this.transform.rotation = controller.transform.rotation;
     }
 }
