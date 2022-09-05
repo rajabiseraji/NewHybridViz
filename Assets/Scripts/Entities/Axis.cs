@@ -295,6 +295,13 @@ public class Axis : MonoBehaviour, Grabbable {
         // we need to floor or ceiling numberofTicks first
         int numberOfShownTicks = Mathf.CeilToInt(numberOfTicksScale);
 
+        int countingIncrement = 1;
+        if(numberOfShownTicks > 15)
+        {
+            // only show every some others
+            countingIncrement = Mathf.FloorToInt(numberOfTicksScale / 15);
+        }
+
         Vector3 baseLocalPosition = tickTextLabelPrefab.transform.localPosition;
         baseLocalPosition.y = -0.5f;
 
@@ -304,7 +311,7 @@ public class Axis : MonoBehaviour, Grabbable {
         float minValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f);
         float maxValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f);
 
-        for (int i = 1; i < numberOfShownTicks; i++)
+        for (int i = 1; i < numberOfShownTicks; i += countingIncrement)
         {
             GameObject newTickLabel = Instantiate(tickTextLabelPrefab, tickTextLabelPrefab.transform.parent);
             newTickLabel.transform.localPosition = new Vector3(
