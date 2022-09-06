@@ -786,6 +786,7 @@ namespace DataBinding
             }
 
             List<int> rowIndexes = new List<int>();
+            List<float> test = new List<float>();
 
             foreach (var filter in filters)
             {
@@ -801,6 +802,19 @@ namespace DataBinding
                         }
                     }).ToList()
                 );
+
+                test.AddRange(dataArray.Select((row, rowIndex) =>
+                    {
+                        if (row[filter.idx] > filter.minFilter + 0.5f && row[filter.idx] <= filter.maxFilter + 0.5f)
+                        {
+                            return row[colIndex];
+                        }
+                        else
+                        {
+                            return 900;
+                        }
+                    }).ToArray()
+                );
             }
 
             for(int i = 0; i < filteredMatrix.Length; i++)
@@ -808,6 +822,8 @@ namespace DataBinding
                 if (!rowIndexes.Contains(i))
                     filteredMatrix[i] = 900;
             }
+
+
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
             return filteredMatrix;
         }

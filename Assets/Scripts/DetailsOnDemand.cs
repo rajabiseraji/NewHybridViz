@@ -223,7 +223,7 @@ public class DetailsOnDemand : MonoBehaviour
                     localPoint.x / BrushingAndLinking._scale.x,
                     localPoint.y / BrushingAndLinking._scale.y);
 
-                List<float> distances = new List<float>();
+                //List<float> distances = new List<float>();
 
                 // We need to map the min of FilteredColX to min of localPosition (which is about 0.11f) and the do the same of the max of it too.
                 // The same for Y too
@@ -231,7 +231,11 @@ public class DetailsOnDemand : MonoBehaviour
                 // All the filtered values are between 0 and 1 too
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+                float currentShortestDistance = 900;
 
+                int index = 0;
+
+                //float prevDistance = 900f;
                 for (int i = 0; i < filteredXcol.Length; i++)
                 {
                     float SHIFT_FORWARD_VALUE = Math.Abs(BrushingAndLinking.PREV_AXIS_MIN_NORM);
@@ -249,9 +253,18 @@ public class DetailsOnDemand : MonoBehaviour
                     ) - (SHIFT_FORWARD_VALUE * Vector2.one);
 
 
-                    distances.Add(Vector2.Distance(ScaledDataPoint, hitpoint2D));
+                    //distances.Add(Vector2.Distance(ScaledDataPoint, hitpoint2D));
+                    var distance = Vector2.Distance(ScaledDataPoint, hitpoint2D);
+                    if (distance < currentShortestDistance)
+                    {
+                        currentShortestDistance = distance;
+                        index = i;
+                    }
+
+
                 }
-                int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
+                //int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
+                
 
                 var dataObj = SceneManager.Instance.dataObject;
 
@@ -444,6 +457,8 @@ public class DetailsOnDemand : MonoBehaviour
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
                 float[] filteredZcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(zDimension));
 
+                float currentShortestDistance = 900;
+                int index = 0;
 
                 for (int i = 0; i < filteredXcol.Length; i++)
                 {
@@ -454,10 +469,16 @@ public class DetailsOnDemand : MonoBehaviour
                         BrushingAndLinking.ScaleDataPoint(filteredZcol[i] - 0.5f, zMinNormaliser, zMaxNormaliser)
                     );
 
-                    distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
+                    //distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
+                    var distance = Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition);
+                    if (distance < currentShortestDistance)
+                    {
+                        currentShortestDistance = distance;
+                        index = i;
+                    }
                 }
 
-                int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
+                //int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
 
                 var dataObj = SceneManager.Instance.dataObject;
 

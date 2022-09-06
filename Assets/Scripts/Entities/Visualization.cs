@@ -223,6 +223,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     // Localized DataObject for each of the visualizations
     public DataBinding.DataObject dataObjectReference;
+    public float[] filteredXDimension = new float[0];
+    public float[] filteredYDimension = new float[0];
 
     public List<AttributeFilter> AttributeFilters = new List<AttributeFilter>();
     private List<AttributeFilter> GlobalFiltersInstance = new List<AttributeFilter>();
@@ -1969,6 +1971,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     }
 
     private void filterAndNormalise(List<Axis> axes) {
+
+        // we need to somehow store the values of the filtered columns so that we don't have to call them all again!
+
         foreach (var axis in axes)
         {
             float[] filteredValues = SceneManager.Instance.dataObject.getFilteredCol(SceneManager.Instance.dataObject.DataArray, axis.axisId, AddandSortRange(AttributeFilters, GlobalFiltersInstance));
