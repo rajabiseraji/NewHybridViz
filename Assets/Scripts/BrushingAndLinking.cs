@@ -822,18 +822,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             switch (BRUSH_TYPE)
             {
                 case BrushType.SPHERE:
+                    // this is one of the parts that we do in different ways
+                    // look at both for 3D and 2D in brush update
                     projectedPointer1 = vis.transform.InverseTransformPoint(input1.transform.position);
 
                     computeShader.SetFloats("pointer1", projectedPointer1.x, projectedPointer1.y, projectedPointer1.z);
 
                     break;
-                case BrushType.BOX:
-                    projectedPointer1 = vis.transform.InverseTransformPoint(input1.transform.position);
-                    projectedPointer2 = vis.transform.InverseTransformPoint(input2.transform.position);
 
-                    computeShader.SetFloats("pointer1", projectedPointer1.x, projectedPointer1.y, projectedPointer1.z);
-                    computeShader.SetFloats("pointer2", projectedPointer2.x, projectedPointer2.y, projectedPointer2.z);
-                    break;
                 default:
                     break;
             }
