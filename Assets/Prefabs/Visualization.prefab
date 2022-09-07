@@ -43,6 +43,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa1b62d97be99ff4d86deaeac88469fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentVis: {fileID: 114548593337877974}
+  computeShader: {fileID: 7200000, guid: dad1f7499a3d6f848b202d69a89699be, type: 3}
+  myRenderMaterial: {fileID: 2100000, guid: cba24c207ebdc0240b3a67ec8fe8304c, type: 2}
+  brushedIndices: 
+  debugObjectTexture: {fileID: 0}
+  brushType: 0
 --- !u!1 &1011565188996372
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +395,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa1b62d97be99ff4d86deaeac88469fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentVis: {fileID: 114548593337877974}
+  computeShader: {fileID: 7200000, guid: dad1f7499a3d6f848b202d69a89699be, type: 3}
+  myRenderMaterial: {fileID: 2100000, guid: cba24c207ebdc0240b3a67ec8fe8304c, type: 2}
+  brushedIndices: 
+  debugObjectTexture: {fileID: 0}
+  brushType: 0
 --- !u!1 &1283988246159780
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,6 +599,8 @@ MonoBehaviour:
   minZFilter: -1
   maxZFilter: 1
   viewType: 0
+  filteredXDimension: []
+  filteredYDimension: []
   AttributeFilters: []
   filterBubbleGameobject: {fileID: 3775835767712840229}
   filterBubbleButtonGameobject: {fileID: 1245314981299623569}

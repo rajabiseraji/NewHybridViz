@@ -1073,22 +1073,23 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     // we can delegate all this to our compute shader
 
                     Vector3[] verticesS2d = scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
-                    BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
-                        verticesS2d,
-                        BrushingAndLinking.brushPosition,
-                        BrushingAndLinking.brushSize / 2f,
-                        scatterplot2DObject.transform.InverseTransformVector(ftl),
-                        scatterplot2DObject.transform.InverseTransformVector(ftr),
-                        scatterplot2DObject.transform.InverseTransformVector(fbl),
-                        scatterplot2DObject.transform.InverseTransformVector(fbr),
-                        scatterplot2DObject.transform.InverseTransformVector(btl),
-                        scatterplot2DObject.transform.InverseTransformVector(btr),
-                        scatterplot2DObject.transform.InverseTransformVector(bbl),
-                        scatterplot2DObject.transform.InverseTransformVector(bbr),
-                        scatterplot2DObject.transform,
-                        this,
-                        false),
-                        false);
+                    //BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
+                    //    verticesS2d,
+                    //    BrushingAndLinking.brushPosition,
+                    //    BrushingAndLinking.brushSize / 2f,
+                    //    scatterplot2DObject.transform.InverseTransformVector(ftl),
+                    //    scatterplot2DObject.transform.InverseTransformVector(ftr),
+                    //    scatterplot2DObject.transform.InverseTransformVector(fbl),
+                    //    scatterplot2DObject.transform.InverseTransformVector(fbr),
+                    //    scatterplot2DObject.transform.InverseTransformVector(btl),
+                    //    scatterplot2DObject.transform.InverseTransformVector(btr),
+                    //    scatterplot2DObject.transform.InverseTransformVector(bbl),
+                    //    scatterplot2DObject.transform.InverseTransformVector(bbr),
+                    //    scatterplot2DObject.transform,
+                    //    this,
+                    //    false),
+                    //    false);
+
 
                     break;
                 case ViewType.Scatterplot3D:

@@ -15,6 +15,8 @@ public class View
 
     private Mesh myMesh;
 
+    public Material meshMaterial;
+
     public Mesh MyMesh
     {
         get { return myMesh; }
@@ -174,7 +176,7 @@ public class View
         Color[] colors = new Color[myMesh.vertices.Length];
         for (int i = 0; i < colors.Length; i++)
             colors[i] = Color.white;
-        myMesh.colors = colors;
+        myMesh.SetColors(colors);
     }
 
     public void updateView(float[] linking)
@@ -403,12 +405,12 @@ public class View
                     colorsLine.Add(colors[i]);
                     colorsLine.Add(colors[i]);
                 }
-                myMesh.colors = colorsLine.ToArray();
+                myMesh.SetColors(colorsLine.ToArray());
 
             }
             else
             {
-                myMesh.colors = colors;
+                myMesh.SetColors(colors);
             }
         } else
         {

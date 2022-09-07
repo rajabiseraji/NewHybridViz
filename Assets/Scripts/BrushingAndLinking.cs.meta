@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: aa1b62d97be99ff4d86deaeac88469fb
-timeCreated: 1486089531
-licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - parentVis: {instanceID: 0}
+  - computeShader: {instanceID: 0}
+  - myRenderMaterial: {fileID: 2100000, guid: cba24c207ebdc0240b3a67ec8fe8304c, type: 2}
+  - debugObjectTexture: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

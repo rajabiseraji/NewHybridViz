@@ -33,8 +33,8 @@ float _MaxNormY;
 float _MinNormZ;
 float _MaxNormZ;
 
-float _PREV_AXIS_MIN_NORM
-float _PREV_AXIS_MAX_NORM
+float _PREV_AXIS_MIN_NORM;
+float _PREV_AXIS_MAX_NORM;
 
 float3 pointer1;
 float3 pointer2;
@@ -162,11 +162,11 @@ float shift(float num, float distance)
 
 float ScaleDataPoint(float dataPoint, float newMinNormalizer, float newMaxNormalizer)
 {
-	float SHIFT_FORWARD_VALUE = Math.Abs(PREV_AXIS_MIN_NORM);
+	float SHIFT_FORWARD_VALUE = abs(_PREV_AXIS_MIN_NORM);
 
 	float dataXDistanceWithNewMin = shift(dataPoint, SHIFT_FORWARD_VALUE) - shift(newMinNormalizer, SHIFT_FORWARD_VALUE);
 
-	float dataXScale = (PREV_AXIS_MAX_NORM - PREV_AXIS_MIN_NORM) / (newMaxNormalizer - newMinNormalizer);
+	float dataXScale = (_PREV_AXIS_MAX_NORM - _PREV_AXIS_MIN_NORM) / (newMaxNormalizer - newMinNormalizer);//
 
 	return (dataXDistanceWithNewMin * dataXScale) - (SHIFT_FORWARD_VALUE);
 }

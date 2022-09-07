@@ -25,12 +25,55 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     [SerializeField]
     public Visualization parentVis = null;
 
+    /// <summary>
+    /// /GPU variables
+    /// </summary>
+
+    [SerializeField]
+    public ComputeShader computeShader;
+    [SerializeField]
+    public Material myRenderMaterial;
+
+    // we will have access to the visualization class, and we want to brush ALL other visualizations! 
+    // so I think no need to get a list of these vises
+
+    [SerializeField]
+    public List<int> brushedIndices;
+
+    [SerializeField]
+    public Material debugObjectTexture;
+
+    private int kernelComputeBrushTexture;
+    private int kernelComputeBrushedIndices;
+
+    private RenderTexture brushedIndicesTexture;
+    private int texSize;
+
+    // this is a buffer that will hold a Vector3 for each vertex that our view has
+    // equivalent to a Vector3[]
+    private ComputeBuffer dataBuffer;
+
+    // this is the bufffer that will hold either 1 or -1 per each vertex,
+    // equivalent to a float[]
+    private ComputeBuffer filteredIndicesBuffer;
+
+    // this is the buffer for brushedIndeces, holds either 1 or -1 per vertex
+    // equivalent to float[]
+    private ComputeBuffer brushedIndicesBuffer;
+
+    private bool hasInitialised = false;
+    private bool hasFreeBrushReset = false;
+    private AsyncGPUReadbackRequest brushedIndicesRequest;
+
+
     [Serializable]
     public enum BrushTypeEnum
     {
         SPHERE,
         CUBE
     }
+
+
 
     public BrushTypeEnum brushType;
     // Use this for initialization
@@ -674,42 +717,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // we need to rewrite the function that finds the BrushedIndexes, aka BrushIndicesPointScatterplot
     // then we need to rewrite the function that updates mesh normals on CPU's side 
 
-    [SerializeField]
-    public ComputeShader computeShader;
-    [SerializeField]
-    public Material myRenderMaterial;
 
-    // we will have access to the visualization class, and we want to brush ALL other visualizations! 
-    // so I think no need to get a list of these vises
 
-    [SerializeField]
-    public List<int> brushedIndices;
 
-    [SerializeField]
-    public Material debugObjectTexture;
-
-    private int kernelComputeBrushTexture;
-    private int kernelComputeBrushedIndices;
-
-    private RenderTexture brushedIndicesTexture;
-    private int texSize;
-
-    // this is a buffer that will hold a Vector3 for each vertex that our view has
-    // equivalent to a Vector3[]
-    private ComputeBuffer dataBuffer;
     
-    // this is the bufffer that will hold either 1 or -1 per each vertex,
-    // equivalent to a float[]
-    private ComputeBuffer filteredIndicesBuffer;
-    
-    // this is the buffer for brushedIndeces, holds either 1 or -1 per vertex
-    // equivalent to float[]
-    private ComputeBuffer brushedIndicesBuffer;
-
-    private bool hasInitialised = false;
-    private bool hasFreeBrushReset = false;
-    private AsyncGPUReadbackRequest brushedIndicesRequest;
-
 
     private void InitialiseShaders()
     {
@@ -807,6 +818,16 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
         if (parentVis == null)
             parentVis = GetComponentInParent<Visualization>();
+
+        if(parentVis == null)
+        {
+            Debug.LogError("visualization shoulnd't b enull");
+            return;
+        }
+
+        bool is3D = parentVis.viewType == Visualization.ViewType.Scatterplot3D ? true : false; 
+
+
 
         // I need to know whether we need the localPoint between -1 and 1 or something else 
         // as the local pointerPoint input
@@ -965,6 +986,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         foreach (var view in brushingViews)
         {
             var vis = view.GetComponentInParent<Visualization>();
+            //var viewScript = view.GetComponent<View>() != null ? view.GetComponent<View>() : view.GetComponentInChildren<View>();
             if (!vis)
             {
                 Debug.LogError("In brushing and linking: I didn't find any parent visualizations");
@@ -991,12 +1013,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             }
 
             //set the filters and normalisation values of the brushing visualisation to the computer shader
-            computeShader.SetFloat("_MinNormX", vis.ReferenceAxis1.horizontal.MinNormaliser);
-            computeShader.SetFloat("_MaxNormX", vis.ReferenceAxis1.horizontal.MaxNormaliser);
-            computeShader.SetFloat("_MinNormY", vis.ReferenceAxis1.vertical.MinNormaliser);
-            computeShader.SetFloat("_MaxNormY", vis.ReferenceAxis1.vertical.MaxNormaliser);
-            computeShader.SetFloat("_MinNormZ", vis.ReferenceAxis1.depth.MinNormaliser);
-            computeShader.SetFloat("_MaxNormZ", vis.ReferenceAxis1.depth.MaxNormaliser);
+            computeShader.SetFloat("_MinNormX", vis.ReferenceAxis1.horizontal ? vis.ReferenceAxis1.horizontal.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormX", vis.ReferenceAxis1.horizontal ? vis.ReferenceAxis1.horizontal.MaxNormaliser : 0.5f);
+            computeShader.SetFloat("_MinNormY", vis.ReferenceAxis1.vertical ?  vis.ReferenceAxis1.vertical.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormY", vis.ReferenceAxis1.vertical ? vis.ReferenceAxis1.vertical.MaxNormaliser : 0.5f);
+            computeShader.SetFloat("_MinNormZ", vis.ReferenceAxis1.depth ? vis.ReferenceAxis1.depth.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormZ", vis.ReferenceAxis1.depth ? vis.ReferenceAxis1.depth.MaxNormaliser : 0.5f);
 
             //computeShader.SetFloat("_MinX", vis.xDimension.minFilter);
             //computeShader.SetFloat("_MaxX", vis.xDimension.maxFilter);
@@ -1024,24 +1046,27 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
             //foreach (var view in vis.theVisualizationObject.viewList)
             //{
-                view.BigMesh.SharedMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
-                view.BigMesh.SharedMaterial.SetFloat("_DataWidth", texSize);
-                view.BigMesh.SharedMaterial.SetFloat("_DataHeight", texSize);
-                view.BigMesh.SharedMaterial.SetFloat("_ShowBrush", Convert.ToSingle(showBrush));
-                view.BigMesh.SharedMaterial.SetColor("_BrushColor", brushColor);
+
+            // we should pass this renderTexture to the material of the viewObject (I think)
+                var viewMaterial = view.GetComponent<Renderer>().material;
+                viewMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
+                viewMaterial.SetFloat("_DataWidth", texSize);
+                viewMaterial.SetFloat("_DataHeight", texSize);
+                viewMaterial.SetFloat("_ShowBrush", Convert.ToSingle(true));
+                viewMaterial.SetColor("_BrushColor", Color.red);
             //}
 
             hasFreeBrushReset = true;
         }
 
-        foreach (var linkingVis in brushedLinkingVisualisations)
-        {
-            linkingVis.View.BigMesh.SharedMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
-            linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataWidth", texSize);
-            linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataHeight", texSize);
-            linkingVis.View.BigMesh.SharedMaterial.SetFloat("_ShowBrush", Convert.ToSingle(showBrush));
-            linkingVis.View.BigMesh.SharedMaterial.SetColor("_BrushColor", brushColor);
-        }
+        //foreach (var linkingVis in brushedLinkingVisualisations)
+        //{
+        //    linkingVis.View.BigMesh.SharedMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
+        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataWidth", texSize);
+        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataHeight", texSize);
+        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_ShowBrush", Convert.ToSingle(showBrush));
+        //    linkingVis.View.BigMesh.SharedMaterial.SetColor("_BrushColor", brushColor);
+        //}
     }
 
     /// <summary>

@@ -5,6 +5,7 @@ Shader "Custom/Outline Dots"
 	Properties 
 	{
 		_MainTex ("Base (RGB)", 2D) = "White" {}
+		_BrushedTexture("Base (RGB)", 2D) = "White" {}
 		_Size ("Size", Range(0, 30)) = 0.5
 		_BrushSize("BrushSize",Float) = 0.05
 		_MinX("_MinX",Float) = 0
@@ -165,7 +166,7 @@ Shader "Custom/Outline Dots"
 
 				float4x4 _VP;
 				sampler2D _MainTex;
-				//Sampler2D _MainTexSampler;
+				sampler2D _BrushedTexture;
 
 				//SamplerState sampler_MainTex;
 				
@@ -205,14 +206,21 @@ Shader "Custom/Outline Dots"
 					
 					float isFiltered = v.normal.z; // This is supposed to hold the isFiltered Value for each vertex
 
-					//lookup the texture to see if the vertex is brushed...
-					float2 indexUV = float2((v.normal.x % _DataWidth) / _DataWidth, 1.0 - ((v.normal.x / _DataWidth) / _DataHeight));
-					float4 brushValue = tex2Dlod(_MainTex, float4(indexUV, 0.0, 0.0));
+					// so the right way to brush is to assign a texture on top of the mesh
+					// this texture comes right out of our compute shader, in this texture
+					// if a certain area is colored with float4(1, 0,0,0) it means that it's brushed
+					// so we do a texture lookup here on that spot of the texture to see whether or not the data
+					// has been brushed
 
+					//lookup the texture to see if the vertex is brushed...
+					float2 indexUV = float2((v.normal.x % _DataWidth) / _DataWidth, (v.normal.x / _DataWidth) / _DataHeight);
+					//float4 brushValue = tex2Dlod(_MainTex, float4(indexUV, 0.0, 0.0));
+					float4 brushValue = tex2Dlod(_BrushedTexture, float4(indexUV, 0.0, 0.0));
 					// TODO: uncomment this
-					// output.isBrushed = brushValue.r;
+					 output.isBrushed = brushValue.r;
+
 					
-					output.isBrushed = v.normal.x;
+					//output.isBrushed = v.normal.x;
 
 					//TODO LATER: THIS REMAPS THE RANGE OF VALUES
 					float3 normalisedPosition = float3(
@@ -226,12 +234,12 @@ Shader "Custom/Outline Dots"
 					//the normal buffer carries the index of each vertex
 					output.tex0 = float2(0, 0);
 
-					if(v.normal.x == 1.0) {
+					/*if(v.normal.x == 1.0) {
 						output.color = float4(1.0,0.0,0.0,1.0);
 					} else {
 						output.color = v.color;
-					}
-					// output.isBrushed= 0.0;
+					}*/
+					 output.color = v.color;
 			
 					//filtering
 					if (v.position.x <= MinX ||
