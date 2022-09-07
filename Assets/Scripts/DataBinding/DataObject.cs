@@ -790,18 +790,18 @@ namespace DataBinding
 
             foreach (var filter in filters)
             {
-                rowIndexes.AddRange(dataArray.Select((rowArray, index) =>
-                    {
-                        if (rowArray[filter.idx] > filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)
-                        {
-                            return index;
-                        }
-                        else
-                        {
-                            return -1;
-                        }
-                    }).ToList()
-                );
+                //rowIndexes.AddRange(dataArray.Select((rowArray, index) =>
+                //    {
+                //        if (rowArray[filter.idx] > filter.minFilter + 0.5f && rowArray[filter.idx] <= filter.maxFilter + 0.5f)
+                //        {
+                //            return index;
+                //        }
+                //        else
+                //        {
+                //            return -1;
+                //        }
+                //    }).ToList()
+                //);
 
                 test.AddRange(dataArray.Select((row, rowIndex) =>
                     {
@@ -817,15 +817,15 @@ namespace DataBinding
                 );
             }
 
-            for(int i = 0; i < filteredMatrix.Length; i++)
-            {
-                if (!rowIndexes.Contains(i))
-                    filteredMatrix[i] = 900;
-            }
+            //for(int i = 0; i < filteredMatrix.Length; i++)
+            //{
+            //    if (!rowIndexes.Contains(i))
+            //        filteredMatrix[i] = 900;
+            //}
 
 
             // At this point the filteredMatrix houses the whole filtered data that we need to show! 
-            return filteredMatrix;
+            return test.ToArray();
         }
 
         //public float[] getFilteredDimensionValueAndIndex(int colIndex, List<AttributeFilter> filters)

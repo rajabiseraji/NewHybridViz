@@ -231,6 +231,14 @@ public class DetailsOnDemand : MonoBehaviour
                 // All the filtered values are between 0 and 1 too
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
                 float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+
+                // if 1 means we should ignore, if not then we can use
+                float[] isFiltered = visualizationReference.getFirstScatterplotView().getFilterChannelData();
+
+                
+
+
+
                 float currentShortestDistance = 900;
 
                 int index = 0;
@@ -448,9 +456,15 @@ public class DetailsOnDemand : MonoBehaviour
                 //find the closest point in the list 
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
 
+
                 List<float> distances = new List<float>();
 
                 float minDistance = float.MaxValue;
+
+                // we should pass isFiltered and also the raw dimensions to the compute shader
+                // then ask it to find the distance of our point with all the points in the array and 
+                // put in another array, then sort that array and give us the top member
+                // 
 
                 // these are between 0 and 1 and for our calcs they should be between -.5 and 0.5
                 float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
