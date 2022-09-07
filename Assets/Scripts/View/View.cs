@@ -327,6 +327,20 @@ public class View
         //Debug.Log("FROM updateFilterChannel: I'm putting the filtered data in here! ");
     }
 
+    public float[] getFilterChannelData()
+    {
+        const int CHANNEL = 2;
+        Vector3[] myMeshNormals = MyMesh.normals;
+        float[] filterChannelData = new float[myMeshNormals.Count()];
+
+        for (int i = 0; i < filterChannelData.Length; i++)
+        {
+            filterChannelData[i] = myMeshNormals[i][CHANNEL];
+        }
+
+        return filterChannelData;
+    }
+
     public void debugVector3List(List<Vector3> list)
     {
         foreach (Vector3 p in list)

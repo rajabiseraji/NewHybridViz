@@ -33,6 +33,9 @@ float _MaxNormY;
 float _MinNormZ;
 float _MaxNormZ;
 
+float _PREV_AXIS_MIN_NORM
+float _PREV_AXIS_MAX_NORM
+
 float3 pointer1;
 float3 pointer2;
 
@@ -88,6 +91,9 @@ bool BrushSquare(float3 tl, float3 tr, float3 bl, float3 br, float4 testPoint)
 }
 
 // Selects the correct brush type. 1 : cube, 2 : square
+// filtered position is the data point that has been scaled to 
+// the range of -.5 and -.5
+// it's the equivalent of scaledDataPoint on CPU's side
 bool Brush(int brushType, float3 filteredPosition)
 {
 	switch (brushType)
@@ -149,24 +155,54 @@ float NormaliseValue(float value, float i0, float i1, float j0, float j1)
 	return (j0 - (L * i0) + (L * value));
 }
 
+float shift(float num, float distance)
+{
+	return num + distance;
+}
+
+float ScaleDataPoint(float dataPoint, float newMinNormalizer, float newMaxNormalizer)
+{
+	float SHIFT_FORWARD_VALUE = Math.Abs(PREV_AXIS_MIN_NORM);
+
+	float dataXDistanceWithNewMin = shift(dataPoint, SHIFT_FORWARD_VALUE) - shift(newMinNormalizer, SHIFT_FORWARD_VALUE);
+
+	float dataXScale = (PREV_AXIS_MAX_NORM - PREV_AXIS_MIN_NORM) / (newMaxNormalizer - newMinNormalizer);
+
+	return (dataXDistanceWithNewMin * dataXScale) - (SHIFT_FORWARD_VALUE);
+}
+
 [numthreads(32, 32, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+
+	// we need to add a clause here that doesn't let either id.x or id.y go over _size
+	// this probably womn't go over the size of the allocated buffer, so we should be good (I think)
 	int idx = id.x + id.y * _size;
 
 	// Ignore indices that are filtered
 	if (!filteredIndicesBuffer[idx])
 	{
-		float3 filteredPosition = float3(
+		// our dataBuffer[idx] is the vector3 that is a vertex coords (locally)
+		// so this value based on what we've had before is between -0.5 and 0.5
+		/*float3 filteredPosition = float3(
 			NormaliseValue(dataBuffer[idx].x, _MinNormX, _MaxNormX, 0, width),
 			NormaliseValue(dataBuffer[idx].y, _MinNormY, _MaxNormY, 0, height),
-			NormaliseValue(dataBuffer[idx].z, _MinNormZ, _MaxNormZ, 0, depth));
+			NormaliseValue(dataBuffer[idx].z, _MinNormZ, _MaxNormZ, 0, depth));*/
 
-		if (IsBetweenRanges(filteredPosition.x, _MinX, _MaxX * width) &&
+		// each item of filteredPosition is going to be between -.5 and 0.5 now
+		float3 filteredPosition = float3 (
+			ScaleDataPoint(dataBuffer[idx].x, _MinNormX, _MaxNormX),
+			ScaleDataPoint(dataBuffer[idx].y, _MinNormY, _MaxNormY),
+			ScaleDataPoint(dataBuffer[idx].z, _MinNormZ, _MaxNormZ)
+		);
+
+		// originally, this _minX was supposed to be the actual local or world position 
+		// of the min of the data
+		/*if (IsBetweenRanges(filteredPosition.x, _MinX, _MaxX * width) &&
 			IsBetweenRanges(filteredPosition.y, _MinY, _MaxY * height) &&
 			IsBetweenRanges(filteredPosition.z, _MinZ, _MaxZ * depth)
 			)
-		{
+		{*/
 			if (Brush(BrushMode, filteredPosition))
 			{
 				switch (SelectionMode) {
@@ -189,11 +225,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 			{
 				Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
 			}
-		}
-		else
-		{
-			Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
-		}
+		//}
+		//else
+		//{
+		//	Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
+		//}
 	}
 }
 

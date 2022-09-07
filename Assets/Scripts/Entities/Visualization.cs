@@ -210,6 +210,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     List<View> instantiatedViews = new List<View>();
 
+    public View getFirstScatterplotView()
+    {
+        foreach (var view in instantiatedViews)
+            if (!view.isParallelCoordsView)
+                return view;
+
+        print("in view finder in Visualization: didn't find any scatterplor views!");
+        return null; 
+    }
+
     // TODO: use this position to make the details on demand change position!
     Vector3 detailOnDemandPosition = Vector3.zero;
     Vector3[] histogramPositions;
@@ -246,6 +256,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public GameObject getScatterplot3DGameobject()
     {
         return scatterplot3DObject;
+    }
+
+    public Vector3[] getMeshVertices(ViewType visType)
+    {
+        if (visType == ViewType.Scatterplot2D)
+            return scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+        else if (visType == ViewType.Scatterplot3D)
+            return scatterplot3DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+
+        return new Vector3[0];
     }
 
     void Awake()
@@ -1049,6 +1069,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 case ViewType.Histogram:
                     break;
                 case ViewType.Scatterplot2D:
+                    // in the new format, we won't need to calculate the vertecies separately here
+                    // we can delegate all this to our compute shader
 
                     Vector3[] verticesS2d = scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
                     BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
