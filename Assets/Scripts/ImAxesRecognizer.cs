@@ -676,7 +676,7 @@ public class ImAxesRecognizer : MonoBehaviour
         // if they belong to a SPLOM2D or 3D
         foreach (var item in SP)
         {
-            if (item.viewType == Visualization.ViewType.Histogram && AxisInScatterplotMaxtrix(item.axes[0]))
+            if (item.viewType == Visualization.ViewType.Histogram && item.axes != null && item.axes.Count() != 0 && AxisInScatterplotMaxtrix(item.axes[0]))
             {
                 item.ShowHistogram(false);
                 //print("Recognizer: histogram false 4");

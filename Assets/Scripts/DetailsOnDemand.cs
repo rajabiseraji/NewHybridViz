@@ -229,50 +229,72 @@ public class DetailsOnDemand : MonoBehaviour
                 // The same for Y too
 
                 // All the filtered values are between 0 and 1 too
-                float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
-                float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+                //float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
+                //float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
 
                 // if 1 means we should ignore, if not then we can use
                 float[] isFiltered = visualizationReference.getFirstScatterplotView().getFilterChannelData();
 
-                
-
-
+                var vertices = visualizationReference.getMeshVertices(Visualization.ViewType.Scatterplot2D);
 
                 float currentShortestDistance = 900;
-
                 int index = 0;
+                
+
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    if (isFiltered[i] != 1.0f) // this might give us bad results since it's float comparison
+                    {
+                        // each item of filteredPosition is going to be between -.5 and 0.5 now
+                        Vector3 filteredPosition = new Vector3(
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].x, xMinNormaliser, xMaxNormaliser),
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].y, yMinNormaliser, yMaxNormaliser),
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].z, -0.5f, 0.5f)
+                        );
+
+                        var d = Vector3.Distance(filteredPosition, hitpoint2D);
+                        if (d < currentShortestDistance)
+                        {
+                            index = i;
+                            currentShortestDistance = d;
+                        }
+                    }
+                }
+
+                // get the vertex that pertains to the found index
+                // this index is between -.5 and 0.5
+                var foundVertex = vertices[index];
 
                 //float prevDistance = 900f;
-                for (int i = 0; i < filteredXcol.Length; i++)
-                {
-                    float SHIFT_FORWARD_VALUE = Math.Abs(BrushingAndLinking.PREV_AXIS_MIN_NORM);
+                //for (int i = 0; i < filteredXcol.Length; i++)
+                //{
+                //    float SHIFT_FORWARD_VALUE = Math.Abs(BrushingAndLinking.PREV_AXIS_MIN_NORM);
 
-                    var dataXDistanceWithNewMin = filteredXcol[i] - BrushingAndLinking.shift(xMinNormaliser, SHIFT_FORWARD_VALUE);
-                    var dataYDistanceWithNewMin = filteredYcol[i] - BrushingAndLinking.shift(yMinNormaliser, SHIFT_FORWARD_VALUE); ;
+                //    var dataXDistanceWithNewMin = filteredXcol[i] - BrushingAndLinking.shift(xMinNormaliser, SHIFT_FORWARD_VALUE);
+                //    var dataYDistanceWithNewMin = filteredYcol[i] - BrushingAndLinking.shift(yMinNormaliser, SHIFT_FORWARD_VALUE); ;
 
-                    var dataXScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (xMaxNormaliser - xMinNormaliser);
-                    var dataYScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (yMaxNormaliser - yMinNormaliser);
-
-
-                    Vector2 ScaledDataPoint = new Vector2(
-                        dataXDistanceWithNewMin * dataXScale,
-                        dataYDistanceWithNewMin * dataYScale
-                    ) - (SHIFT_FORWARD_VALUE * Vector2.one);
+                //    var dataXScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (xMaxNormaliser - xMinNormaliser);
+                //    var dataYScale = (BrushingAndLinking.PREV_AXIS_MAX_NORM - BrushingAndLinking.PREV_AXIS_MIN_NORM) / (yMaxNormaliser - yMinNormaliser);
 
 
-                    //distances.Add(Vector2.Distance(ScaledDataPoint, hitpoint2D));
-                    var distance = Vector2.Distance(ScaledDataPoint, hitpoint2D);
-                    if (distance < currentShortestDistance)
-                    {
-                        currentShortestDistance = distance;
-                        index = i;
-                    }
+                //    Vector2 ScaledDataPoint = new Vector2(
+                //        dataXDistanceWithNewMin * dataXScale,
+                //        dataYDistanceWithNewMin * dataYScale
+                //    ) - (SHIFT_FORWARD_VALUE * Vector2.one);
 
 
-                }
+                //    //distances.Add(Vector2.Distance(ScaledDataPoint, hitpoint2D));
+                //    var distance = Vector2.Distance(ScaledDataPoint, hitpoint2D);
+                //    if (distance < currentShortestDistance)
+                //    {
+                //        currentShortestDistance = distance;
+                //        index = i;
+                //    }
+
+
+                //}
                 //int index = distances.FindIndex(d => d < distances.Min() + precisionSearch && d > distances.Min() - precisionSearch);
-                
+
 
                 var dataObj = SceneManager.Instance.dataObject;
 
@@ -306,9 +328,7 @@ public class DetailsOnDemand : MonoBehaviour
 
                 Vector3 worldSpacePoint = transform.TransformPoint(localPointerPosition.x,localPointerPosition.y, 0f);
 
-                // get the vertex that pertains to the found index
-                // this index is between -.5 and 0.5
-                var foundVertex = visualizationReference.getScatterplot2DGameobject().GetComponentInChildren<MeshFilter>().mesh.vertices[index];
+               
 
                 // this just works flawlessly for points that have not been filtered and scaled
                 var localPointForVertex = new Vector2(
@@ -456,8 +476,9 @@ public class DetailsOnDemand : MonoBehaviour
                 //find the closest point in the list 
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
 
+                float[] isFiltered = visualizationReference.getFirstScatterplotView().getFilterChannelData();
 
-                List<float> distances = new List<float>();
+                var vertices = visualizationReference.getMeshVertices(Visualization.ViewType.Scatterplot3D);
 
                 float minDistance = float.MaxValue;
 
@@ -467,28 +488,48 @@ public class DetailsOnDemand : MonoBehaviour
                 // 
 
                 // these are between 0 and 1 and for our calcs they should be between -.5 and 0.5
-                float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
-                float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
-                float[] filteredZcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(zDimension));
+                //float[] filteredXcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(xDimension));
+                //float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
+                //float[] filteredZcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(zDimension));
 
                 float currentShortestDistance = 900;
                 int index = 0;
 
-                for (int i = 0; i < filteredXcol.Length; i++)
-                {
-                    
-                    Vector3 scaledDataPosition = new Vector3(
-                        BrushingAndLinking.ScaleDataPoint(filteredXcol[i] - 0.5f, xMinNormaliser, xMaxNormaliser),
-                        BrushingAndLinking.ScaleDataPoint(filteredYcol[i] - 0.5f, yMinNormaliser, yMaxNormaliser),
-                        BrushingAndLinking.ScaleDataPoint(filteredZcol[i] - 0.5f, zMinNormaliser, zMaxNormaliser)
-                    );
+                //for (int i = 0; i < filteredXcol.Length; i++)
+                //{
 
-                    //distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
-                    var distance = Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition);
-                    if (distance < currentShortestDistance)
+                //    Vector3 scaledDataPosition = new Vector3(
+                //        BrushingAndLinking.ScaleDataPoint(filteredXcol[i] - 0.5f, xMinNormaliser, xMaxNormaliser),
+                //        BrushingAndLinking.ScaleDataPoint(filteredYcol[i] - 0.5f, yMinNormaliser, yMaxNormaliser),
+                //        BrushingAndLinking.ScaleDataPoint(filteredZcol[i] - 0.5f, zMinNormaliser, zMaxNormaliser)
+                //    );
+
+                //    //distances.Add(Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition));
+                //    var distance = Vector3.SqrMagnitude(pointerPosition3D - scaledDataPosition);
+                //    if (distance < currentShortestDistance)
+                //    {
+                //        currentShortestDistance = distance;
+                //        index = i;
+                //    }
+                //}
+
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    if (isFiltered[i] != 1.0f) // this might give us bad results since it's float comparison
                     {
-                        currentShortestDistance = distance;
-                        index = i;
+                        // each item of filteredPosition is going to be between -.5 and 0.5 now
+                        Vector3 filteredPosition = new Vector3(
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].x, xMinNormaliser, xMaxNormaliser),
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].y, yMinNormaliser, yMaxNormaliser),
+                            BrushingAndLinking.ScaleDataPoint(vertices[i].z, zMinNormaliser, zMaxNormaliser)
+                        );
+
+                        var d = Vector3.SqrMagnitude(pointerPosition3D - filteredPosition);
+                        if (d < currentShortestDistance)
+                        {
+                            index = i;
+                            currentShortestDistance = d;
+                        }
                     }
                 }
 

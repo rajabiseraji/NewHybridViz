@@ -220,8 +220,13 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
         }        
     }
 
+    bool isTurningVisIntoFilters = false;
     private void TurnVisIntoFilters(Visualization vis)
     {
+        if (isTurningVisIntoFilters)
+            return;
+
+        isTurningVisIntoFilters = true;
         // find out the involved axis in the visualization
         List<Axis> involvedAxes;
         involvedAxes = vis.axes;
@@ -271,6 +276,7 @@ public class FilterBubbleButton : MonoBehaviour, Grabbable
             }
 
             changeCompactFilterText();
+            isTurningVisIntoFilters = false;
         });
     }
 

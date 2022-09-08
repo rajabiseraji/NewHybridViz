@@ -1072,7 +1072,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     // in the new format, we won't need to calculate the vertecies separately here
                     // we can delegate all this to our compute shader
 
-                    Vector3[] verticesS2d = scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+                    //Vector3[] verticesS2d = scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
                     //BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
                     //    verticesS2d,
                     //    BrushingAndLinking.brushPosition,
@@ -1093,20 +1093,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
                     break;
                 case ViewType.Scatterplot3D:
-                    Vector3[] verticesS3d = scatterplot3DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
-                    BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
-                        verticesS3d,
-                        BrushingAndLinking.brushPosition,
-                        BrushingAndLinking.brushSize / 2f,
-                        scatterplot3DObject.transform.InverseTransformVector(ftl),
-                        scatterplot3DObject.transform.InverseTransformVector(ftr),
-                        scatterplot3DObject.transform.InverseTransformVector(fbl),
-                        scatterplot3DObject.transform.InverseTransformVector(fbr),
-                        scatterplot3DObject.transform.InverseTransformVector(btl),
-                        scatterplot3DObject.transform.InverseTransformVector(btr),
-                        scatterplot3DObject.transform.InverseTransformVector(bbl),
-                        scatterplot3DObject.transform.InverseTransformVector(bbr),
-                        scatterplot3DObject.transform, this, true), false);
+                    //Vector3[] verticesS3d = scatterplot3DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+                    //BrushingAndLinking.updateBrushedIndices(BrushingAndLinking.BrushIndicesPointScatterplot(
+                    //    verticesS3d,
+                    //    BrushingAndLinking.brushPosition,
+                    //    BrushingAndLinking.brushSize / 2f,
+                    //    scatterplot3DObject.transform.InverseTransformVector(ftl),
+                    //    scatterplot3DObject.transform.InverseTransformVector(ftr),
+                    //    scatterplot3DObject.transform.InverseTransformVector(fbl),
+                    //    scatterplot3DObject.transform.InverseTransformVector(fbr),
+                    //    scatterplot3DObject.transform.InverseTransformVector(btl),
+                    //    scatterplot3DObject.transform.InverseTransformVector(btr),
+                    //    scatterplot3DObject.transform.InverseTransformVector(bbl),
+                    //    scatterplot3DObject.transform.InverseTransformVector(bbr),
+                    //    scatterplot3DObject.transform, this, true), false);
                     break;
                 default:
                     break;
