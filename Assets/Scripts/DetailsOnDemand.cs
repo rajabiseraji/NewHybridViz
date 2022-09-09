@@ -252,6 +252,8 @@ public class DetailsOnDemand : MonoBehaviour
                             BrushingAndLinking.ScaleDataPoint(vertices[i].z, -0.5f, 0.5f)
                         );
 
+                        // we should add a isBetweenRange checker to check if the vertex is out of bounds then don't add it to the calculation
+
                         var d = Vector3.Distance(filteredPosition, hitpoint2D);
                         if (d < currentShortestDistance)
                         {
