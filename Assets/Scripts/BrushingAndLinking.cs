@@ -160,7 +160,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     if (m.vertexCount < brushedIndexes.Length)
                     {
                         //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
-                        //Debug.Log("Brushing first condition ");
+                        Debug.Log("Brushing first condition ");
                         List<Vector3> brushScatter = new List<Vector3>();
                         for (int k = 0; k < brushedIndexes.Length; k += 2)
                             brushScatter.Add(brushedIndexes[k]);
@@ -201,9 +201,9 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                         {
                             meshNormals[p] = new Vector3(brushedIndexes[p].x, m.normals[p].y, m.normals[p].z);
                         }
-                        //Debug.Log("Hey I just brushed ");
+                        Debug.Log("Hey I just brushed ");
                         //we are brushing and linking same visualisation types
-                        m.normals = meshNormals;
+                        //m.normals = meshNormals;
                     }
                 }
 

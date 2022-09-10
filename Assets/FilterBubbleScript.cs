@@ -330,13 +330,13 @@ public class FilterBubbleScript : MonoBehaviour
         // TODO: tell the visualization class that something has been changed and it needs to be updated
         float normalisedMinValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[0], 0, 1f, -0.5f, 0.5f);
         float normalisedMaxValue = SceneManager.Instance.dataObject.normaliseValue(slider.GetPercentageValues()[1], 0, 1f, -0.5f, 0.5f);
-        // Debug.Log(axisAsFilter.name + "'s min percentage is " + slider.GetPercentageValues()[0]);
-        // Debug.Log(axisAsFilter.name + "'s max percentage is: " + slider.GetPercentageValues()[1]);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's min is now: " + slider.minValue);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's max is now: " + slider.maxValue);
-        // Debug.Log(axisAsFilter.name + "'s source index is: " + axisAsFilter.axisId);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised min value is: " + normalisedMinValue);
-        // Debug.Log(axisAsFilter.name + "'s value has changed and it's normalised max value is: " + normalisedMaxValue);
+         Debug.Log(axisAsFilterId + "'s min percentage is " + slider.GetPercentageValues()[0]);
+        Debug.Log(axisAsFilterId + "'s max percentage is: " + slider.GetPercentageValues()[1]);
+        // Debug.Log(axisAsFilterId + "'s value has changed and it's min is now: " + slider.minValue);
+        // Debug.Log(axisAsFilterId + "'s value has changed and it's max is now: " + slider.maxValue);
+        // Debug.Log(axisAsFilterId + "'s source index is: " + axisAsFilter.axisId);
+         Debug.Log(axisAsFilterId + "'s value has changed and it's normalised min value is: " + normalisedMinValue);
+        Debug.Log(axisAsFilterId + "'s value has changed and it's normalised max value is: " + normalisedMaxValue);
         // Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR min value is: " + axisAsFilter.MinNormaliser);
         // Debug.Log(axisAsFilter.name + "'s value has changed and AXIS normaliseR max value is: " + axisAsFilter.MaxNormaliser);
 

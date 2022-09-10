@@ -427,15 +427,6 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
     }
 
-    public void DoFilter(int AxisId, float minFilterValue) {
-        Debug.Log("I'm filtering with " + AxisId + " and min value of " + minFilterValue);
-        instantiatedViews.ForEach(view => {
-            // since there's nothing that differentiates the scatterplot and other views, we should find a way to filter them in here!
-            if(!view.isParallelCoordsView) 
-                view.doFilter(AxisId, minFilterValue);
-        });
-    }
-
     public void DoFilter(List<AttributeFilter> filters) {
         //Debug.Log("I'm filtering with all filters count of" + filters.Count);
         instantiatedViews.ForEach(view => {
@@ -1113,7 +1104,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             }
         }
 
-        carryOverPreviousBrushing();
+        // TODO: enable this again
+        //carryOverPreviousBrushing();
 
     }
 
@@ -1124,7 +1116,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         {
             //print("script is brushing now!");
             hasBeenBrushedByScript = true;
-            BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
+            //BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
         }
 
     }

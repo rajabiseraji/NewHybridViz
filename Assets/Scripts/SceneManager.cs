@@ -136,6 +136,14 @@ public class SceneManager : MonoBehaviour
         {
             putThingsInFrontofCamera();
         }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            CreateScatterplot();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            AddNewFilterToFilterBubbles();
+        }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             placeDesktopMonitors();
@@ -175,6 +183,15 @@ public class SceneManager : MonoBehaviour
         handleComponentListChange();
 
         handleCodapLoggingData();
+
+        if(isDebugging && testAxis != null && testScatter == null)
+        {
+            var vises = testAxis.correspondingVisualizations();
+            if (vises == null || vises.Count() == 0)
+                return;
+            
+            testScatter = testAxis.correspondingVisualizations()[0];
+        }
 
     }
 
@@ -327,11 +344,7 @@ public class SceneManager : MonoBehaviour
 
     }
 
-    //public void AddNewFilterToFilterBubbles(List<Axis> axes)
-    //{
-    //    filterBubbleGameobject.GetComponent<FilterBubbleScript>().AddNewFilter(axes);
-    //    updateAxesAttributeFilters();
-    //}
+
 
     public void placeDesktopMonitors()
     {
@@ -490,6 +503,71 @@ public class SceneManager : MonoBehaviour
         a.transform.position = new Vector3(0.236f, 1.506231f, -1.486f);
     }
 
+    public Transform scatterPlaceholder;
+    public Visualization testScatter = null;
+    public Axis testAxis = null;
+    public bool isDebugging = true;
+    
+    //[Range(-0.5f, 0.5f)]
+    public float minFilter = -0.5f;
+    //[Range(-0.5f, 0.5f)]
+    public float maxFilter = 0.5f;
+
+    List<AttributeFilter> debugFilters = new List<AttributeFilter>();
+
+    public void CreateScatterplot()
+    {
+        toBeActivatedXAxisId = 4; //weight
+        toBeActivatedYAxisId = 6; // model
+
+        Vector3 pos = new Vector3(
+            3.548397f,
+            -2.848239f,
+            -0.6445103f
+        );
+
+        scatterPlaceholder.position = Camera.main.transform.position + Camera.main.transform.forward * 0.2f;
+
+        CreateChart(Vector3.zero, Quaternion.identity, Vector3.forward, Vector3.right, Vector3.up, scatterPlaceholder);
+    }
+
+    public void AddNewFilterToFilterBubbles()
+    {
+         
+        debugFilters.Add(new AttributeFilter(3, "horsepower", 0.2f, 0.5f, -0.5f, 0.5f)); // horserpower;
+        minFilter = debugFilters[0].minFilter;
+        maxFilter = debugFilters[0].maxFilter;
+
+        if (testScatter != null)
+            testScatter.AddNewFilterToFilterBubbles(debugFilters);
+
+        Debug.Log("In Scene manager: just added a new filter");
+    }
+
+    public void ChangeDebugFilterValue()
+    {
+        debugFilters[0].minFilter = minFilter;
+        debugFilters[0].maxFilter = maxFilter;
+
+        int foundIndex = testScatter.AttributeFilters.FindIndex(attrFilter => attrFilter.idx == debugFilters[0].idx);
+        if (foundIndex != -1)
+        {
+            // For now I'm just changing the minFilter value, later we're gonna go more into details
+            testScatter.AttributeFilters[foundIndex].minFilter = debugFilters[0].minFilter;
+            testScatter.AttributeFilters[foundIndex].maxFilter = debugFilters[0].maxFilter;
+        }
+
+        EventManager.TriggerEvent(ApplicationConfiguration.OnLocalFilterSliderChanged, testScatter.GetInstanceID());
+
+    }
+
+    //[ExecuteInEditMode]
+    //public void printShit(float val)
+    //{
+    //    Debug.Log("value is changing");
+    //    Debug.Log(val);
+    //}
+
     // We will use this function to both create normal histograms, and also create two-d scatterplots
     public void CreateChart(
         Vector3 XAxisplacementPosition, 
@@ -528,7 +606,11 @@ public class SceneManager : MonoBehaviour
             //Vector3 yAxisPosition = toBeActivatedXAxisId != -1 ? (Axis.AXIS_ROD_LENGTH * 0.5f * XAxisRightVector) + XAxisplacementPosition : XAxisplacementPosition;
 
             // This will create Y Axis
-            CreateHistogram(toBeActivatedYAxisId, dotCube.position, dotCube.rotation);
+            if(!isDebugging)
+                CreateHistogram(toBeActivatedYAxisId, dotCube.position, dotCube.rotation);
+            else 
+                testAxis = CreateTestHistogram(toBeActivatedYAxisId, dotCube.position, dotCube.rotation);
+
         }
 
 
@@ -647,5 +729,27 @@ public class SceneManager : MonoBehaviour
         axis.tag = "Axis";
 
         AddAxis(axis);
+    }
+
+    public Axis CreateTestHistogram(int toBeActivatedAxisId, Vector3 placementPosition, Quaternion placementRotation)
+    {
+
+        if (toBeActivatedAxisId == -1)
+        {
+            Debug.Log("There's no active axis in the scenemanager's cache!");
+            return null;
+        }
+
+        //dataObject.Identifiers.ToList<string>()
+        GameObject obj = (GameObject)Instantiate(axisPrefab, placementPosition, placementRotation);
+        // obj.transform.position = v;
+        Axis axis = obj.GetComponent<Axis>();
+        axis.Init(dataObject, toBeActivatedAxisId, false);
+        axis.InitOrigin(placementPosition, placementRotation);
+        //axis.initOriginalParent(dataShelfPanel);
+        axis.tag = "Axis";
+
+        AddAxis(axis);
+        return axis;
     }
 }

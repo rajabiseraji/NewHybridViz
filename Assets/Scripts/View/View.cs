@@ -100,43 +100,6 @@ public class View
     }
 
 
-    public void doFilter(int filterAttributeIndex, float minFilterValue) {
-        // foreach (var viewElement in viewList)
-        // {
-
-        // Filter attribute index is the value of the index that is in the Axis.SourceIndex that is being used to filter this data (which it self comes from DataObject.index)
-        // the number of items in it are the number of items in each column of data!!
-        
-        // HERE WE NEED TO FIND THE NUMBER OF ALL THE POINTS OF DATA THAT ARE BEING SHOWN IN THIS VISUALIZATION AND FILTER THEM OUT (NUM(COL a) * NUM(COL b) * NUM(COL c) ) 
-        float[] isFiltered = new float[SceneManager.Instance.dataObject.DataArray.Count];
-
-
-        Debug.Log("In DOfILTER with ARRAY: The position count is: " + isFiltered.Length);
-        for (int i = 0; i < SceneManager.Instance.dataObject.NbDimensions; i++)
-        {
-            // foreach (AttributeFilter attrFilter in visualisationReference.attributeFilters)
-            // {
-                if (filterAttributeIndex == i)
-                {
-                    float[] col = SceneManager.Instance.dataObject.GetCol(SceneManager.Instance.dataObject.DataArray, i);
-                    // float minFilteringValue = UtilMath.normaliseValue(attrFilter.minFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
-                    // float maxFilteringValue = UtilMath.normaliseValue(attrFilter.maxFilter, 0f, 1f, attrFilter.minScale, attrFilter.maxScale);
-
-                    // Col[j] is equivalent to DataArray[j][another_index]
-
-                    for (int j = 0; j < isFiltered.Length; j++)
-                    {
-                        // Debug.Log("BEGIN: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + "that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
-
-                        isFiltered[j] = (col[j] < minFilterValue || col[j] > 1.0f) ? 1.0f : isFiltered[j];
-
-                        //  Debug.Log("END: I'm filtering " + SceneManager.Instance.dataObject.Identifiers[i] + "that has the value of " + SceneManager.Instance.dataObject.DataArray[j][i]);
-                    }
-                }
-            // }
-        }
-        updateFilterChannel(isFiltered);
-    }
     public void doFilter(List<AttributeFilter> filters) {
         float[] isFiltered = new float[SceneManager.Instance.dataObject.DataArray.Count];
 
@@ -316,7 +279,7 @@ public class View
         const int CHANNEL = 2; 
         Vector3[] myMeshNormals = myMesh.normals;
 
-        //Debug.Log("In" + visualizationReference.name + " updateFilterChannel now with meshnormal length of: " + myMesh.normals.Length + "vertex count of " + myMesh.vertexCount);
+        Debug.Log("In" + visualizationReference.name + " updateFilterChannel now with meshnormal length of: " + myMesh.normals.Length + "vertex count of " + myMesh.vertexCount);
 
         if (myMeshNormals == null) myMeshNormals = new Vector3[myMesh.vertexCount];
         for(int i=0; i<myMeshNormals.Length;i++)
@@ -326,7 +289,10 @@ public class View
             myMeshNormals[i] = v;
         }
         myMesh.normals= myMeshNormals;
-        //Debug.Log("FROM updateFilterChannel: I'm putting the filtered data in here! ");
+        Debug.Log("FROM updateFilterChannel: I'm putting the filtered data in here! ");
+        Debug.Log("the number of ones in the filtered channel are: " + filteredData.Count(x => x > 0));
+        Debug.Log("the number of zeros ones in the filtered channel are: " + filteredData.Count(x => x == 0f));
+        Debug.Log("the number of non ones in the filtered channel are: " + filteredData.Count(x => x < 1f));
     }
 
     public float[] getFilterChannelData()
