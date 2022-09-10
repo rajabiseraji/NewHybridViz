@@ -151,68 +151,72 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         //link the brush to all other visualisations
         for (int i = 0; i < views.Length; i++)// (var item in activeViews)
         {
-            try
-            {
-                Mesh m = views[i].GetComponent<MeshFilter>().mesh;
 
-                if (brushedIndexes != null)
-                {
-                    if (m.vertexCount < brushedIndexes.Length)
-                    {
-                        //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
-                        Debug.Log("Brushing first condition ");
-                        List<Vector3> brushScatter = new List<Vector3>();
-                        for (int k = 0; k < brushedIndexes.Length; k += 2)
-                            brushScatter.Add(brushedIndexes[k]);
+            Texture2D tex = views[i].GetComponent<Renderer>().material.GetTexture("_BrushedTexture") as Texture2D;
+            tex.SetPixel(30, 30, Color.red);
+        //    try
+        //    {
+        //        Mesh m = views[i].GetComponent<MeshFilter>().sharedMesh;
 
-                        Vector3[] meshNormals = m.normals;
-                        for (int p = 0; p < meshNormals.Length; p++)
-                        {
-                            meshNormals[p] = new Vector3(brushScatter[p].x, m.normals[p].y, m.normals[p].z);
-                        }
-                        //Array.Resize(ref brushedIndexes, m.vertexCount);
-                        m.normals = meshNormals;
+        //        if (brushedIndexes != null)
+        //        {
+        //            if (m.vertexCount < brushedIndexes.Length)
+        //            {
+        //                //we brushed a parallel coordinates so we need to reduce by 2 the brushed indices
+        //                Debug.Log("Brushing first condition ");
+        //                List<Vector3> brushScatter = new List<Vector3>();
+        //                for (int k = 0; k < brushedIndexes.Length; k += 2)
+        //                    brushScatter.Add(brushedIndexes[k]);
 
-                    }
-                    else if (m.vertexCount > brushedIndexes.Length)
-                    {
-                        //we brushed a 2D scatterplot we need to make twice bigger
-                        //List<Vector3> brushParrallel = new List<Vector3>();
-                        //Color[] linkedVisuColor = m.colors;
+        //                Vector3[] meshNormals = m.normals;
+        //                for (int p = 0; p < meshNormals.Length; p++)
+        //                {
+        //                    meshNormals[p] = new Vector3(brushScatter[p].x, m.normals[p].y, m.normals[p].z);
+        //                }
+        //                //Array.Resize(ref brushedIndexes, m.vertexCount);
+        //                m.normals = meshNormals;
 
-                        //for (int k = 0; k < brushedIndexes.Length; k += 1)
-                        //{
-                        //    brushParrallel.Add(brushedIndexes[k]);
-                        //    brushParrallel.Add(brushedIndexes[k]);
-                        //}
+        //            }
+        //            else if (m.vertexCount > brushedIndexes.Length)
+        //            {
+        //                //we brushed a 2D scatterplot we need to make twice bigger
+        //                //List<Vector3> brushParrallel = new List<Vector3>();
+        //                //Color[] linkedVisuColor = m.colors;
 
-                        ////Vector3[] copyParallelIndices = new Vector3[brushedIndexes.Length * 2];
-                        ////brushedIndexes.CopyTo(copyParallelIndices, 0);
-                        ////brushedIndexes.CopyTo(copyParallelIndices, brushedIndexes.Length - 1);
+        //                //for (int k = 0; k < brushedIndexes.Length; k += 1)
+        //                //{
+        //                //    brushParrallel.Add(brushedIndexes[k]);
+        //                //    brushParrallel.Add(brushedIndexes[k]);
+        //                //}
 
-                        //m.normals = brushParrallel.ToArray();
-                        print("updating a PCP");
-                    }
+        //                ////Vector3[] copyParallelIndices = new Vector3[brushedIndexes.Length * 2];
+        //                ////brushedIndexes.CopyTo(copyParallelIndices, 0);
+        //                ////brushedIndexes.CopyTo(copyParallelIndices, brushedIndexes.Length - 1);
 
-                    else
-                    {
-                        Vector3[] meshNormals = m.normals;
-                        for (int p = 0; p < meshNormals.Length; p++)
-                        {
-                            meshNormals[p] = new Vector3(brushedIndexes[p].x, m.normals[p].y, m.normals[p].z);
-                        }
-                        Debug.Log("Hey I just brushed ");
-                        //we are brushing and linking same visualisation types
-                        //m.normals = meshNormals;
-                    }
-                }
+        //                //m.normals = brushParrallel.ToArray();
+        //                print("updating a PCP");
+        //            }
 
-            }
-            catch (MissingReferenceException)
-            {
-                Debug.Log("exception component");
-            }
-            //                item.GetComponentInChildren<MeshFilter>().mesh = m;
+        //            else
+        //            {
+        //                Vector3[] meshNormals = m.normals;
+        //                for (int p = 0; p < meshNormals.Length; p++)
+        //                {
+        //                    meshNormals[p] = new Vector3(brushedIndexes[p].x, m.normals[p].y, m.normals[p].z);
+        //                }
+        //                Debug.Log("Hey I just brushed ");
+        //                //we are brushing and linking same visualisation types
+        //                m.normals = meshNormals;
+        //            }
+        //        }
+
+        //    }
+        //    catch (MissingReferenceException)
+        //    {
+        //        Debug.Log("exception component");
+        //    }
+        //    //                item.GetComponentInChildren<MeshFilter>().mesh = m;
+
         }
     }
 
@@ -249,7 +253,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
 
 
-    public static void updateBrushedIndices(Vector3[] brushed, bool isParallelPlot)
+    public static void updateBrushedIndexes(Vector3[] brushed, bool isParallelPlot)
     {
 
         // if (isParallelPlot)
@@ -775,14 +779,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     {
         if (visualisation.viewType == Visualization.ViewType.Scatterplot2D)
         {
-            dataBuffer.SetData(visualisation.getMeshVertices(Visualization.ViewType.Scatterplot2D));
+            dataBuffer.SetData(visualisation.getFirstScatterplotView().MyMesh.vertices);
             computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
 
             filteredIndicesBuffer.SetData(visualisation.getFirstScatterplotView().getFilterChannelData());
             computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
         } else if(visualisation.viewType == Visualization.ViewType.Scatterplot3D)
         {
-            dataBuffer.SetData(visualisation.getMeshVertices(Visualization.ViewType.Scatterplot3D));
+            dataBuffer.SetData(visualisation.getFirstScatterplotView().MyMesh.vertices);
             computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
 
             filteredIndicesBuffer.SetData(visualisation.getFirstScatterplotView().getFilterChannelData());

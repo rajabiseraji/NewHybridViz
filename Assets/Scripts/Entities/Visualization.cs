@@ -261,9 +261,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     public Vector3[] getMeshVertices(ViewType visType)
     {
         if (visType == ViewType.Scatterplot2D)
-            return scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+            return scatterplot2DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
         else if (visType == ViewType.Scatterplot3D)
-            return scatterplot3DObject.GetComponentInChildren<MeshFilter>().mesh.vertices;
+            return scatterplot3DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
 
         return new Vector3[0];
     }

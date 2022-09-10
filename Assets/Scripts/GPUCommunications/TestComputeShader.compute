@@ -49,7 +49,9 @@ int BrushMode;
 int SelectionMode;
 
 bool HasFreeBrushReset;
+bool IsManualBrushing;
 
+RWStructuredBuffer<int> manualBrushingIndicesBuffer;
 RWStructuredBuffer<float3> dataBuffer;
 StructuredBuffer<float> filteredIndicesBuffer;
 RWStructuredBuffer<int> brushedIndicesBuffer;
