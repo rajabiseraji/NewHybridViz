@@ -397,7 +397,7 @@ Shader "Custom/Outline Dots"
 							return float4(0.1, 0.1, 0.1, 1.0);
 						}
 					}
-
+					
 					//return fo;
 				}
 

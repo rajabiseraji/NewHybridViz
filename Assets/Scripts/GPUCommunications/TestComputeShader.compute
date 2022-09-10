@@ -191,47 +191,57 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 			NormaliseValue(dataBuffer[idx].y, _MinNormY, _MaxNormY, 0, height),
 			NormaliseValue(dataBuffer[idx].z, _MinNormZ, _MaxNormZ, 0, depth));*/
 
-		// each item of filteredPosition is going to be between -.5 and 0.5 now
-		float3 filteredPosition = float3 (
-			ScaleDataPoint(dataBuffer[idx].x, _MinNormX, _MaxNormX),
-			ScaleDataPoint(dataBuffer[idx].y, _MinNormY, _MaxNormY),
-			ScaleDataPoint(dataBuffer[idx].z, _MinNormZ, _MaxNormZ)
-		);
+		if (IsManualBrushing) {
+			if (manualBrushingIndicesBuffer[idx])
+				Result[id.xy] = float4(1.0, 0.0, 0.0, 1.0);  // brushed
+			else
+				Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);
+		}
+		else {
+			// each item of filteredPosition is going to be between -.5 and 0.5 now
+			float3 filteredPosition = float3 (
+				ScaleDataPoint(dataBuffer[idx].x, _MinNormX, _MaxNormX),
+				ScaleDataPoint(dataBuffer[idx].y, _MinNormY, _MaxNormY),
+				ScaleDataPoint(dataBuffer[idx].z, _MinNormZ, _MaxNormZ)
+			);
 
-		// originally, this _minX was supposed to be the actual local or world position 
-		// of the min of the data
-		/*if (IsBetweenRanges(filteredPosition.x, _MinX, _MaxX * width) &&
-			IsBetweenRanges(filteredPosition.y, _MinY, _MaxY * height) &&
-			IsBetweenRanges(filteredPosition.z, _MinZ, _MaxZ * depth)
-			)
-		{*/
-			if (Brush(BrushMode, filteredPosition))
-			{
-				switch (SelectionMode) {
-					// Free selection
-				case 0:
-					// Additive selection
-				case 1:
-					Result[id.xy] = float4(1.0, 0.0, 0.0, 1.0);  // brushed
-					break;
+			// originally, this _minX was supposed to be the actual local or world position 
+			// of the min of the data
+			/*if (IsBetweenRanges(filteredPosition.x, _MinX, _MaxX * width) &&
+				IsBetweenRanges(filteredPosition.y, _MinY, _MaxY * height) &&
+				IsBetweenRanges(filteredPosition.z, _MinZ, _MaxZ * depth)
+				)
+			{*/
+				if (Brush(BrushMode, filteredPosition))
+				{
+					switch (SelectionMode) {
+						// Free selection
+					case 0:
+						// Additive selection
+					case 1:
+						Result[id.xy] = float4(1.0, 0.0, 0.0, 1.0);  // brushed
+						break;
 
-					// Subtractive selection
-				case 2:
-				default:
-					Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
-					break;
+						// Subtractive selection
+					case 2:
+					default:
+						Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
+						break;
+					}
 				}
-			}
-			// Free selection un-brushes points
-			else if (SelectionMode == 0 && !HasFreeBrushReset)
-			{
-				Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
-			}
-		//}
-		//else
-		//{
-		//	Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
-		//}
+				// Free selection un-brushes points
+				else if (SelectionMode == 0 && !HasFreeBrushReset)
+				{
+					Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
+				}
+			//}
+			//else
+			//{
+			//	Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);  // not brushed
+			//}
+
+		}
+
 	}
 }
 

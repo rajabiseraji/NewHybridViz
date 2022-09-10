@@ -57,6 +57,9 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // equivalent to a float[]
     private ComputeBuffer filteredIndicesBuffer;
 
+
+    private ComputeBuffer manualBrushIndicesBuffer;
+
     // this is the buffer for brushedIndeces, holds either 1 or -1 per vertex
     // equivalent to float[]
     private ComputeBuffer brushedIndicesBuffer;
@@ -741,7 +744,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // so the total size would be 3 * sizeOf(float) which is 3 * 4 = 12
         dataBuffer = new ComputeBuffer(dataCount, 12);
         dataBuffer.SetData(new Vector3[dataCount]);
-        computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
+        computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer); 
+       
 
         // Array for floats, so each item size is size of a float = 4
         filteredIndicesBuffer = new ComputeBuffer(dataCount, 4);
@@ -859,6 +863,45 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             }
         }
 
+    }
+
+    public void doManualBrushing(int[] toBeBrushed)
+    {
+
+
+        brushingViews = GameObject.FindGameObjectsWithTag("View");
+
+        foreach (var view in brushingViews)
+        {
+            if (brushingViews.Length > 0)
+            {
+                InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
+                manualBrushIndicesBuffer = new ComputeBuffer(toBeBrushed.Length, sizeof(int));
+                manualBrushIndicesBuffer.SetData(toBeBrushed);
+                computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
+
+                computeShader.SetBool("IsManualBrushing", true);
+
+                // we should get is3D from visualization whenever it calls BrushIndiceScatterplot
+                // Run the compute shader
+                computeShader.Dispatch(kernelComputeBrushTexture, Mathf.CeilToInt(texSize / 32f), Mathf.CeilToInt(texSize / 32f), 1);
+
+                //foreach (var view in vis.theVisualizationObject.viewList)
+                //{
+
+                // we should pass this renderTexture to the material of the viewObject (I think)
+                var viewMaterial = view.GetComponent<Renderer>().material;
+                viewMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
+                viewMaterial.SetFloat("_DataWidth", texSize);
+                viewMaterial.SetFloat("_DataHeight", texSize);
+                viewMaterial.SetFloat("_ShowBrush", Convert.ToSingle(true));
+                viewMaterial.SetColor("_BrushColor", Color.red);
+                //}
+
+                hasFreeBrushReset = true;
+            }
+
+        }
     }
 
     /// <summary>
