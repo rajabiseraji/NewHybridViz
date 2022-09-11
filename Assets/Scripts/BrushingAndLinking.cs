@@ -781,21 +781,21 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
     public void UpdateComputeBuffers(Visualization visualisation)
     {
-        if (visualisation.viewType == Visualization.ViewType.Scatterplot2D)
-        {
-            dataBuffer.SetData(visualisation.getFirstScatterplotView().MyMesh.vertices);
+        //if (visualisation.viewType == Visualization.ViewType.Scatterplot2D)
+        //{
+        //    dataBuffer.SetData(visualisation.getFirstScatterplotView().MyMesh.vertices);
+        //    computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
+
+        //    filteredIndicesBuffer.SetData(visualisation.getFirstScatterplotView().getFilterChannelData());
+        //    computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
+        //} else if(visualisation.viewType == Visualization.ViewType.Scatterplot3D)
+        //{
+            dataBuffer.SetData(visualisation.getMeshVertices(visualisation.viewType));
             computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
 
-            filteredIndicesBuffer.SetData(visualisation.getFirstScatterplotView().getFilterChannelData());
+            filteredIndicesBuffer.SetData(visualisation.getIsFilteredChannel(visualisation.viewType));
             computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
-        } else if(visualisation.viewType == Visualization.ViewType.Scatterplot3D)
-        {
-            dataBuffer.SetData(visualisation.getFirstScatterplotView().MyMesh.vertices);
-            computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
-
-            filteredIndicesBuffer.SetData(visualisation.getFirstScatterplotView().getFilterChannelData());
-            computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
-        }
+        //}
     }
 
 
@@ -833,7 +833,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             return;
         }
 
-        bool is3D = parentVis.viewType == Visualization.ViewType.Scatterplot3D ? true : false; 
+        bool is3D = parentVis.viewType == Visualization.ViewType.Scatterplot3D; 
 
 
 
