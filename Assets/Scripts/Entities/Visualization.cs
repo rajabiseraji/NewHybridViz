@@ -220,6 +220,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         return null; 
     }
 
+
+
     // TODO: use this position to make the details on demand change position!
     Vector3 detailOnDemandPosition = Vector3.zero;
     Vector3[] histogramPositions;
@@ -266,6 +268,32 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             return scatterplot3DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
 
         return new Vector3[0];
+    }    
+    
+    public float[] getIsFilteredChannel(ViewType visType)
+    {
+
+        if (visType == ViewType.Scatterplot2D)
+            return getFilterChannelData(scatterplot2DObject);
+        else if (visType == ViewType.Scatterplot3D)
+            return getFilterChannelData(scatterplot3DObject);
+
+        return new float[0];
+    }
+
+    private float[] getFilterChannelData(GameObject scatterplotGameObject)
+    {
+
+        const int CHANNEL = 2;
+        Vector3[] myMeshNormals = scatterplotGameObject.GetComponentInChildren<MeshFilter>().sharedMesh.normals;
+        float[] filterChannelData = new float[myMeshNormals.Count()];
+
+        for (int i = 0; i < filterChannelData.Length; i++)
+        {
+            filterChannelData[i] = myMeshNormals[i][CHANNEL];
+        }
+
+        return filterChannelData;
     }
 
     void Awake()
