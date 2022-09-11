@@ -233,7 +233,7 @@ public class DetailsOnDemand : MonoBehaviour
                 //float[] filteredYcol = visualizationReference.getFilteredDimensionForIndexSearch(SceneManager.Instance.dataObject.dimensionToIndex(yDimension));
 
                 // if 1 means we should ignore, if not then we can use
-                float[] isFiltered = visualizationReference.getFirstScatterplotView().getFilterChannelData();
+                float[] isFiltered = visualizationReference.getIsFilteredChannel(Visualization.ViewType.Scatterplot2D);
 
                 var vertices = visualizationReference.getMeshVertices(Visualization.ViewType.Scatterplot2D);
 
@@ -478,7 +478,7 @@ public class DetailsOnDemand : MonoBehaviour
                 //find the closest point in the list 
                 Vector3 pointerPosition3D = new Vector3(x, y, z);
 
-                float[] isFiltered = visualizationReference.getFirstScatterplotView().getFilterChannelData();
+                float[] isFiltered = visualizationReference.getIsFilteredChannel(Visualization.ViewType.Scatterplot3D);
 
                 var vertices = visualizationReference.getMeshVertices(Visualization.ViewType.Scatterplot3D);
 
@@ -551,7 +551,7 @@ public class DetailsOnDemand : MonoBehaviour
                     zDimension, zvalstr);
 
                 // this is between -.5 and 0.5
-                var foundVertex = visualizationReference.getScatterplot3DGameobject().GetComponentInChildren<MeshFilter>().mesh.vertices[index];
+                var foundVertex = vertices[index];
 
                 //if (isFlipped)
                 //{
