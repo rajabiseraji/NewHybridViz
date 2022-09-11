@@ -1105,17 +1105,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
 
         // TODO: enable this again
-        //carryOverPreviousBrushing();
+        carryOverPreviousBrushing();
 
     }
 
     private void carryOverPreviousBrushing()
     {
+
+        var brushedIndices = GetComponentInChildren<BrushingAndLinking>() ? GetComponentInChildren<BrushingAndLinking>().brushedIndices : null;
         // check if we have anything that is already brushed, then brush it in this new vis, too
-        if (!hasBeenBrushedByScript && viewType != ViewType.Histogram && BrushingAndLinking.brushedIndexes != null && BrushingAndLinking.brushedIndexes.Count() != 0)
+        if (!hasBeenBrushedByScript && viewType != ViewType.Histogram && brushedIndices != null && brushedIndices.Count() != 0)
         {
-            //print("script is brushing now!");
+            print("script is brushing now!");
             hasBeenBrushedByScript = true;
+            GetComponentInChildren<BrushingAndLinking>().doManualBrushing(brushedIndices.ToArray());
             //BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
         }
 

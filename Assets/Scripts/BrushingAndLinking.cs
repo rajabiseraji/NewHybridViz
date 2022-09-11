@@ -875,7 +875,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         {
             if (brushingViews.Length > 0)
             {
-                InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
+
+                if(!hasInitialised)
+                {
+                    InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
+                }
+
                 manualBrushIndicesBuffer = new ComputeBuffer(toBeBrushed.Length, sizeof(int));
                 manualBrushIndicesBuffer.SetData(toBeBrushed);
                 computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
@@ -1027,6 +1032,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // SelectionMode of 0 means additive/free selection
         computeShader.SetInt("BrushMode", 0);
         computeShader.SetInt("SelectionMode", 0);
+        computeShader.SetBool("IsManualBrushing", false);
 
         hasFreeBrushReset = false;
 

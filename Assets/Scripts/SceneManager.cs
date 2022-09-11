@@ -529,6 +529,35 @@ public class SceneManager : MonoBehaviour
         scatterPlaceholder.position = Camera.main.transform.position + Camera.main.transform.forward * 0.2f;
 
         CreateChart(Vector3.zero, Quaternion.identity, Vector3.forward, Vector3.right, Vector3.up, scatterPlaceholder);
+    } 
+    
+    public void CreateScatterplot3D()
+    {
+        toBeActivatedXAxisId = 4; //weight
+        toBeActivatedYAxisId = 6; // model
+        toBeActivatedZAxisId = 2; // model
+
+        Vector3 pos = new Vector3(
+            3.548397f,
+            -2.848239f,
+            -0.6445103f
+        );
+
+        scatterPlaceholder.position = Camera.main.transform.position + Camera.main.transform.forward * 0.2f;
+
+        CreateChart(Vector3.zero, Quaternion.identity, Vector3.forward, Vector3.right, Vector3.up, scatterPlaceholder);
+
+
+        int facingSign = Vector3.Dot(mainCamera.transform.forward, scatterPlaceholder.forward) > 0 ? 1 : -1;
+
+        //scatterPlaceholder.Translate(scatterPlaceholder.transform.right * Axis.AXIS_ROD_LENGTH * 0.5f * facingSign); 
+        scatterPlaceholder.Translate(scatterPlaceholder.transform.up * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
+        scatterPlaceholder.Translate(scatterPlaceholder.transform.forward * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
+
+        scatterPlaceholder.Rotate(scatterPlaceholder.transform.right, -90f);
+        
+        CreateHistogram(toBeActivatedZAxisId, scatterPlaceholder.position, scatterPlaceholder.rotation);
+        //if (facingSign == -1)
     }
 
     public void AddNewFilterToFilterBubbles()

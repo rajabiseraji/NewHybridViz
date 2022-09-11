@@ -35,6 +35,11 @@ public class SceneManagerEditor : Editor
         {
             target.CreateScatterplot();
         }
+        
+        if (GUILayout.Button("Make Scatterplot 3D"))
+        {
+            target.CreateScatterplot3D();
+        }
 
         if (GUILayout.Button("Add Filter Debug"))
         {
