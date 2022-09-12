@@ -268,6 +268,16 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             return scatterplot3DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
 
         return new Vector3[0];
+    }        
+    
+    public Vector3[] getMeshVertices()
+    {
+        if (viewType == ViewType.Scatterplot2D)
+            return scatterplot2DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
+        else if (viewType == ViewType.Scatterplot3D)
+            return scatterplot3DObject.GetComponentInChildren<MeshFilter>().sharedMesh.vertices;
+
+        return new Vector3[0];
     }    
     
     public float[] getIsFilteredChannel(ViewType visType)
@@ -1133,20 +1143,20 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
 
         // TODO: enable this again
-        carryOverPreviousBrushing();
+        //carryOverPreviousBrushing();
 
     }
 
     private void carryOverPreviousBrushing()
     {
 
-        var brushedIndices = GetComponentInChildren<BrushingAndLinking>() ? GetComponentInChildren<BrushingAndLinking>().brushedIndices : null;
+        var brushedIndices = BrushingAndLinking.brushedIndices;
         // check if we have anything that is already brushed, then brush it in this new vis, too
         if (!hasBeenBrushedByScript && viewType != ViewType.Histogram && brushedIndices != null && brushedIndices.Count() != 0)
         {
             print("script is brushing now!");
             hasBeenBrushedByScript = true;
-            GetComponentInChildren<BrushingAndLinking>().doManualBrushing(brushedIndices.ToArray());
+            BrushingAndLinking.doManualBrushing(brushedIndices.ToArray());
             //BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
         }
 
@@ -2084,6 +2094,10 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         // Hit point is in the local space of the parent transform of that view
         BrushingAndLinking.brushPosition = WorldhitPoint;
 
+        BrushingAndLinking.targetVis = this;
+
+        BrushingAndLinking.doBrushing();
+
         DataLogger.Instance.LogActionData("Brush", gameObject);
     }
 
@@ -2091,6 +2105,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         isBrushing = false;
         BrushingAndLinking.isBrushing = isBrushing;
+
+        BrushingAndLinking.resetInitializationFlag();
 
         DataLogger.Instance.LogActionData("BrushEnd", gameObject);
 

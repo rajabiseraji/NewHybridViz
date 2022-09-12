@@ -30,43 +30,43 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     /// </summary>
 
     [SerializeField]
-    public ComputeShader computeShader;
+    public static ComputeShader computeShader;
     [SerializeField]
-    public Material myRenderMaterial;
+    public static Material myRenderMaterial;
 
     // we will have access to the visualization class, and we want to brush ALL other visualizations! 
     // so I think no need to get a list of these vises
 
     [SerializeField]
-    public List<int> brushedIndices;
+    public static List<int> brushedIndices;
 
     [SerializeField]
     public Material debugObjectTexture;
 
-    private int kernelComputeBrushTexture;
-    private int kernelComputeBrushedIndices;
+    private static int kernelComputeBrushTexture;
+    private static int kernelComputeBrushedIndices;
 
-    private RenderTexture brushedIndicesTexture;
-    private int texSize;
+    private static RenderTexture brushedIndicesTexture;
+    private static int texSize;
 
     // this is a buffer that will hold a Vector3 for each vertex that our view has
     // equivalent to a Vector3[]
-    private ComputeBuffer dataBuffer;
+    private static ComputeBuffer dataBuffer;
 
     // this is the bufffer that will hold either 1 or -1 per each vertex,
     // equivalent to a float[]
-    private ComputeBuffer filteredIndicesBuffer;
+    private static ComputeBuffer filteredIndicesBuffer;
 
 
-    private ComputeBuffer manualBrushIndicesBuffer;
+    private static ComputeBuffer manualBrushIndicesBuffer;
 
     // this is the buffer for brushedIndeces, holds either 1 or -1 per vertex
     // equivalent to float[]
-    private ComputeBuffer brushedIndicesBuffer;
+    private static ComputeBuffer brushedIndicesBuffer;
 
-    private bool hasInitialised = false;
-    private bool hasFreeBrushReset = false;
-    private AsyncGPUReadbackRequest brushedIndicesRequest;
+    private static bool hasInitialised = false;
+    private static bool hasFreeBrushReset = false;
+    private static AsyncGPUReadbackRequest brushedIndicesRequest;
 
 
     [Serializable]
@@ -94,7 +94,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             parentVis = GetComponentInParent<Visualization>();
 
         InitialiseShaders();
-
+        myRenderMaterial = StaticResourceLoader.MyRenderMaterial;
         
 
     }
@@ -729,13 +729,15 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
     
 
-    private void InitialiseShaders()
+    private static void InitialiseShaders()
     {
+        computeShader = StaticResourceLoader.BrushingComputeShader;
+
         kernelComputeBrushTexture = computeShader.FindKernel("CSMain");
         kernelComputeBrushedIndices = computeShader.FindKernel("ComputeBrushedIndicesArray");
     }
 
-    private void InitialiseBuffersAndTextures(int dataCount)
+    private static void InitialiseBuffersAndTextures(int dataCount)
     {
         // the second arg of ComputBuffer is the size of each item
         
@@ -756,6 +758,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         brushedIndicesBuffer = new ComputeBuffer(dataCount, 4);
         brushedIndicesBuffer.SetData(Enumerable.Repeat(-1, dataCount).ToArray());
         computeShader.SetBuffer(kernelComputeBrushedIndices, "brushedIndicesBuffer", brushedIndicesBuffer);
+
+        manualBrushIndicesBuffer = new ComputeBuffer(dataCount, sizeof(int));
+        manualBrushIndicesBuffer.SetData(new int[dataCount]);
+        computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
 
         // for instance, if we have 72 datapoints, the texture size is going to be set to
         // the number that will give the next power of 2 after 72. In this case, the next power
@@ -779,7 +785,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         hasInitialised = true;
     }
 
-    public void UpdateComputeBuffers(Visualization visualisation)
+    public static void UpdateComputeBuffers()
     {
         //if (visualisation.viewType == Visualization.ViewType.Scatterplot2D)
         //{
@@ -790,10 +796,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         //    computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
         //} else if(visualisation.viewType == Visualization.ViewType.Scatterplot3D)
         //{
-            dataBuffer.SetData(visualisation.getMeshVertices(visualisation.viewType));
+            dataBuffer.SetData(targetVis.getMeshVertices());
             computeShader.SetBuffer(kernelComputeBrushTexture, "dataBuffer", dataBuffer);
 
-            filteredIndicesBuffer.SetData(visualisation.getIsFilteredChannel(visualisation.viewType));
+            filteredIndicesBuffer.SetData(targetVis.getIsFilteredChannel(targetVis.viewType));
             computeShader.SetBuffer(kernelComputeBrushTexture, "filteredIndicesBuffer", filteredIndicesBuffer);
         //}
     }
@@ -804,7 +810,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     /// </summary>
     /// <param name="number"></param>
     /// <returns></returns>
-    private int NextPowerOf2(int number)
+    private static int NextPowerOf2(int number)
     {
         int pos = 0;
 
@@ -821,19 +827,26 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
     GameObject[] brushingViews;
 
-    public void Update()
+    public static void resetInitializationFlag()
+    {
+        hasInitialised = false;
+    }
+
+    public static void doBrushing()
     {
 
-        if (parentVis == null)
-            parentVis = GetComponentInParent<Visualization>();
+        //InitialiseShaders();
 
-        if(parentVis == null)
+        //if (parentVis == null)
+        //    parentVis = GetComponentInParent<Visualization>();
+
+        if(targetVis == null)
         {
             Debug.LogError("visualization shoulnd't b enull");
             return;
         }
 
-        bool is3D = parentVis.viewType == Visualization.ViewType.Scatterplot3D; 
+        bool is3D = targetVis.viewType == Visualization.ViewType.Scatterplot3D; 
 
 
 
@@ -844,35 +857,35 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // burshPostion is the world position of the brush tho! we should have this in mind!
         if (isBrushing && brushPosition != null)
         {
-            brushingViews = GameObject.FindGameObjectsWithTag("View");
-
-            if (brushingViews.Length > 0)
+            
+            if (hasInitialised)
             {
-                if (hasInitialised)
-                {
 
-                    // we should get is3D from visualization whenever it calls BrushIndiceScatterplot
-                    UpdateBrushTexture(is3D);
+                // we should get is3D from visualization whenever it calls BrushIndiceScatterplot
+                UpdateBrushTexture(is3D);
 
-                    UpdateBrushedIndices();
-                }
-                else
-                {
-                    InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
-                }
+                UpdateBrushedIndices();
             }
+            else
+            {
+                InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
+            }
+
+        } else
+        {
+            hasInitialised = false;
         }
 
     }
 
-    public void doManualBrushing(int[] toBeBrushed)
+
+    public static void doManualBrushing(int[] toBeBrushed)
     {
 
 
-        brushingViews = GameObject.FindGameObjectsWithTag("View");
+        var brushingViews = GameObject.FindGameObjectsWithTag("View");
 
-        foreach (var view in brushingViews)
-        {
+        
             if (brushingViews.Length > 0)
             {
 
@@ -891,9 +904,10 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                 // Run the compute shader
                 computeShader.Dispatch(kernelComputeBrushTexture, Mathf.CeilToInt(texSize / 32f), Mathf.CeilToInt(texSize / 32f), 1);
 
-                //foreach (var view in vis.theVisualizationObject.viewList)
-                //{
-
+            //foreach (var view in vis.theVisualizationObject.viewList)
+            //{
+            foreach (var view in brushingViews)
+            {
                 // we should pass this renderTexture to the material of the viewObject (I think)
                 var viewMaterial = view.GetComponent<Renderer>().material;
                 viewMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
@@ -942,18 +956,18 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     // The output of this function is always the localcoordinates of the controller contact point
     // that has been scaled down to the scale of -.5 and 0.5
     // so the output is always a point in which every coords is between -.5 and 0.5
-    private Vector3 calculateLocalPointFromWorldCoords(bool is3D)
+    private static Vector3 calculateLocalPointFromWorldCoords(bool is3D)
     {
         // we get the is3D bool from the function that calls BrushIndiceScatterplot 
         // from withiin the visualization class
 
-        var parentTransform = parentVis.getScatterplot3DGameobject().transform;
+        var parentTransform = targetVis.getScatterplot3DGameobject().transform;
 
         if (is3D)
         {
-            // create a transform for the visualisation space
-            var vup = parentVis.fbl - parentVis.ftl;
-            var right = parentVis.fbr - parentVis.fbl;
+            // create a transform for the targetVisualisation space
+            var vup = targetVis.fbl - targetVis.ftl;
+            var right = targetVis.fbr - targetVis.fbl;
 
             right.Normalize();
             vup.Normalize();
@@ -961,7 +975,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
             var cp = Vector3.Cross(right, vup);
 
-            var forward = parentVis.fbl - parentVis.bbl;
+            var forward = targetVis.fbl - targetVis.bbl;
 
             bool isFlipped = false;
 
@@ -1020,10 +1034,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         }
     }
 
+    public static Visualization targetVis;
+
     /// <summary>
     /// Updates the brushedIndicesTexture using the visualisations set in the brushingVisualisations list.
     /// </summary>
-    private void UpdateBrushTexture(bool is3D)
+    private static void UpdateBrushTexture(bool is3D)
     {
         Vector3 projectedPointer1;
         //Vector3 projectedPointer2;
@@ -1036,19 +1052,17 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
         hasFreeBrushReset = false;
 
-        foreach (var view in brushingViews)
-        {
-            var vis = view.GetComponentInParent<Visualization>();
+       
             //var viewScript = view.GetComponent<View>() != null ? view.GetComponent<View>() : view.GetComponentInChildren<View>();
-            if (!vis)
+            if (!targetVis)
             {
                 Debug.LogError("In brushing and linking: I didn't find any parent visualizations");
                 return;
             }
 
-            UpdateComputeBuffers(vis);
+            UpdateComputeBuffers();
 
-            brushType = BrushTypeEnum.SPHERE;
+            var brushType = BrushTypeEnum.SPHERE;
 
             switch (brushType)
             {
@@ -1066,12 +1080,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             }
 
             //set the filters and normalisation values of the brushing visualisation to the computer shader
-            computeShader.SetFloat("_MinNormX", vis.ReferenceAxis1.horizontal ? vis.ReferenceAxis1.horizontal.MinNormaliser : -0.5f);
-            computeShader.SetFloat("_MaxNormX", vis.ReferenceAxis1.horizontal ? vis.ReferenceAxis1.horizontal.MaxNormaliser : 0.5f);
-            computeShader.SetFloat("_MinNormY", vis.ReferenceAxis1.vertical ?  vis.ReferenceAxis1.vertical.MinNormaliser : -0.5f);
-            computeShader.SetFloat("_MaxNormY", vis.ReferenceAxis1.vertical ? vis.ReferenceAxis1.vertical.MaxNormaliser : 0.5f);
-            computeShader.SetFloat("_MinNormZ", vis.ReferenceAxis1.depth ? vis.ReferenceAxis1.depth.MinNormaliser : -0.5f);
-            computeShader.SetFloat("_MaxNormZ", vis.ReferenceAxis1.depth ? vis.ReferenceAxis1.depth.MaxNormaliser : 0.5f);
+            computeShader.SetFloat("_MinNormX", targetVis.ReferenceAxis1.horizontal ? targetVis.ReferenceAxis1.horizontal.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormX", targetVis.ReferenceAxis1.horizontal ? targetVis.ReferenceAxis1.horizontal.MaxNormaliser : 0.5f);
+            computeShader.SetFloat("_MinNormY", targetVis.ReferenceAxis1.vertical ?  targetVis.ReferenceAxis1.vertical.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormY", targetVis.ReferenceAxis1.vertical ? targetVis.ReferenceAxis1.vertical.MaxNormaliser : 0.5f);
+            computeShader.SetFloat("_MinNormZ", targetVis.ReferenceAxis1.depth ? targetVis.ReferenceAxis1.depth.MinNormaliser : -0.5f);
+            computeShader.SetFloat("_MaxNormZ", targetVis.ReferenceAxis1.depth ? targetVis.ReferenceAxis1.depth.MaxNormaliser : 0.5f);
 
             //computeShader.SetFloat("_MinX", vis.xDimension.minFilter);
             //computeShader.SetFloat("_MaxX", vis.xDimension.maxFilter);
@@ -1097,11 +1111,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             // Run the compute shader
             computeShader.Dispatch(kernelComputeBrushTexture, Mathf.CeilToInt(texSize / 32f), Mathf.CeilToInt(texSize / 32f), 1);
 
-            //foreach (var view in vis.theVisualizationObject.viewList)
-            //{
+        //foreach (var view in vis.theVisualizationObject.viewList)
+        //{
+        var views = GameObject.FindGameObjectsWithTag("View");
 
+        foreach (var view in views)
+        {
             // we should pass this renderTexture to the material of the viewObject (I think)
-                var viewMaterial = view.GetComponent<Renderer>().material;
+            var viewMaterial = view.GetComponent<Renderer>().sharedMaterial;
                 viewMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
                 viewMaterial.SetFloat("_DataWidth", texSize);
                 viewMaterial.SetFloat("_DataHeight", texSize);
@@ -1112,20 +1129,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             hasFreeBrushReset = true;
         }
 
-        //foreach (var linkingVis in brushedLinkingVisualisations)
-        //{
-        //    linkingVis.View.BigMesh.SharedMaterial.SetTexture("_BrushedTexture", brushedIndicesTexture);
-        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataWidth", texSize);
-        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_DataHeight", texSize);
-        //    linkingVis.View.BigMesh.SharedMaterial.SetFloat("_ShowBrush", Convert.ToSingle(showBrush));
-        //    linkingVis.View.BigMesh.SharedMaterial.SetColor("_BrushColor", brushColor);
-        //}
     }
 
     /// <summary>
     /// Updates the brushedIndices list with the currently brushed indices. A value of 1 represents brushed, -1 represents not brushed (boolean values are not supported).
     /// </summary>
-    private void UpdateBrushedIndices()
+    private static void UpdateBrushedIndices()
     {
         // Wait for request to finish
         if (brushedIndicesRequest.done)
@@ -1155,6 +1164,9 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
         if (brushedIndicesBuffer != null)
             brushedIndicesBuffer.Release();
+        
+        if (manualBrushIndicesBuffer != null)
+            manualBrushIndicesBuffer.Release();
     }
 
     private void OnApplicationQuit()
@@ -1167,6 +1179,9 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
         if (brushedIndicesBuffer != null)
             brushedIndicesBuffer.Release();
+
+        if (manualBrushIndicesBuffer != null)
+            manualBrushIndicesBuffer.Release();
     }
 
 }

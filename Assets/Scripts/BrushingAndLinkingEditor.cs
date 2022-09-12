@@ -18,7 +18,7 @@ public class BrushingAndLinkingEditor: Editor
         if(GUILayout.Button("Generate Random Indexes"))
         {
             //BrushingAndLinking.BrushVisualization(generateRandomDataIndexes());
-            brushingAndLinkingScript.doManualBrushing(generateIntRandomDataIndexes());
+            BrushingAndLinking.doManualBrushing(generateIntRandomDataIndexes());
         }
     }
 

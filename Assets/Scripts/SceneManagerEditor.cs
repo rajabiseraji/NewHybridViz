@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 using System;
 
 [CustomEditor(typeof(SceneManager))]
@@ -45,8 +46,37 @@ public class SceneManagerEditor : Editor
         {
             target.AddNewFilterToFilterBubbles();
         }
+
+        if (GUILayout.Button("Generate Random Indexes"))
+        {
+            //BrushingAndLinking.BrushVisualization(generateRandomDataIndexes());
+            BrushingAndLinking.doManualBrushing(generateIntRandomDataIndexes());
+        }
     }
 
+    public int[] generateIntRandomDataIndexes()
+    {
+        var rand = new System.Random();
+        int[] randomIndexes = new int[SceneManager.Instance.dataObject.DataPoints];
+        int[] randomForSelection = new int[30];
 
+        for (int k = 0; k < randomForSelection.Length; k++)
+        {
+            randomForSelection[k] = rand.Next(0, SceneManager.Instance.dataObject.DataPoints);
+        }
+        for (int i = 0; i < SceneManager.Instance.dataObject.DataPoints; i++)
+        {
+
+            if (randomForSelection.Any(x => x == i))
+            {
+                randomIndexes[i] = 1;
+            }
+            else
+            {
+                randomIndexes[i] = 0;
+            }
+        }
+        return randomIndexes;
+    }
 
 }
