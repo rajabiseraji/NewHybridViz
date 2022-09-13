@@ -48,6 +48,8 @@ namespace Min_Max_Slider
 		public bool wholeNumbers;
 		[SerializeField] public float minValue = 0;
 		[SerializeField] public float maxValue = 100;
+		
+		[SerializeField] public bool hasCustomText = false;
 
 		public MinMaxValues Values { get { return new MinMaxValues(minValue, maxValue, minLimit, maxLimit); } }
 
@@ -128,6 +130,7 @@ namespace Min_Max_Slider
 			onValueChanged.Invoke(this.minValue, this.maxValue);
 		}
 
+		
 		public void SetValueLowImpact(float minValue, float maxValue) {
 			this.minValue = wholeNumbers ? Mathf.RoundToInt(minValue) : minValue;
 			this.maxValue = wholeNumbers ? Mathf.RoundToInt(maxValue) : maxValue;
@@ -163,13 +166,20 @@ namespace Min_Max_Slider
 
 		private void UpdateText()
 		{
-
-			minText = minValue.ToString(textFormat);
-			maxText = maxValue.ToString(textFormat);
+			if(!hasCustomText)
+            {
+				minText = minValue.ToString(textFormat);
+				maxText = maxValue.ToString(textFormat);
 			
+				if (minTextGo) minTextGo.GetComponent<Text>().text = minText;
+				if (maxTextGo) maxTextGo.GetComponent<Text>().text = maxText;	
+            }
+		}
+
+		public void UpdateText(string minText, string maxText)
+		{
 			if (minTextGo) minTextGo.GetComponent<Text>().text = minText;
 			if (maxTextGo) maxTextGo.GetComponent<Text>().text = maxText;
-			
 		}
 
 		private void UpdateMiddleGraphic()

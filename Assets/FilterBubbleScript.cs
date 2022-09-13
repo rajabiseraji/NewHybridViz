@@ -163,13 +163,18 @@ public class FilterBubbleScript : MonoBehaviour
             // Debug.Log("I'm adding axis + " + axis.name + " and slider is: " + clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>());
             // Debug.Log("I'm adding axis + " + axis.name + " and MIN LIMIT is: " + minLimit);
             // Debug.Log("I'm adding axis + " + axis.name + " and MAX LIMIT is: " + maxLimit);
-            
+
+            var typ = SceneManager.Instance.dataObject.TypeDimensionDictionary1[axis.axisId];
+
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetLimits(minLimit, maxLimit);
+            clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().hasCustomText = (typ == "string");
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().SetValues(minLimit, maxLimit);
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().minValue = -0.5f;
             // clonedSlider.GetComponent<UnityEngine.UI.Slider>().maxValue = 0.5f;
 
             clonedSlider.GetComponentInChildren<Text>().text = SceneManager.Instance.dataObject.Identifiers[axisId];
+
+
 
             // The min max slider has a minValue and maxValue as the slider parts
             clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>().onValueChanged.AddListener(delegate {OnTestSliderChanged(clonedSlider.GetComponent<Min_Max_Slider.MinMaxSlider>(), axisId);});
@@ -324,6 +329,18 @@ public class FilterBubbleScript : MonoBehaviour
         /* VERY IMPORTANT */
         /* VERY IMPORTANT */
         /* VERY IMPORTANT */
+
+        var AttributeRange = SceneManager.Instance.dataObject.DimensionsRange[axisAsFilterId];
+        float minValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, slider.GetPercentageValues()[0]);
+        float maxValue = Mathf.Lerp(AttributeRange.x, AttributeRange.y, slider.GetPercentageValues()[1]);
+
+        float nearestMinValue = UtilMath.ClosestTo(SceneManager.Instance.dataObject.TextualDimensions.Keys.ToList(), minValue);
+        float nearestMaxValue = UtilMath.ClosestTo(SceneManager.Instance.dataObject.TextualDimensions.Keys.ToList(), maxValue);
+
+        string minimumValueDimensionLabeltext = SceneManager.Instance.dataObject.TextualDimensions[nearestMinValue].ToString();
+        string maximumValueDimensionLabeltext = SceneManager.Instance.dataObject.TextualDimensions[nearestMaxValue].ToString();
+
+        slider.UpdateText(minimumValueDimensionLabeltext, maximumValueDimensionLabeltext);
 
 
 

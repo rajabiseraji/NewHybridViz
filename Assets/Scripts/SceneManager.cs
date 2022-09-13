@@ -563,7 +563,7 @@ public class SceneManager : MonoBehaviour
     public void AddNewFilterToFilterBubbles()
     {
          
-        debugFilters.Add(new AttributeFilter(3, "horsepower", 0.2f, 0.5f, -0.5f, 0.5f)); // horserpower;
+        debugFilters.Add(new AttributeFilter(3, "Result", 0.2f, 0.5f, -0.5f, 0.5f)); // horserpower;
         minFilter = debugFilters[0].minFilter;
         maxFilter = debugFilters[0].maxFilter;
 
