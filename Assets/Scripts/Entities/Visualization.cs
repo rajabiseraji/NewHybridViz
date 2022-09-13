@@ -1149,14 +1149,31 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     private void carryOverPreviousBrushing()
     {
+        
 
-        var brushedIndices = BrushingAndLinking.brushedIndices;
+        //if (
+        //    BrushingAndLinking.GetBrushedIndices() != null && 
+        //    BrushingAndLinking.brushedIndices.Count() != 0 && 
+        //    BrushingAndLinking.brushedIndices.Any(x => x != -1)
+        //    )
+        //{
+        //    brushedIndices = BrushingAndLinking.brushedIndices.ToArray();
+        //} 
         // check if we have anything that is already brushed, then brush it in this new vis, too
-        if (!hasBeenBrushedByScript && viewType != ViewType.Histogram && brushedIndices != null && brushedIndices.Count() != 0)
+        if (!hasBeenBrushedByScript && viewType != ViewType.Histogram)
         {
-            print("script is brushing now!");
+            int[] brushedIndices = BrushingAndLinking.GetBrushedIndices().ToArray();
+
             hasBeenBrushedByScript = true;
-            BrushingAndLinking.doManualBrushing(brushedIndices.ToArray());
+            if(brushedIndices != null && brushedIndices.Count() != 0)
+            {
+                print("script is brushing now!");
+                BrushingAndLinking.doManualBrushing(brushedIndices.ToArray());
+            } else
+            {
+                print("script is EMPTY brushing now!");
+                BrushingAndLinking.doManualBrushing(new int[0]);
+            }
             //BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
         }
 

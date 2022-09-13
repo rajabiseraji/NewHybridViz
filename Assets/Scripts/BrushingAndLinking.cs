@@ -894,9 +894,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
                     InitialiseBuffersAndTextures(SceneManager.Instance.dataObject.DataPoints);
                 }
 
-                manualBrushIndicesBuffer = new ComputeBuffer(toBeBrushed.Length, sizeof(int));
-                manualBrushIndicesBuffer.SetData(toBeBrushed);
-                computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
+                if(toBeBrushed.Length > 0)
+                {
+                    manualBrushIndicesBuffer = new ComputeBuffer(toBeBrushed.Length, sizeof(int));
+                    manualBrushIndicesBuffer.SetData(toBeBrushed);
+                    computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
+                }
 
                 computeShader.SetBool("IsManualBrushing", true);
 
@@ -927,11 +930,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
     /// Returns a list with all indices - if index > 0, index is brushed. It's not otherwise
     /// </summary>
     /// <returns></returns>
-    public List<int> GetBrushedIndices()
+    public static List<int> GetBrushedIndices()
     {
 
-        UpdateBrushedIndices();
+        //UpdateBrushedIndices();
         List<int> indicesBrushed = new List<int>();
+        if (brushedIndices == null || brushedIndices.Count() == 0)
+            return indicesBrushed;
+
 
         for (int i = 0; i < brushedIndices.Count; i++)
         {
