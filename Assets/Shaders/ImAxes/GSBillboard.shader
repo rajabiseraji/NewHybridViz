@@ -23,6 +23,8 @@ Shader "Custom/Outline Dots"
 		_tr("Top Right", Vector) = (1,1,0,0)
 		_bl("Bottom Left", Vector) = (-1,-1,0,0)
 		_br("Bottom Right", Vector) = (1,-1,0,0)
+		_MySrcMode("_SrcMode", Float) = 5
+		_MyDstMode("_DstMode", Float) = 10
 	}
 
 	SubShader 
@@ -32,7 +34,7 @@ Shader "Custom/Outline Dots"
 			Name "Onscreen geometry"
 			// Tags { "RenderType"="Transparent" }
 			//Blend func : Blend Off : turns alpha blending off
-			Blend SrcAlpha OneMinusSrcAlpha
+			Blend [_MySrcMode][_MyDstMode]
 			Cull Off 
 			Lighting Off 
 			LOD 200
@@ -341,62 +343,62 @@ Shader "Custom/Outline Dots"
 				}
 
 				// Fragment Shader -----------------------------------------------
-				float4 FS_Main(FS_INPUT input) : SV_Target0
+				f_output FS_Main(FS_INPUT input)
 				{
-					// f_output output;
+					f_output output;//
 
-					// UNITY_INITIALIZE_OUTPUT(f_output, output);
+					UNITY_INITIALIZE_OUTPUT(f_output, output);
 					UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 					//FragmentOutput fo = (FragmentOutput)0;
 					float4 BRUSH_COLOR = float4(1.0f, 0.0f, 0.0f, 1.0f);
 					
 					// Sample _MainTex for colour which creates the circular dot, changing colour depending if it is brushed
-                    // if (input.isBrushed > 0 )
-                    //     output.color = tex2D(_MainTex, input.tex0.xy) * BrushColor;
-                    // else
-                    //     output.color = tex2D(_MainTex, input.tex0.xy) * input.color;;
+                     if (input.isBrushed > 0 )
+                         output.color = tex2D(_MainTex, input.tex0.xy) * BRUSH_COLOR;
+                     else
+                         output.color = tex2D(_MainTex, input.tex0.xy) * input.color;;
 
-                    // output.depth = output.color.a > 0.5 ? input.pos.z : 0;
+                     output.depth = output.color.a > 0.5 ? input.pos.z : 0;
 
-                    // return output;
+                     return output;
 
-					float dx = input.tex0.x - 0.5f;
-					float dy = input.tex0.y - 0.5f;
-
-					float dt = dx * dx + dy * dy;
-					
-					if(input.color.w == 0)
-					{
-						//if( dt <= 0.2f)
-						//	return float4(0.1,0.1,0.1,1.0);
-						//else
-						//	if(dx * dx + dy * dy <= 0.25f)
-						//	return float4(0.0, 0.0, 0.0, 1.0);
-						//	else
-						//	{
-							discard;
-							return float4(0.0, 0.0, 0.0, 0.0);
-//							}
-					}
-					else
-					{
-						if( dt <= 0.2f)
-						{
-							if(input.isBrushed==1.0)
-								return float4(1.0,0.0,0.0,1.0);
-							else
-								return float4(input.color.x-dt*0.15,input.color.y-dt*0.15,input.color.z-dt*0.15,0.8);
-						}// float4(input.color.x-dt*0.25,input.color.y-dt*0.25,input.color.z-dt*0.25,1.0);
-						else
-						if(dx * dx + dy * dy <= 0.21f)
-							return float4(0.0, 0.0, 0.0, 1.0);
-						else
-						{
-							discard;	
-							return float4(0.1, 0.1, 0.1, 1.0);
-						}
-					}
+//					float dx = input.tex0.x - 0.5f;
+//					float dy = input.tex0.y - 0.5f;
+//
+//					float dt = dx * dx + dy * dy;
+//					
+//					if(input.color.w == 0)
+//					{
+//						//if( dt <= 0.2f)
+//						//	return float4(0.1,0.1,0.1,1.0);
+//						//else
+//						//	if(dx * dx + dy * dy <= 0.25f)
+//						//	return float4(0.0, 0.0, 0.0, 1.0);
+//						//	else
+//						//	{
+//							discard;
+//							return float4(0.0, 0.0, 0.0, 0.0);
+////							}
+//					}
+//					else
+//					{
+//						if( dt <= 0.2f)
+//						{
+//							if(input.isBrushed==1.0)
+//								return float4(1.0,0.0,0.0,1.0);
+//							else
+//								return float4(input.color.x-dt*0.15,input.color.y-dt*0.15,input.color.z-dt*0.15,0.8);
+//						}// float4(input.color.x-dt*0.25,input.color.y-dt*0.25,input.color.z-dt*0.25,1.0);
+//						else
+//						if(dx * dx + dy * dy <= 0.21f)
+//							return float4(0.0, 0.0, 0.0, 1.0);
+//						else
+//						{
+//							discard;	
+//							return float4(0.1, 0.1, 0.1, 1.0);
+//						}
+//					}
 					
 					//return fo;
 				}
