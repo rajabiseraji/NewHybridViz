@@ -1206,21 +1206,45 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         print("im destroying " + axesNewCount);
         Sequence seq = DOTween.Sequence();
-        gameObject.layer = LayerMask.NameToLayer("TransparentFX");
         seq.Append(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-        for (int i = 0; i < axesNewCount; i++)
+        foreach (var axis in axes)
         {
-            axes[i].gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+            seq.Join(axis.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        }
+        gameObject.layer = LayerMask.NameToLayer("TransparentFX");
+
+        //seq.Append(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+        //for (int i = 0; i < axesNewCount; i++)
+        //{
+            //seq.Join(axes[i].transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
+            //axes[i].gameObject.layer = LayerMask.NameToLayer("TransparentFX");
 
             
-            seq.Join(axes[i].transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.OutSine));
-            seq.Join(transform.DOMoveY(-1000.0f, 0.5f).SetEase(Ease.InBack));
-            seq.AppendInterval(5f);
+            //seq.Join(transform.DOMoveY(-1000.0f, 0.5f).SetEase(Ease.InBack));
+            //seq.AppendInterval(5f);
             seq.AppendCallback(() => {
-                Destroy(axes[i].gameObject);
-                SceneManager.Instance.sceneAxes.Remove(axes[i]);
+                if (axes.Count() == 0)
+                {
+                    gameObject.SetActive(false);
+                    //Destroy(gameObject);
+                    return;
+                }
+
+                foreach (var axis in axes)
+                {
+                    transform.Translate(-1000f * Vector3.down);
+                    print("deactivating axis " + axis.name + " " + Time.realtimeSinceStartup);
+                    axis.gameObject.SetActive(false);
+                    SceneManager.Instance.sceneAxes.Remove(axis);
+                    Destroy(axis.gameObject);
+                }
+                gameObject.SetActive(false);
+                //Destroy(gameObject);
+
+                //axes[i].gameObject.SetActive(false);
+                //gameObject.SetActive(false);
             });
-        }
+        //}
         //axes.Clear();
         // The ImAxis Recognizer script probably takes care of it
 

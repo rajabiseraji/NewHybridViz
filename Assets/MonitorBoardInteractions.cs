@@ -17,8 +17,8 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
     public bool isBeingGrabbed = false;
     public bool isControllerInsideMonitor = false;
 
-    public GameObject DropPromptPrefab = null;
-    public GameObject DropPromptGameObject = null;
+    public GameObject DropPromptPrefab;
+    public GameObject DropPromptGameObject;
 
     public WsClient WebsocketManager;
 
@@ -238,20 +238,20 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
 
 
-        // Here's when we call functions that are to be called when the controller is not releasing anymore
-        if (grabbingController == null || !grabbingController.gripping)
-        {
-            // This part is to handle what happens when we're grabbing something from the monitor to the outside
-            if(isBeingGrabbed)
-            {
-                OnRelease(grabbingController);
-            } 
-        }
+        //// Here's when we call functions that are to be called when the controller is not releasing anymore
+        //if (grabbingController == null || !grabbingController.gripping)
+        //{
+        //    // This part is to handle what happens when we're grabbing something from the monitor to the outside
+        //    if(isBeingGrabbed)
+        //    {
+        //        OnRelease(grabbingController);
+        //    } 
+        //}
 
-        if (isBeingGrabbed && SceneManager.Instance.extrusionWasEmpty)
-        {
-            OnRelease(grabbingController);
-        }
+        //if (isBeingGrabbed && SceneManager.Instance.extrusionWasEmpty)
+        //{
+        //    OnRelease(grabbingController);
+        //}
 
     }
 
