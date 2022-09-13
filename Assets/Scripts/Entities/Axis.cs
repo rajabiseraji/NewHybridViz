@@ -188,8 +188,8 @@ public class Axis : MonoBehaviour, Grabbable {
 
         if (type == "float")
         {
-            minimumValueDimensionLabel.text = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f).ToString("0.000");
-            maximumValueDimensionLabel.text = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f).ToString("0.000");
+            minimumValueDimensionLabel.text = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MinNormaliser + 0.5f).ToString("N");
+            maximumValueDimensionLabel.text = Mathf.Lerp(AttributeRange.x, AttributeRange.y, MaxNormaliser + 0.5f).ToString("N");
         }
 
         else if (type == "string")
@@ -332,7 +332,7 @@ public class Axis : MonoBehaviour, Grabbable {
 
             } else
             {
-                newTickLabel.GetComponent<TextMesh>().text = tickValue.ToString();
+                newTickLabel.GetComponent<TextMesh>().text = tickValue.ToString("N");
             }
         }
     }

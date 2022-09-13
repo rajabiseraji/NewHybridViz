@@ -244,7 +244,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             if (codapIndexes.Contains(i))
                 newIndexes[i] = 1;
             else
-                newIndexes[i] = 0;
+                newIndexes[i] = -1;
         }
 
 
@@ -896,6 +896,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
                 if(toBeBrushed.Length > 0)
                 {
+                    brushedIndices = toBeBrushed.ToList();
+
                     manualBrushIndicesBuffer = new ComputeBuffer(toBeBrushed.Length, sizeof(int));
                     manualBrushIndicesBuffer.SetData(toBeBrushed);
                     computeShader.SetBuffer(kernelComputeBrushTexture, "manualBrushingIndicesBuffer", manualBrushIndicesBuffer);
@@ -1155,6 +1157,8 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
                 //    brushedIndices.Add()
                 //}
+                //doManualBrushing(brushedIndices.ToArray());
+
                 GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendBrushingMsgToDesktop(1, brushedIndices.ToArray());
 
             }

@@ -24,6 +24,7 @@ public class DetailsOnDemand : MonoBehaviour
     string xDimension = "";
     string yDimension = "";
     string zDimension = "";
+    string filterDimension = "";
 
     Vector3 poitionInWorld = Vector3.one;
     System.Tuple<Vector3, Vector3> tuplePCPWorld;
@@ -162,7 +163,7 @@ public class DetailsOnDemand : MonoBehaviour
     string StringValFromDataObj(DataBinding.DataObject dataObj, string dimensionName, int index)
     {
         float xval = dataObj.getOriginalDimension(dimensionName)[index];
-        string xvalstr = xval.ToString();
+        string xvalstr = xval.ToString("N");
         if (dataObj.TypeDimensionDictionary1[dataObj.dimensionToIndex(dimensionName)] == "string")
         {
             xvalstr = dataObj.TextualDimensions[xval];
@@ -170,9 +171,21 @@ public class DetailsOnDemand : MonoBehaviour
         return xvalstr;
     }
 
+
+    //string StringValFromDataObj(DataBinding.DataObject dataObj, int dimensionIndex, int index)
+    //{
+    //    float xval = dataObj.getOriginalDimension(dimensionName)[index];
+    //    string xvalstr = xval.ToString();
+    //    if (dataObj.TypeDimensionDictionary1[dataObj.dimensionToIndex(dimensionName)] == "string")
+    //    {
+    //        xvalstr = dataObj.TextualDimensions[xval];
+    //    };
+    //    return xvalstr;
+    //}
+
     GameObject cube;
 
-    public void OnDetailOnDemand2D()
+    public void OnDetailOnDemand2D(string[] filterNames)
     {
         textMesh.SetActive(true);
         labelDetails.SetActive(true);
@@ -300,15 +313,41 @@ public class DetailsOnDemand : MonoBehaviour
 
                 var dataObj = SceneManager.Instance.dataObject;
 
+
                 string xvalstr = StringValFromDataObj(dataObj, xDimension, index);
                 string yvalstr = StringValFromDataObj(dataObj, yDimension, index);
+                string filterText1 = "";
+                string filterText2 = "";
+                if (filterNames.Length > 0)
+                {
+                    filterText1 = filterNames[0] + ": " + StringValFromDataObj(dataObj, filterNames[0], index);
+                    if (filterNames.Length > 1)
+                        filterText2 = filterNames[1] + ": " + StringValFromDataObj(dataObj, filterNames[1], index);
+                }
 
-                values = string.Format(@"{0}:{1} {2} {3}:{4}",
-                    xDimension,
-                    xvalstr,
+                var colorAxisId = visualizationReference.visualizationColorAxisId;
+                var sizeAxisId = visualizationReference.visualizationSizeAxisId;
+
+                string colorAttributeStr = colorAxisId != -1 ? StringValFromDataObj(dataObj, dataObj.Identifiers[colorAxisId], index) : "";
+                string sizeAttributeStr = sizeAxisId != -1 ? StringValFromDataObj(dataObj, dataObj.Identifiers[sizeAxisId], index): "";
+
+                colorAttributeStr = colorAxisId != -1 ? dataObj.Identifiers[colorAxisId] + ": " + colorAttributeStr : "";
+                sizeAttributeStr = sizeAxisId != -1 ? dataObj.Identifiers[sizeAxisId] + ": " + sizeAttributeStr : "";
+
+                values = string.Format(@"{0}:{1} {2} {3}:{4} {5} {6} {7} {8} {9} {10} {11} {12}",
+                    xDimension, xvalstr,
                     Environment.NewLine,
-                    yDimension,
-                    yvalstr);
+                    yDimension, yvalstr,
+                    Environment.NewLine,
+                    filterText1,
+                    Environment.NewLine,
+                    filterText2,
+                    Environment.NewLine,
+                    colorAttributeStr,
+                    Environment.NewLine,
+                    sizeAttributeStr
+                );
+
 
                
 
@@ -400,7 +439,7 @@ public class DetailsOnDemand : MonoBehaviour
     GameObject tempTransformObject = null;
     GameObject dod3DCube = null;
 
-    public void OnDetailOnDemand3D()
+    public void OnDetailOnDemand3D(string[] filterNames)
     {
         textMesh.SetActive(true);
         string[] dimensionVisualisation = transform.name.Split('-');
@@ -542,13 +581,39 @@ public class DetailsOnDemand : MonoBehaviour
                 string xvalstr = StringValFromDataObj(dataObj, xDimension, index);
                 string yvalstr = StringValFromDataObj(dataObj, yDimension, index);
                 string zvalstr = StringValFromDataObj(dataObj, zDimension, index);
+                string filterText1 = "";
+                string filterText2 = "";
+                if (filterNames.Length > 0)
+                {
+                    filterText1 = filterNames[0] + ": " + StringValFromDataObj(dataObj, filterNames[0], index);
+                    if(filterNames.Length > 1)
+                        filterText2 = filterNames[1] + ": " + StringValFromDataObj(dataObj, filterNames[1], index);
+                }
 
-                values = string.Format(@"{0}:{1} {2} {3}:{4} {5} {6}:{7}",
+                var colorAxisId = visualizationReference.visualizationColorAxisId;
+                var sizeAxisId = visualizationReference.visualizationSizeAxisId;
+
+                string colorAttributeStr = colorAxisId != -1 ? StringValFromDataObj(dataObj, dataObj.Identifiers[colorAxisId], index) : "";
+                string sizeAttributeStr = sizeAxisId != -1 ? StringValFromDataObj(dataObj, dataObj.Identifiers[sizeAxisId], index) : "";
+
+                colorAttributeStr = colorAxisId != -1 ? dataObj.Identifiers[colorAxisId] + ": " + colorAttributeStr : "";
+                sizeAttributeStr = sizeAxisId != -1 ? dataObj.Identifiers[sizeAxisId] + ": " + sizeAttributeStr : "";
+
+                values = string.Format(@"{0}:{1} {2} {3}:{4} {5} {6}:{7} {8} {9} {10} {11} {12} {13} {14} {15}",
                     xDimension, xvalstr,
                     Environment.NewLine,
                     yDimension, yvalstr,
                     Environment.NewLine,
-                    zDimension, zvalstr);
+                    zDimension, zvalstr,
+                    Environment.NewLine,
+                    filterText1,
+                    Environment.NewLine,
+                    filterText2,
+                    Environment.NewLine,
+                    colorAttributeStr,
+                    Environment.NewLine,
+                    sizeAttributeStr
+                );
 
                 // this is between -.5 and 0.5
                 var foundVertex = vertices[index];

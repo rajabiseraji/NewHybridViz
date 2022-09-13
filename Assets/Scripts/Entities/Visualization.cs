@@ -1365,7 +1365,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         //OnAttributeChanged(a.axisId);
         // TODO: make it so that it's only for scatterplot views!
         updateViewColors(a.axisId);
-        OnAttributeChanged(1);
+        //OnAttributeChanged(1);
 
         legendGameObject.SetActive(true);
 
@@ -2219,9 +2219,9 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 DetailsOnDemandComponent.setPointerPosition(worldPosition);
                 DetailsOnDemandComponent.setLocalPointerPosition(localPosition);
                 if (is3D) 
-                    DetailsOnDemandComponent.OnDetailOnDemand3D(); 
+                    DetailsOnDemandComponent.OnDetailOnDemand3D(AttributeFilters.Select(filter => filter.Attribute).ToArray()); 
                 else 
-                    DetailsOnDemandComponent.OnDetailOnDemand2D();
+                    DetailsOnDemandComponent.OnDetailOnDemand2D(AttributeFilters.Select(filter => filter.Attribute).ToArray());
             }
             detailOnDemandPosition = worldPosition;// sphereWandPostion;
 

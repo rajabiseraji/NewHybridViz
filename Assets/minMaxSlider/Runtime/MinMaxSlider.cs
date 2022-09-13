@@ -37,7 +37,7 @@ namespace Min_Max_Slider
 		[SerializeField] private GameObject minTextGo = null;
 		[SerializeField] private GameObject maxTextGo = null;
 		[SerializeField] private string maxText = null;
-		[SerializeField] private string textFormat = "0";
+		[SerializeField] private string textFormat = "N";
 
 		// values
 		[Header("Limits")]

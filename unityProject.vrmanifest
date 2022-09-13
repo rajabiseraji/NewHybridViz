@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.imaxes.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Projects\\NewHybridVizUPDATED\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\root579\\Downloads\\ImAxes2020ToUseForPaperScreenshots\\NewHybridViz2020ForSoloStudy\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "ImAxes [Testing]"
