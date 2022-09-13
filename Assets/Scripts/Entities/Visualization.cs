@@ -1143,26 +1143,25 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
         }
 
         // TODO: enable this again
-        //carryOverPreviousBrushing();
+        carryOverPreviousBrushing();
 
     }
 
     private void carryOverPreviousBrushing()
     {
-        
 
-        //if (
-        //    BrushingAndLinking.GetBrushedIndices() != null && 
-        //    BrushingAndLinking.brushedIndices.Count() != 0 && 
-        //    BrushingAndLinking.brushedIndices.Any(x => x != -1)
-        //    )
-        //{
-        //    brushedIndices = BrushingAndLinking.brushedIndices.ToArray();
-        //} 
+
         // check if we have anything that is already brushed, then brush it in this new vis, too
         if (!hasBeenBrushedByScript && viewType != ViewType.Histogram)
         {
-            int[] brushedIndices = BrushingAndLinking.GetBrushedIndices().ToArray();
+            int[] brushedIndices = new int[0];
+            if (
+                BrushingAndLinking.brushedIndices != null &&
+                BrushingAndLinking.brushedIndices.Count() != 0
+                )
+            {
+                brushedIndices = BrushingAndLinking.brushedIndices.ToArray();
+            }
 
             hasBeenBrushedByScript = true;
             if(brushedIndices != null && brushedIndices.Count() != 0)
@@ -1172,7 +1171,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             } else
             {
                 print("script is EMPTY brushing now!");
-                BrushingAndLinking.doManualBrushing(new int[0]);
+                BrushingAndLinking.doManualBrushing(Enumerable.Repeat<int>(-1, SceneManager.Instance.dataObject.DataPoints).ToArray<int>());
             }
             //BrushingAndLinking.BrushVisualization(BrushingAndLinking.brushedIndexes);
         }

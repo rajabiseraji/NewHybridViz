@@ -1149,6 +1149,12 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             if (!brushedIndicesRequest.hasError)
             {
                 brushedIndices = brushedIndicesRequest.GetData<int>().ToList();
+                //brushedIndices = computeShaderBrushedOutput.Where(x => x != -1).ToList();
+                //for(int i = 0; i < computeShaderBrushedOutput.Count(); i++)
+                //{
+
+                //    brushedIndices.Add()
+                //}
                 GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendBrushingMsgToDesktop(1, brushedIndices.ToArray());
 
             }

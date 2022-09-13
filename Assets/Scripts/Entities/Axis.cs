@@ -12,6 +12,7 @@ using System.IO;
 public class Axis : MonoBehaviour, Grabbable {
 
     public const float AXIS_ROD_LENGTH = 0.2660912f;
+    public const float AXIS_ROD_CUBE_DIAGONAL = 0.137260f;
     public const float AXIS_ROD_WIDTH = 0.02059407f;
     public const float AXIS_ROD_DEPTH = 0.02059408f;
     // for some stupid reason, the designers went with a box for the rod that is scaled as

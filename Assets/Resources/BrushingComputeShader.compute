@@ -192,7 +192,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 			NormaliseValue(dataBuffer[idx].z, _MinNormZ, _MaxNormZ, 0, depth));*/
 
 		if (IsManualBrushing) {
-			if (!manualBrushingIndicesBuffer[idx]) {
+			if (!manualBrushingIndicesBuffer[idx] || manualBrushingIndicesBuffer[idx] < 0) {
 				Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);
 			}
 			else {
