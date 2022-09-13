@@ -238,20 +238,20 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // meaning that the desktop brush will override the brush from Unity
         // 1- first we get the number of indices that we need to generate from scatterplot2DObject.GetComponentInChildren<MeshFilter>().mesh.vertices or Scatterplot 3D
         // this number is the same as the number of data points, so let's go with that! 
-        var newIndexes = new Vector3[SceneManager.Instance.dataObject.DataPoints];
+        var newIndexes = new int[SceneManager.Instance.dataObject.DataPoints];
         for(int i = 0; i < newIndexes.Length; i++)
         {
             if (codapIndexes.Contains(i))
-                newIndexes[i] = new Vector3(1f, 0, 0);
+                newIndexes[i] = 1;
             else
-                newIndexes[i] = new Vector3(0, 0, 0);
+                newIndexes[i] = 0;
         }
 
 
         // then call BrushVisualization with ApplyDekstopBrushing
         // there should be a flag that we set here that shows the initiator of the brush was codap
         // if that flag is ture, we shouldn't send a websocket msg from unity to CODAP again!
-        BrushVisualization(newIndexes, true);
+        BrushingAndLinking.doManualBrushing(newIndexes);
     }
 
 
@@ -1143,11 +1143,14 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
             if (!brushedIndicesRequest.hasError)
             {
                 brushedIndices = brushedIndicesRequest.GetData<int>().ToList();
+                GameObject.FindGameObjectWithTag("WebSocketManager").GetComponent<WsClient>().SendBrushingMsgToDesktop(1, brushedIndices.ToArray());
+
             }
 
             // Dispatch again
             computeShader.Dispatch(kernelComputeBrushedIndices, Mathf.CeilToInt(brushedIndicesBuffer.count / 32f), 1, 1);
             brushedIndicesRequest = AsyncGPUReadback.Request(brushedIndicesBuffer);
+
         }
     }
 

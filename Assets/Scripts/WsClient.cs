@@ -136,6 +136,13 @@ public class WsClient : MonoBehaviour
         print("brushing shit to dekstop!");
         var msg = new WebSocketMsg(id, "brushing stuff", "BRUSHTODESKTOP", brushedIndexes);
         SendMsgToDesktop(msg);
+    }    
+    
+    public void SendBrushingMsgToDesktop(int id, int[] brushedIndexes)
+    {
+        print("brushing shit to dekstop!");
+        var msg = new WebSocketMsg(id, "brushing stuff", "BRUSHTODESKTOP", brushedIndexes);
+        SendMsgToDesktop(msg);
     }
 }
 
@@ -237,6 +244,29 @@ public class WebSocketMsg
         for(int i = 0; i < brushedIndexes.Length; i++)
         {
             if (brushedIndexes[i].x == 1f)
+                indexList.Add(i);
+        }
+
+        indexes = indexList.ToArray();
+    }
+    
+    public WebSocketMsg
+        (
+            int id,
+            string text,
+            string typeOfMessage, // BRUSH  
+            int[] brushedIndexes
+        )
+    {
+        this.id = id;
+        this.text = text;
+        this.typeOfMessage = typeOfMessage;
+
+        // convert brushed indexes into normal indexes
+        var indexList = new List<int>();
+        for (int i = 0; i < brushedIndexes.Length; i++)
+        {
+            if (brushedIndexes[i] == 1)
                 indexList.Add(i);
         }
 
