@@ -84,10 +84,10 @@ public class SceneManager : MonoBehaviour
         if (GameObject.FindGameObjectsWithTag("MonitorBoard").Count() != 0)
         {
             mainMonitor = GameObject.FindGameObjectsWithTag("MonitorBoard")[0].GetComponent<MonitorBoardInteractions>();
-            print("found the monitor");
+            // print("found the monitor");
         }
         else
-            print("didn't find the monitor");
+            // print("didn't find the monitor");
 
         Debug.Assert(AxisPlaceholderObject != null, "Axis Placeholder shouldnb't be null");
         Debug.Assert(dataShelfPanel != null, "Data Shelf panel shouldnb't be null");
@@ -175,7 +175,7 @@ public class SceneManager : MonoBehaviour
        
         if(brushedIndexes.Length > 0)
         {
-            print("in scenemanager: asking for brushing");
+            // print("in scenemanager: asking for brushing");
             BrushingAndLinking.ApplyDesktopBrushing(brushedIndexes);
             brushedIndexes = new int[0];
         }
@@ -199,7 +199,7 @@ public class SceneManager : MonoBehaviour
     {
         if (componentList.Length > 0)
         {
-            print("in scenemanager: asking for components");
+            // print("in scenemanager: asking for components");
 
             // here we should call the monitorboard interaction thingy to then create the cubes!
             if (mainMonitor == null)
@@ -221,7 +221,7 @@ public class SceneManager : MonoBehaviour
 
         if (toBeLoggedData != "")
         {
-            print("in scenemanger: logging data for codap");
+            // print("in scenemanger: logging data for codap");
             DataLogger.Instance.LogCodapData(toBeLoggedData);
 
             toBeLoggedData = "";
@@ -321,7 +321,7 @@ public class SceneManager : MonoBehaviour
 
     public void putThingsInFrontofCamera()
     {
-        print("putting things in front of the camera");
+        // print("putting things in front of the camera");
         Vector3 cameraAngles = mainCamera.transform.eulerAngles;
         dataShelfPanel.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
 

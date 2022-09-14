@@ -20,6 +20,6 @@ public class sliderTeset : MonoBehaviour
 
     public static void OnDragEnter()
     {
-        print("there's a drag happening");
+        // print("there's a drag happening");
     }
 }

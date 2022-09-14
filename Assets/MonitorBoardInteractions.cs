@@ -265,7 +265,7 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
 
         } else if (other.GetComponent<Axis>() || other.GetComponent<Visualization>())
         {
-            print("just a vis got it!");
+            // print("just a vis got it!");
             // show the drop prompt 
             Debug.Assert(DropPromptGameObject != null, "In Monitor Plane: Drop Prompt gameobject is Null!");
             DropPromptGameObject.SetActive(true);
@@ -314,8 +314,8 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
             DataLogger.Instance.LogActionData("VisDroppedInDesktop", collidedVis.gameObject, gameObject);
 
             // If it was already going to be sent to desktop by another Axis collision, set this dirty flag to not duplicate it
-            print("is vis " + collidedVis.name  + " " + collidedVis.GetInstanceID());
-            print("is duplicate vis" + collidedVis.isGoingToBeSentToDesktop + " " + collidedVis.GetInstanceID());
+            // print("is vis " + collidedVis.name  + " " + collidedVis.GetInstanceID());
+            // print("is duplicate vis" + collidedVis.isGoingToBeSentToDesktop + " " + collidedVis.GetInstanceID());
             if (collidedVis.isGoingToBeSentToDesktop == true)
             {
                 return;
@@ -339,9 +339,9 @@ public class MonitorBoardInteractions : MonoBehaviour, Grabbable
                 DropPromptGameObject.SetActive(false);
 
 
-                print("I've hit somethig");
-                print(result.desktopCoord.x);
-                print(result.desktopCoord.y);
+                // print("I've hit somethig");
+                // print(result.desktopCoord.x);
+                // print(result.desktopCoord.y);
                 WebSocketMsg msg;
                 if (axisList.Count == 1)
                 {

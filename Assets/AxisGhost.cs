@@ -24,18 +24,18 @@ public class AxisGhost : MonoBehaviour, Grabbable
 
     public void OnEnter(WandController controller)
     {
-        print("From ghost Im entered");
+        // print("From ghost Im entered");
     }
 
     public void OnExit(WandController controller)
     {
-        print("From ghost I'm exited! ");
+        // print("From ghost I'm exited! ");
     }
 
     public bool OnGrab(WandController controller)
     {
              
-        print("From ghost I'm grabbed! ");
+        // print("From ghost I'm grabbed! ");
         grabbingController = controller;
         transform.parent = controller.transform;
         return true;
@@ -43,7 +43,7 @@ public class AxisGhost : MonoBehaviour, Grabbable
 
     public void OnRelease(WandController controller)
     {
-        print("From ghost I'm released!");
+        // print("From ghost I'm released!");
         transform.parent = null;
         grabbingController = null;
         transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, Axis.AXIS_ROD_WIDTH);
@@ -67,13 +67,13 @@ public class AxisGhost : MonoBehaviour, Grabbable
     // Start is called before the first frame update
     void Start()
     {
-        print("hey! booooo I'm a ghost!");
+        // print("hey! booooo I'm a ghost!");
         parentOrigininalPosition = parentAxis.transform.position;
     }
 
     private void OnEnable()
     {
-        print("ghost is enabled now");
+        // print("ghost is enabled now");
         transform.parent = null;
         transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, Axis.AXIS_ROD_WIDTH / 2f);
         GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f, 0.3f);

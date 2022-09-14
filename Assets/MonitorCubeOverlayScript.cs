@@ -53,7 +53,7 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
 
         if (_component != null)
         {
-            print("here's the component: " + JsonUtility.ToJson(_component));
+            // print("here's the component: " + JsonUtility.ToJson(_component));
             GetComponent<Renderer>().material.color = AFFIRMATION_GREEN;
 
             grabbingController = controller;
@@ -164,7 +164,7 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
             //ghostCube.transform.position = grabbingController.transform.position + 
             Vector3 distanceVector = grabbingController.transform.position - transform.position;
             float distanceAlongNormal = -Vector3.Dot(transform.forward, distanceVector);
-            print("distance is " + distanceAlongNormal);
+            // print("distance is " + distanceAlongNormal);
             if (distanceAlongNormal < 0.3f)
             {
                 ghostCube.GetComponent<Renderer>().material.color = ERROR_RED;
