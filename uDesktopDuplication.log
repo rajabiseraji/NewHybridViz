@@ -1,21 +1,21 @@
-[uDD::Log][2022-09-13 19:44:23] Start
-[uDD::Log][2022-09-13 19:44:23] OS Version    : 10.0
-[uDD::Log][2022-09-13 19:44:23] Build Number  : 19043
-[uDD::Log][2022-09-13 19:44:23] Service Pack  : 
-[uDD::Log][2022-09-13 19:44:23] Graphics Card [0] : NVIDIA GeForce RTX 3080 Ti
-[uDD::Log][2022-09-13 19:44:23]   > Monitor[0] : \\.\DISPLAY1
-[uDD::Log][2022-09-13 19:44:23]   > Monitor[1] : \\.\DISPLAY2
-[uDD::Log][2022-09-13 19:44:23] Graphics Card [1] : Microsoft Basic Render Driver
-[uDD::Log][2022-09-13 19:44:23] Monitor::Initialized() =>
-[uDD::Log][2022-09-13 19:44:23]     ID    : 0
-[uDD::Log][2022-09-13 19:44:23]     Size  : (1920, 1080)
-[uDD::Log][2022-09-13 19:44:23]     DPI   : (81, 81)
-[uDD::Log][2022-09-13 19:44:23]     Rot   : Landscape
-[uDD::Log][2022-09-13 19:44:23] Duplicator::Initialize() => OK.
-[uDD::Log][2022-09-13 19:44:23] Monitor::Initialized() =>
-[uDD::Log][2022-09-13 19:44:23]     ID    : 1
-[uDD::Log][2022-09-13 19:44:23]     Size  : (1824, 1026)
-[uDD::Log][2022-09-13 19:44:23]     DPI   : (24, 24)
-[uDD::Log][2022-09-13 19:44:23]     Rot   : Landscape
-[uDD::Log][2022-09-13 19:44:23] Duplicator::Initialize() => OK.
-[uDD::Log][2022-09-13 19:47:19] Stop
+[uDD::Log][2022-09-13 23:35:02] Start
+[uDD::Log][2022-09-13 23:35:02] OS Version    : 10.0
+[uDD::Log][2022-09-13 23:35:02] Build Number  : 19043
+[uDD::Log][2022-09-13 23:35:02] Service Pack  : 
+[uDD::Log][2022-09-13 23:35:02] Graphics Card [0] : NVIDIA GeForce RTX 3080 Ti
+[uDD::Log][2022-09-13 23:35:02]   > Monitor[0] : \\.\DISPLAY1
+[uDD::Log][2022-09-13 23:35:02]   > Monitor[1] : \\.\DISPLAY2
+[uDD::Log][2022-09-13 23:35:02] Graphics Card [1] : Microsoft Basic Render Driver
+[uDD::Log][2022-09-13 23:35:02] Monitor::Initialized() =>
+[uDD::Log][2022-09-13 23:35:02]     ID    : 0
+[uDD::Log][2022-09-13 23:35:02]     Size  : (1920, 1080)
+[uDD::Log][2022-09-13 23:35:02]     DPI   : (81, 81)
+[uDD::Log][2022-09-13 23:35:02]     Rot   : Landscape
+[uDD::Log][2022-09-13 23:35:02] Duplicator::Initialize() => OK.
+[uDD::Log][2022-09-13 23:35:02] Monitor::Initialized() =>
+[uDD::Log][2022-09-13 23:35:02]     ID    : 1
+[uDD::Log][2022-09-13 23:35:02]     Size  : (1824, 1026)
+[uDD::Log][2022-09-13 23:35:02]     DPI   : (24, 24)
+[uDD::Log][2022-09-13 23:35:02]     Rot   : Landscape
+[uDD::Log][2022-09-13 23:35:02] Duplicator::Initialize() => OK.
+[uDD::Log][2022-09-13 23:35:37] Stop

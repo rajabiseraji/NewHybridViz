@@ -348,7 +348,7 @@ public class SceneManager : MonoBehaviour
 
     public void placeDesktopMonitors()
     {
-        Transform multiMonitorSet = GameObject.FindGameObjectWithTag("MultiMonitor").transform;
+        Transform multiMonitorSet = GameObject.FindGameObjectWithTag("MonitorBoard").transform;
 
         Vector3 cameraAngles = mainCamera.transform.eulerAngles;
         multiMonitorSet.rotation = Quaternion.Euler(0, cameraAngles.y, 0);
@@ -676,6 +676,9 @@ public class SceneManager : MonoBehaviour
         toBeActivatedYAxisId = -1;
         toBeActivatedXAxisId = -1;
 
+        //GameObject.Destroy(dotCube.gameObject);
+        dotCube.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0);
+        GameObject.Destroy(originalDotCubeTransform.gameObject);
 
     }
 
