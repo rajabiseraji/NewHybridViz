@@ -11,7 +11,7 @@ public class SceneManager : MonoBehaviour
     const float AXIS_Y_PADDING = -3f;
     const int AXES_PER_ROW = 7;
 
-    public const float AXIS_SCALE_FACTOR = 1f;
+    public const float AXIS_SCALE_FACTOR = 0.5f;
 
     // TODO: We need to change this function in order to create our scene and its corresponding objects
 

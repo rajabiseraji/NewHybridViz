@@ -138,6 +138,8 @@ public class VisualisationFactory : MonoBehaviour
         float maxNormalizer, 
         List<AttributeFilter> filters)
     {
+
+        holder.transform.localScale *= scale;
         GameObject Snax = new GameObject();
 
         //get the array of dimension
@@ -198,7 +200,7 @@ public class VisualisationFactory : MonoBehaviour
             
             // TODO: for scaling, I can just multiply the mesh by the scale factor over here 
             // I can also do that in the shader, too but I think doing it here will give me more controls
-            v = v * scale;
+            //v = v * scale;
 
             l.Add(v);
         }
@@ -210,7 +212,7 @@ public class VisualisationFactory : MonoBehaviour
 
         float step = 0.5f / bins.Length;
         // TODO: scaling: I should also scale the steps too
-        step *= scale;
+        //step *= scale;
 
         for (int i = 0; i < bins.Length; ++i)
         {
@@ -249,6 +251,8 @@ public class VisualisationFactory : MonoBehaviour
 
         MeshRenderer meshRenderer = Snax.AddComponent<MeshRenderer>();
         meshRenderer.material = histogramMaterial;
+        //Snax.transform.localScale *= scale;
+        //holder.transform.localScale *= scale;
         return new Tuple<GameObject, Vector3[]>(Snax, l.ToArray());
     }
 
@@ -267,6 +271,8 @@ public class VisualisationFactory : MonoBehaviour
         ref Mesh mesh, 
         List<AttributeFilter> filters)
     {
+        //holder.transform.localScale *= scale;
+
         mesh.Clear();
         //get the array of dimension
         DiscreteBinner binner = new DiscreteBinner();
@@ -323,7 +329,7 @@ public class VisualisationFactory : MonoBehaviour
 
                     Vector3 v = new Vector3(x, ynorm, 0f);
 
-                    v *= scale;
+                    //v *= scale;
 
                     l.Add(v);
                 }
@@ -336,7 +342,7 @@ public class VisualisationFactory : MonoBehaviour
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
         float step = 0.5f / bins.Length;
-        step *= scale;
+        //step *= scale;
 
         for (int i = 0; i < l.Count; ++i)
         {
@@ -372,6 +378,7 @@ public class VisualisationFactory : MonoBehaviour
         mesh.triangles = tris.ToArray();
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
+
 
     }
 

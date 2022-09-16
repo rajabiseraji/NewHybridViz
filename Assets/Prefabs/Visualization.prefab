@@ -44,9 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentVis: {fileID: 114548593337877974}
-  computeShader: {fileID: 7200000, guid: dad1f7499a3d6f848b202d69a89699be, type: 3}
-  myRenderMaterial: {fileID: 2100000, guid: cba24c207ebdc0240b3a67ec8fe8304c, type: 2}
-  brushedIndices: 
   debugObjectTexture: {fileID: 0}
   brushType: 0
 --- !u!1 &1011565188996372
@@ -170,7 +167,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039085207644392}
   m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0.044199944, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.26609132, y: 0.26609132, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4044148270339740}
@@ -396,9 +393,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentVis: {fileID: 114548593337877974}
-  computeShader: {fileID: 7200000, guid: dad1f7499a3d6f848b202d69a89699be, type: 3}
-  myRenderMaterial: {fileID: 2100000, guid: cba24c207ebdc0240b3a67ec8fe8304c, type: 2}
-  brushedIndices: 
   debugObjectTexture: {fileID: 0}
   brushType: 0
 --- !u!1 &1283988246159780
@@ -566,7 +560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 2288782108697580143}
-  HistogramScalingFactor: 1
+  HistogramScalingFactor: 0.5
   OtherVisualizationsScalingFactor: 1
   histogramObject: {fileID: 1039085207644392}
   scatterplot2DObject: {fileID: 1277313901451468}

@@ -81,8 +81,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     ReferenceAxis referenceAxis;
 
-    public float HistogramScalingFactor = 1f;
-    public float OtherVisualizationsScalingFactor = 1f;
+    public float HistogramScalingFactor = 0.5f;
+    public float OtherVisualizationsScalingFactor = 0.5f;
 
     public ReferenceAxis ReferenceAxis1
     {
@@ -310,9 +310,13 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     {
         axes = new List<Axis>();
         visualizationObjects.Add(histogramObject);
+        scatterplot2DObject.transform.localScale *= OtherVisualizationsScalingFactor;
         visualizationObjects.Add(scatterplot2DObject);
+        parallelCoordsObject.transform.localScale *= OtherVisualizationsScalingFactor;
         visualizationObjects.Add(parallelCoordsObject);
+        scatterplot3DObject.transform.localScale *= OtherVisualizationsScalingFactor;
         visualizationObjects.Add(scatterplot3DObject);
+        linkedScatterplots.transform.localScale *= OtherVisualizationsScalingFactor;
         visualizationObjects.Add(linkedScatterplots);
     }
 
@@ -580,6 +584,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
             {
                 case ViewType.Histogram:
                     EnableVisualizationObject(histogramObject);
+                    histogramObject.transform.localScale *= HistogramScalingFactor;
                     break;
                 case ViewType.Scatterplot2D:
                     EnableVisualizationObject(scatterplot2DObject);
@@ -641,6 +646,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
             GameObject hist = histT.Item1;
             histogramPositions = histT.Item2;
+
 
             hist.transform.SetParent(histogramObject.transform, false);
         }
@@ -896,8 +902,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 {
                     if (axes.Count > 0)
                     {
-                        Vector3 pos = axes[0].transform.position;
-                        pos += axes[0].transform.TransformDirection(Vector3.right * 0.1f);
+                        Vector3 pos = axes[0].transform.position + (Vector3.right * Axis.AXIS_ROD_WIDTH /2);
+                        pos += axes[0].transform.TransformDirection(Vector3.right * histogramObject.transform.localScale.x/2);
                         transform.position = pos;
                         transform.rotation = axes[0].transform.rotation;
 
