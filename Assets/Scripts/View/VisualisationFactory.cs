@@ -449,6 +449,7 @@ public class VisualisationFactory : MonoBehaviour
         bool parallel = false,
         float scale = 1f)
     {
+
         // @todo remove the parallel bool for a better implementation
         string viewName = "";
 
