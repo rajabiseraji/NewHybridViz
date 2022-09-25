@@ -2859,6 +2859,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 218a3b99a3dcf2a469bcc624f9279f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  needsScaleRefresh: 1
+  AXIS_ROD_BOX_LENGTH: 0
   label: {fileID: 114645806824626946}
   minimumValueDimensionLabel: {fileID: 114568362315786988}
   maximumValueDimensionLabel: {fileID: 114259537137711672}

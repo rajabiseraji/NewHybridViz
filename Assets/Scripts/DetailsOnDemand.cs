@@ -101,7 +101,7 @@ public class DetailsOnDemand : MonoBehaviour
         tempTransformObject = new GameObject("Brush Transform");
         tempTransformObject.transform.parent = transform;
         tempTransformObject.transform.localPosition = Vector3.zero;
-        tempTransformObject.transform.localScale = new Vector3(Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH) / 2;
+        tempTransformObject.transform.localScale = new Vector3(Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH) ;
     }
 
     void Start()
@@ -225,7 +225,7 @@ public class DetailsOnDemand : MonoBehaviour
 
 
                 var origParentLocalScale = parentTransform.localScale;
-                parentTransform.localScale = Vector3.one;
+                parentTransform.localScale = Vector3.one * SceneManager.AXIS_SCALE_FACTOR;
                 var localPoint = parentTransform.InverseTransformPoint(pointerPosition);
                 parentTransform.localScale = origParentLocalScale;
 
@@ -395,7 +395,7 @@ public class DetailsOnDemand : MonoBehaviour
                     newVertexPointForFiltering.y * (BrushingAndLinking._scale.y - 0.0266091f)
                 );
 
-                parentTransform.localScale = Vector3.one;
+                parentTransform.localScale = Vector3.one * SceneManager.AXIS_SCALE_FACTOR;
                 var worldPointForVertexForFiltering = parentTransform.TransformPoint(localPointForVertexForFiltering);
                 parentTransform.localScale = origParentLocalScale;
 
@@ -499,15 +499,16 @@ public class DetailsOnDemand : MonoBehaviour
                     forward = -forward.normalized;
                 }
 
+                tempTransformObject.transform.localScale = new Vector3(Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH, Axis.AXIS_ROD_LENGTH);
                 Transform vt = tempTransformObject.transform;
                 vt.rotation = Quaternion.LookRotation(forward, vup);
 
                 // this is always between -1 , 1
                 Vector3 positionInLocal3DSP = vt.InverseTransformPoint(pointerPosition);
 
-                float x = (positionInLocal3DSP.x) / 2;
-                float y = (positionInLocal3DSP.y) / 2;
-                float z = (positionInLocal3DSP.z) / 2;
+                float x = (positionInLocal3DSP.x) ;
+                float y = (positionInLocal3DSP.y) ;
+                float z = (positionInLocal3DSP.z) ;
 
                 if (isFlipped)
                 {

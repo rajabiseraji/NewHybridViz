@@ -139,7 +139,7 @@ public class VisualisationFactory : MonoBehaviour
         List<AttributeFilter> filters)
     {
 
-        holder.transform.localScale *= scale;
+        //holder.transform.localScale *= scale;
         GameObject Snax = new GameObject();
 
         //get the array of dimension

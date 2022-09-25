@@ -11,10 +11,21 @@ using System.IO;
 
 public class Axis : MonoBehaviour, Grabbable {
 
-    public const float AXIS_ROD_LENGTH = 0.2660912f;
-    public const float AXIS_ROD_CUBE_DIAGONAL = 0.137260f;
-    public const float AXIS_ROD_WIDTH = 0.02059407f;
-    public const float AXIS_ROD_DEPTH = 0.02059408f;
+    // we need to not store it as constants so that we can change it later when we scale an axis up or down
+    // These numbers easily come from the Axis.gameobject.scale so we can basically set them in the update of the axis 
+
+    public bool needsScaleRefresh = true;
+
+    // this one is equivalent to axis.gameobject.transform.localScale.y;
+    public  static float AXIS_ROD_LENGTH = 0.2660912f;
+    public static float AXIS_ROD_CUBE_DIAGONAL = 0.137260f;
+    // this one is equivalent to axis.gameobject.transform.localScale.x;
+    public static float AXIS_ROD_WIDTH = 0.02059407f;
+    // this one is equivalent to axis.gameobject.transform.localScale.z;
+    public static float AXIS_ROD_DEPTH = 0.02059408f;
+
+
+
     // for some stupid reason, the designers went with a box for the rod that is scaled as
     // such: localScale = (1, 0.5, 1) this is the size of axis mesh gameobject
     // this means that normally, the axis is split into 10 ticks and that 
@@ -23,7 +34,7 @@ public class Axis : MonoBehaviour, Grabbable {
     // -Axis_rod_box_length + (scale * Axis_rod_box_length * i)
     // in the normal mode, ticksRenderer.material.mainTextureScale = (1, 10) 
     // this is good for showing 11 points including the min and max.
-    public const float AXIS_ROD_BOX_LENGTH = AXIS_ROD_LENGTH / 2;
+    public float AXIS_ROD_BOX_LENGTH;
     public static float CONTROLLER_VELOCITY_FOR_DELETION = 0.25f;
 
     [SerializeField] public TextMeshPro label;
@@ -365,7 +376,9 @@ public class Axis : MonoBehaviour, Grabbable {
         foreach (var item in colliders)
         {
             item.gameObject.layer = 2;
-        }       
+        }
+
+        //ScaleAxis(axisScaleFactor);
 
     }
 
@@ -390,6 +403,9 @@ public class Axis : MonoBehaviour, Grabbable {
         // Then puts a clone in the original place of the data component
         // In the end adds the axis that is cloned to the list of present axes on the scene
 
+        updateAxisMeasures();
+
+
         handleParentDataShelfMovement();
 
     }
@@ -398,6 +414,26 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         isDirty = false;
     }
+
+    private void updateAxisMeasures()
+    {
+        //AXIS_ROD_CUBE_DIAGONAL = 0.137260f;
+        if (!needsScaleRefresh)
+            return;
+
+        //if (AXIS_ROD_LENGTH != transform.localScale.y)
+            AXIS_ROD_LENGTH = transform.localScale.y;
+        // this one is equivalent to axis.gameobject.transform.localScale.x;
+        //if (AXIS_ROD_WIDTH != transform.localScale.x)
+            AXIS_ROD_WIDTH = transform.localScale.x;
+        // this one is equivalent to axis.gameobject.transform.localScale.z;
+        //if (AXIS_ROD_DEPTH != transform.localScale.z)
+            AXIS_ROD_DEPTH = transform.localScale.z ;
+
+        AXIS_ROD_BOX_LENGTH = AXIS_ROD_LENGTH / 2;
+
+        needsScaleRefresh = false;
+}
 
     // filtering operations 
     // Whenever a filter is changed we need to invoke the Onfilter event to make sure it's affecting the thing
@@ -1196,10 +1232,10 @@ public class Axis : MonoBehaviour, Grabbable {
     {
         this.axisScaleFactor = scaleFactor;
         transform.localScale *= scaleFactor;
-        foreach(var v in correspondingVisualizations())
-        {
-            v.transform.localScale *= scaleFactor;
-        }
+        //foreach(var v in correspondingVisualizations())
+        //{
+        //    v.transform.localScale *= scaleFactor;
+        //}
     }
 
     private void activateGhost(WandController grabbingController)

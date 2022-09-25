@@ -551,8 +551,8 @@ public class SceneManager : MonoBehaviour
         int facingSign = Vector3.Dot(mainCamera.transform.forward, scatterPlaceholder.forward) > 0 ? 1 : -1;
 
         //scatterPlaceholder.Translate(scatterPlaceholder.transform.right * Axis.AXIS_ROD_LENGTH * 0.5f * facingSign); 
-        scatterPlaceholder.Translate(scatterPlaceholder.transform.up * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
-        scatterPlaceholder.Translate(scatterPlaceholder.transform.forward * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
+        scatterPlaceholder.Translate(scatterPlaceholder.transform.up * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f * facingSign);
+        scatterPlaceholder.Translate(scatterPlaceholder.transform.forward * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f * facingSign);
 
         scatterPlaceholder.Rotate(scatterPlaceholder.transform.right, -90f);
         
@@ -612,6 +612,11 @@ public class SceneManager : MonoBehaviour
 
         int facingSign = Vector3.Dot(mainCamera.transform.forward, dotCube.forward) > 0 ? 1 : -1;
 
+        /// before doing anything, just update the Axis.Axis_rod length and other ones by calling the scaling function thingy
+        //
+
+
+
         ///////////////////////// VERY IMPORTANT NOTE ///////////////////////
         /// THE ANGLES OF THE EXTRUDED OBJECT IS DIRECTY RELATED TO THE ANGLE
         /// BETWEEN THE FORWARD VECTOR OF CAMERA, WORLD, AND ALSO DOTCUBE
@@ -624,7 +629,7 @@ public class SceneManager : MonoBehaviour
         if (toBeActivatedYAxisId != -1)
         {
 
-            dotCube.Translate(dotCube.transform.right * Axis.AXIS_ROD_LENGTH * -0.5f * facingSign);
+            dotCube.Translate(dotCube.transform.right * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f * facingSign);
             if(facingSign == -1)
                 dotCube.Rotate(dotCube.transform.up, -180f);
 
@@ -645,7 +650,7 @@ public class SceneManager : MonoBehaviour
 
         if (toBeActivatedXAxisId != -1)
         {
-            originalDotCubeTransform.Translate(originalDotCubeTransform.up * Axis.AXIS_ROD_LENGTH * -0.5f);
+            originalDotCubeTransform.Translate(originalDotCubeTransform.up * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f);
             originalDotCubeTransform.Rotate(originalDotCubeTransform.forward, -90f * facingSign);
             //originalDotCubeTransform.Rotate(originalDotCubeTransform., 90f);
             //originalDotCubeTransform.Rotate(originalDotCubeTransform.forward, 90f);
@@ -721,6 +726,8 @@ public class SceneManager : MonoBehaviour
         brushedIndexes = indexes;
     }
 
+    
+
     public void setComponetList(ComponentListItem[] componentList)
     {
         // Massive problem! we shouldn't call this function from the wsThread, it doesn't run, 
@@ -755,7 +762,7 @@ public class SceneManager : MonoBehaviour
         GameObject obj = (GameObject)Instantiate(axisPrefab, placementPosition, placementRotation);
         // obj.transform.position = v;
         Axis axis = obj.GetComponent<Axis>();
-        axis.Init(dataObject, toBeActivatedAxisId, false);
+        axis.Init(dataObject, toBeActivatedAxisId, false, AXIS_SCALE_FACTOR);
         axis.InitOrigin(placementPosition, placementRotation);
         //axis.initOriginalParent(dataShelfPanel);
         axis.tag = "Axis";
@@ -776,7 +783,7 @@ public class SceneManager : MonoBehaviour
         GameObject obj = (GameObject)Instantiate(axisPrefab, placementPosition, placementRotation);
         // obj.transform.position = v;
         Axis axis = obj.GetComponent<Axis>();
-        axis.Init(dataObject, toBeActivatedAxisId, false);
+        axis.Init(dataObject, toBeActivatedAxisId, false, AXIS_SCALE_FACTOR);
         axis.InitOrigin(placementPosition, placementRotation);
         //axis.initOriginalParent(dataShelfPanel);
         axis.tag = "Axis";

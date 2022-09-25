@@ -870,8 +870,12 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
+
+
         if (isSetForDestruction)
             return;
+
+        transform.localScale = Vector3.one * SceneManager.AXIS_SCALE_FACTOR;
 
          CheckFilterBubble();
 
@@ -977,6 +981,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                             r.material.SetVector("_bbl", scatterplot2DObject.transform.InverseTransformPoint(bbl));
                             r.material.SetVector("_bbr", scatterplot2DObject.transform.InverseTransformPoint(bbr));
 
+                            // I think we need to change these min sizes according to the new scaled version of the data 
                             r.material.SetFloat("_MinX", axisH.MinFilter);
                             r.material.SetFloat("_MaxX", axisH.MaxFilter);
                             r.material.SetFloat("_MinY", axisV.MinFilter);
