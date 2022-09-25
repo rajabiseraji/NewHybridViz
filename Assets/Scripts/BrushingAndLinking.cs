@@ -974,37 +974,37 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
 
         if (is3D)
         {
-            if(!sphereftl) { 
-                sphereftl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sphereftl.GetComponent<Renderer>().material.color = Color.yellow;
-            } 
-            //sphere.transform.parent = targetVis.transform;
-            sphereftl.transform.localScale = Vector3.one * 0.03f;
-            sphereftl.transform.position = targetVis.ftl;
+            //if(!sphereftl) { 
+            //    sphereftl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //    sphereftl.GetComponent<Renderer>().material.color = Color.yellow;
+            //} 
+            ////sphere.transform.parent = targetVis.transform;
+            //sphereftl.transform.localScale = Vector3.one * 0.03f;
+            //sphereftl.transform.position = targetVis.ftl;
             
-            if(!spherefbl) { 
-                spherefbl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                spherefbl.GetComponent<Renderer>().material.color = Color.yellow;
-            } 
-            //spherefbl.transform.parent = targetVis.transform;
-            spherefbl.transform.localScale = Vector3.one * 0.03f;
-            spherefbl.transform.position = targetVis.fbl;
+            //if(!spherefbl) { 
+            //    spherefbl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //    spherefbl.GetComponent<Renderer>().material.color = Color.yellow;
+            //} 
+            ////spherefbl.transform.parent = targetVis.transform;
+            //spherefbl.transform.localScale = Vector3.one * 0.03f;
+            //spherefbl.transform.position = targetVis.fbl;
             
-            if(!spherefbr) { 
-                spherefbr = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                spherefbr.GetComponent<Renderer>().material.color = Color.yellow;
-            } 
-            //spherefbr.transform.parent = targetVis.transform;
-            spherefbr.transform.localScale = Vector3.one * 0.03f;
-            spherefbr.transform.position = targetVis.fbr;
+            //if(!spherefbr) { 
+            //    spherefbr = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //    spherefbr.GetComponent<Renderer>().material.color = Color.yellow;
+            //} 
+            ////spherefbr.transform.parent = targetVis.transform;
+            //spherefbr.transform.localScale = Vector3.one * 0.03f;
+            //spherefbr.transform.position = targetVis.fbr;
             
-            if(!spherebbl) { 
-                spherebbl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                spherebbl.GetComponent<Renderer>().material.color = Color.yellow;
-            } 
-            //spherebbl.transform.parent = targetVis.transform;
-            spherebbl.transform.localScale = Vector3.one * 0.03f;
-            spherebbl.transform.position = targetVis.bbl;
+            //if(!spherebbl) { 
+            //    spherebbl = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //    spherebbl.GetComponent<Renderer>().material.color = Color.yellow;
+            //} 
+            ////spherebbl.transform.parent = targetVis.transform;
+            //spherebbl.transform.localScale = Vector3.one * 0.03f;
+            //spherebbl.transform.position = targetVis.bbl;
 
             // create a transform for the targetVisualisation space
             var vup = targetVis.fbl - targetVis.ftl;

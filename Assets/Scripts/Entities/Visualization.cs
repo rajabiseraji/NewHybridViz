@@ -907,7 +907,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                     if (axes.Count > 0)
                     {
                         Vector3 pos = axes[0].transform.position + (Vector3.right * -Axis.AXIS_ROD_WIDTH/2);
-                        pos += axes[0].transform.TransformDirection(Vector3.right * histogramObject.transform.localScale.x/2);
+                        pos += axes[0].transform.TransformDirection(Vector3.right * histogramObject.transform.localScale.x * SceneManager.AXIS_SCALE_FACTOR / 2);
                         transform.position = pos;
                         transform.rotation = axes[0].transform.rotation;
 
