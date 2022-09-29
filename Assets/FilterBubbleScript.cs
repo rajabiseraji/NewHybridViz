@@ -44,7 +44,7 @@ public class FilterBubbleScript : MonoBehaviour
             obj.transform.localScale = Vector3.zero;
             // obj.transform.position = v;
             Axis axis = obj.GetComponent<Axis>();
-            axis.Init(SceneManager.Instance.dataObject, axisId, false);
+            axis.Init(SceneManager.Instance.dataObject, axisId, false, SceneManager.AXIS_SCALE_FACTOR);
             axis.InitOrigin(originTransform.position, originTransform.rotation);
             axis.tag = "Axis";
             

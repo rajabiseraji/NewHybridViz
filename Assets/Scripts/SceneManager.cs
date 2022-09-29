@@ -8,8 +8,8 @@ public class SceneManager : MonoBehaviour
 {
 
     const float AXIS_X_PADDING = 0.3f;
-    const float AXIS_Y_PADDING = -3f;
-    const int AXES_PER_ROW = 7;
+    const float AXIS_Y_PADDING = -0.5f;
+    const int AXES_PER_ROW = 5;
 
     public const float AXIS_SCALE_FACTOR = 0.5f;
 
