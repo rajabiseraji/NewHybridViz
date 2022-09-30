@@ -8,7 +8,7 @@ public class SceneManager : MonoBehaviour
 {
 
     const float AXIS_X_PADDING = 0.3f;
-    const float AXIS_Y_PADDING = -0.5f;
+    const float AXIS_Y_PADDING = -3.5f;
     const int AXES_PER_ROW = 5;
 
     public const float AXIS_SCALE_FACTOR = 0.5f;
@@ -234,6 +234,7 @@ public class SceneManager : MonoBehaviour
         // create the axes
         for (int i = 0; i < dataObject.Identifiers.Length; ++i)
         {
+            Debug.Log(i);
             // Vector3 v = new Vector3(1.352134f - (i % 7) * 0.35f, 1.506231f - (i / 7) / 2f, 0f);// -0.4875801f);
             Vector3 v = AxisPlaceholderObject.position;
             v += ((i % AXES_PER_ROW) * AXIS_X_PADDING) * dataShelfPanel.right;   
@@ -284,6 +285,7 @@ public class SceneManager : MonoBehaviour
         // After things are done, set the interaction to whatever the flag is with a delay
 
         StartCoroutine(setPanelInteractionFlag(panel)); //
+        StartCoroutine("orderThingscoroutine"); //
 
     }
 
@@ -332,6 +334,10 @@ public class SceneManager : MonoBehaviour
 
 
         dataShelfPanel.position = mainCamera.transform.position + (mainCamera.transform.forward * 0.5f);
+        dataShelfPanel.Translate(Vector3.up * -0.4f);
+
+        dataShelfPanel.rotation = Quaternion.Euler(30f, cameraAngles.y, 0);
+        //dataShelfPanel.Rotate(dataShelfPanel.right, -30f);
         //dataShelfPanel.position += (mainCamera.transform.up * -0.5f);
 
         // Get the global filters in front of the camera too
@@ -344,7 +350,13 @@ public class SceneManager : MonoBehaviour
 
     }
 
+    private System.Collections.IEnumerator orderThingscoroutine()
+    {
+        yield return new WaitForSeconds(1f);
 
+        placeDesktopMonitors();
+        putThingsInFrontofCamera();
+    }
 
     public void placeDesktopMonitors()
     {
