@@ -7,9 +7,9 @@ using UnityEngine.Events;
 public class SceneManager : MonoBehaviour
 {
 
-    const float AXIS_X_PADDING = 0.3f;
-    const float AXIS_Y_PADDING = -3.5f;
-    const int AXES_PER_ROW = 5;
+    const float AXIS_X_PADDING = 0.15f;
+    const float AXIS_Y_PADDING = -5f;
+    const int AXES_PER_ROW = 7;
 
     public const float AXIS_SCALE_FACTOR = 0.5f;
 

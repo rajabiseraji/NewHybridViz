@@ -625,6 +625,10 @@ public class ImAxesRecognizer : MonoBehaviour
                         if(!SP[i].gameObject.activeSelf || !SP[j].gameObject.activeSelf)
                             continue;
 
+                        // this part will disable linking for protoype axes that are already on the board
+                        if (SP[i].axes.Any(axis => axis.isOn2DPanel || axis.isPrototype) || SP[j].axes.Any(axis => axis.isPrototype || axis.isOn2DPanel))
+                            continue;
+
                         if (SP[i].transform.position != SP[j].transform.position
                             && Vector3.Distance(SP[i].axes[0].transform.position, SP[j].axes[0].transform.position) < PCP_DISTANCE
                             && !linkedVisualisationDictionary.ContainsKey(_name) && !linkedVisualisationDictionary.ContainsKey(_nameReverse))
