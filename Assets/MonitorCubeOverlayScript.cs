@@ -122,6 +122,9 @@ public class MonitorCubeOverlayScript : MonoBehaviour, Grabbable
                 dotCube.transform
             );
 
+            // now that we're done with the cube just kill it!!
+            Destroy(dotCube);
+
         }
 
 
