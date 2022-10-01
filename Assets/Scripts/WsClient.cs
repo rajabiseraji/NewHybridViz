@@ -172,6 +172,10 @@ public class ComponentListItem
     public string xAttributeName;
     public string yAttributeName;
     public string legendAttributeName;
+    public float xLowerBound;
+    public float xUpperBound;
+    public float yLowerBound;
+    public float yUpperBound;
 }
 
 [Serializable]
