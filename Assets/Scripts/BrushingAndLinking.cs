@@ -1088,7 +1088,7 @@ public class BrushingAndLinking : MonoBehaviour, UIComponent
         // BrushMode of 0 means a sphere/circle
         // SelectionMode of 0 means additive/free selection
         computeShader.SetInt("BrushMode", 0);
-        computeShader.SetInt("SelectionMode", 0);
+        computeShader.SetInt("SelectionMode", 1);
         computeShader.SetBool("IsManualBrushing", false);
 
         hasFreeBrushReset = false;
