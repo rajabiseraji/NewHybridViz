@@ -352,12 +352,18 @@ Shader "Custom/Outline Dots"
 
 					//FragmentOutput fo = (FragmentOutput)0;
 					float4 BRUSH_COLOR = float4(1.0f, 0.0f, 0.0f, 1.0f);
+					float isFiltered = input.normal.z;
 					
 					// Sample _MainTex for colour which creates the circular dot, changing colour depending if it is brushed
-                     if (input.isBrushed > 0)
-                         output.color = tex2D(_MainTex, input.tex0.xy) * BRUSH_COLOR;
-                     else
-                         output.color = tex2D(_MainTex, input.tex0.xy) * input.color;;
+					if (isFiltered)
+						output.color = float4(0.0, 0.0, 0.0, 0.0);
+					else {
+						if (input.isBrushed > 0)
+							output.color = tex2D(_MainTex, input.tex0.xy) * BRUSH_COLOR;
+						else
+							output.color = tex2D(_MainTex, input.tex0.xy) * input.color;;
+					}
+						
 
                      output.depth = output.color.a > 0.5 ? input.pos.z : 0.001;
 
