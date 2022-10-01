@@ -747,6 +747,12 @@ public class Axis : MonoBehaviour, Grabbable {
             {
                 if (visu != null && visu.ReferenceAxis1.vertical != null && visu.ReferenceAxis1.horizontal != null && visu.ReferenceAxis1.depth != null)
                 {
+                    // reevaluate the facing of the referenceAxes of the visualization
+
+                    //visu.refreshReferenceAxis();
+
+                    // ending the reevaluation of the axes
+
                     var haxis = visu.ReferenceAxis1.horizontal;
                     var vaxis = visu.ReferenceAxis1.vertical;
                     var daxis = visu.ReferenceAxis1.depth;

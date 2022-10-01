@@ -795,6 +795,38 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
     }
 
+    public void refreshReferenceAxis() {
+        Vector3 CameraFwd = Camera.main.transform.forward;
+        CameraFwd.y = 0f;
+
+        Axis axisV = axes.FirstOrDefault(x => x.IsVertical);
+        var horizontals = axes.Where(x => x != axisV).ToList();
+        Axis h0 = horizontals[0];
+        Axis h1 = horizontals[1];
+
+        Axis depth = null;
+        Axis horizontal = null;
+
+        float dothp0fwd = Vector3.Dot(CameraFwd, h0.transform.up);
+        if (dothp0fwd > 0.5f || dothp0fwd < -0.5f)
+        {
+            depth = h0;
+            horizontal = h1;
+        }
+        else
+        {
+            depth = h1;
+            horizontal = h0;
+        }
+
+        referenceAxis.Clear();
+        referenceAxis.horizontal = horizontal;
+        referenceAxis.vertical = axisV;
+        referenceAxis.depth = depth;
+
+
+    }
+
     void CalculateCorners1(Axis axisA, Axis axisB, Axis axisC, ref Vector3 ftl, ref Vector3 ftr, ref Vector3 fbl, ref Vector3 fbr)
     {
         ftl = axisA.transform.TransformPoint(Vector3.up * 0.5f);

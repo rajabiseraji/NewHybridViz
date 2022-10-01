@@ -96,7 +96,9 @@ public class AxisGhost : MonoBehaviour, Grabbable
             grabbingController.Shake();
 
 
-        if(!isCloned && Vector3.Distance(transform.position, parentOrigininalPosition) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY)
+        if(!isCloned 
+            && Vector3.Distance(transform.position, parentOrigininalPosition) > TwoDimensionalPanelScript.COLLISION_DISTANCE_BOUNDARY
+            && !grabbingController.gripping )
         {
             Debug.Assert(grabbingController != null, "Grabbing controller cannot be null! ");
             isCloned = true;
