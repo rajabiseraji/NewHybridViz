@@ -563,6 +563,7 @@ public class SceneManager : MonoBehaviour
         int facingSign = Vector3.Dot(mainCamera.transform.forward, scatterPlaceholder.forward) > 0 ? 1 : -1;
 
         //scatterPlaceholder.Translate(scatterPlaceholder.transform.right * Axis.AXIS_ROD_LENGTH * 0.5f * facingSign); 
+        //var activeScale = 
         scatterPlaceholder.Translate(scatterPlaceholder.transform.up * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f * facingSign);
         scatterPlaceholder.Translate(scatterPlaceholder.transform.forward * Axis.AXIS_ROD_LENGTH * AXIS_SCALE_FACTOR * -0.5f * facingSign);
 
