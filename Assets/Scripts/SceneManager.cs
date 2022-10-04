@@ -526,11 +526,11 @@ public class SceneManager : MonoBehaviour
     public float maxFilter = 0.5f;
 
     List<AttributeFilter> debugFilters = new List<AttributeFilter>();
-
+    public Transform mapGO;
     public void CreateScatterplot()
     {
-        toBeActivatedXAxisId = 4; //weight
-        toBeActivatedYAxisId = 6; // model
+        toBeActivatedXAxisId = 2; //weight
+        toBeActivatedYAxisId = 1; // model
 
         Vector3 pos = new Vector3(
             3.548397f,
@@ -539,6 +539,9 @@ public class SceneManager : MonoBehaviour
         );
 
         scatterPlaceholder.position = Camera.main.transform.position + Camera.main.transform.forward * 0.2f;
+
+        mapGO.position = scatterPlaceholder.position;
+        mapGO.Rotate(transform.right, 90f);
 
         CreateChart(Vector3.zero, Quaternion.identity, Vector3.forward, Vector3.right, Vector3.up, scatterPlaceholder);
     } 
