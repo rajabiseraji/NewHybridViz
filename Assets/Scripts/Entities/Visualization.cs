@@ -791,7 +791,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
 
         }
 
-        
+        CheckForLatLongVis();
 
     }
 
@@ -902,7 +902,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     // Kinda everything about the visualizations are handled here 
     void LateUpdate()
     {
-
+            
 
         if (isSetForDestruction)
             return;
@@ -912,6 +912,8 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
          CheckFilterBubble();
 
         CheckPrompts();
+
+        
 
         // Check to see if the visualization is falling down! 
         // If they are, then just get rid of them and destroy the whole thing
@@ -1183,11 +1185,62 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
                 default:
                     break;
             }
+
+
         }
 
         // TODO: enable this again
         carryOverPreviousBrushing();
 
+        if (mapGO)
+        {
+            mapGO.transform.position = referenceAxis.horizontal.transform.position + (referenceAxis.vertical.transform.up * referenceAxis.vertical.transform.localScale.y / 2);
+
+            mapGO.transform.rotation = Quaternion.LookRotation(-1f * referenceAxis.vertical.transform.up, referenceAxis.horizontal.transform.forward);
+        }
+    }
+    public Transform mapGO = null;
+    private void CheckForLatLongVis()
+    {
+        if (axesCount >= 2)
+        {
+            //refreshReferenceAxis();
+            // lat and long 
+            if (axes.Any(axis => axis.axisId == 1) && axes.Any(axis => axis.axisId == 2))
+            {
+
+
+                referenceAxis.horizontal.transform.localScale = new Vector3(
+                referenceAxis.horizontal.transform.localScale.x,
+                0.1530456f,
+                referenceAxis.horizontal.transform.localScale.z);
+
+                referenceAxis.vertical.transform.localScale = new Vector3(
+                referenceAxis.vertical.transform.localScale.x,
+                0.1130456f,
+                referenceAxis.vertical.transform.localScale.z);
+
+                OnChangePointSize(0.15f);
+
+                mapGO = Instantiate(SceneManager.Instance.mapGO);
+
+                //mapGO.transform.parent = transform;
+                mapGO.localScale = new Vector3(0.015f, 0.013f, 0.013f);
+                mapGO.transform.position = referenceAxis.horizontal.transform.position + (referenceAxis.vertical.transform.up * referenceAxis.vertical.transform.localScale.y / 2);
+                //mapGO.transform.LookAt(transform.forward);
+                //mapGO.transform.rotation = Quaternion.LookRotation(-1f * transform.up, transform.forward);
+                //mapGO.Rotate(new Vector3(90f, 90f, -90f));
+                //mapGO.Translate(Vector3.down * 0.01f, Space.Self);
+            } else
+            {
+                Destroy(mapGO);
+                mapGO = null;
+            }
+        } else
+        {
+            Destroy(mapGO);
+            mapGO = null;
+        }
     }
 
     private void carryOverPreviousBrushing()
@@ -1941,7 +1994,7 @@ public class Visualization : MonoBehaviour, Grabbable, Brushable
     /// listens to slider change values for point size value
     /// </summary>
     /// <param name="pointSize"></param>
-    private void OnChangePointSize(float pointSize)
+    public void OnChangePointSize(float pointSize)
     {
         /* The floats of _Size and min and maxSize in the mesh material are the ones responsible for the actual point size change */
         switch (viewType)

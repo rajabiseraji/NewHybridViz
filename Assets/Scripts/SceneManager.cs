@@ -190,7 +190,18 @@ public class SceneManager : MonoBehaviour
             if (vises == null || vises.Count() == 0)
                 return;
             
-            testScatter = testAxis.correspondingVisualizations()[0];
+            //testScatter = testAxis.correspondingVisualizations()[0];
+            //testScatter.ReferenceAxis1.horizontal.transform.localScale = new Vector3(
+            //    testScatter.ReferenceAxis1.horizontal.transform.localScale.x,
+            //    0.1530456f,
+            //    testScatter.ReferenceAxis1.horizontal.transform.localScale.z);
+
+            //testScatter.ReferenceAxis1.vertical.transform.localScale = new Vector3(
+            //    testScatter.ReferenceAxis1.vertical.transform.localScale.x, 
+            //    0.1130456f,
+            //    testScatter.ReferenceAxis1.vertical.transform.localScale.z);
+
+            //testScatter.OnChangePointSize(0.15f);
         }
 
     }
@@ -540,8 +551,19 @@ public class SceneManager : MonoBehaviour
 
         scatterPlaceholder.position = Camera.main.transform.position + Camera.main.transform.forward * 0.2f;
 
-        mapGO.position = scatterPlaceholder.position;
-        mapGO.Rotate(transform.right, 90f);
+        /*
+         * 
+         *  minlat = 49.2059
+            maxlat = 49.29288
+
+            minlong = -123.207
+            maxlong = -123.024
+         * 
+         */
+
+        //mapGO.position = scatterPlaceholder.position;
+        //mapGO.Rotate(transform.right, 90f);
+        //mapGO.Translate(Vector3.forward * 0.01f);
 
         CreateChart(Vector3.zero, Quaternion.identity, Vector3.forward, Vector3.right, Vector3.up, scatterPlaceholder);
     } 
