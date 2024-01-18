@@ -1,0 +1,7 @@
+The file titled "Tableau Workbook ISMAR23 .twbx" includes a Tableau workbook containing a number of different visualizations pertaining to the user study. If you open it, you can easily access all the visualizations and interact with them.  
+
+To open it, you must either have Tableau 2022 installed, or use Tableau online to import the file. There are different sheets in that file, be sure to check them out. 
+
+The following data files are used in the workbook: 
+actionData.csv ---> Logged AR data (group H only)
+codapData.csv ---> Logged Desktop data (both groups)
